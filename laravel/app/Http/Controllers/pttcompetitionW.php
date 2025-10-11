@@ -219,7 +219,7 @@ class DanceMapItem
 {
    public $class;
    public $style;
-   public $dances = array();
+   public $dances = [];
 }
 
 class MapName
@@ -273,7 +273,7 @@ class MapFile
    public function read() {
       if($this->haveNames)
          return $this->names;
-      $this->names = array();
+      $this->names = [];
       $this->haveNames = true;
       $this->modified = false;
       if(!file_exists($this->filename))
@@ -369,7 +369,7 @@ class MapFile
             {
                if(strncmp($name->round, $map->round, $playoff) == 0)
                {
-                  array_splice($this->names, $i + 1, 0, array($map));
+                  array_splice($this->names, $i + 1, 0, [$map]);
                   $isInserted = true;
                   break;
                }
@@ -377,7 +377,7 @@ class MapFile
             }
             else
             {
-               array_splice($this->names, $i + $newPosition-1, 0, array($map));
+               array_splice($this->names, $i + $newPosition-1, 0, [$map]);
                $isInserted = true;
                break;
             }
@@ -480,7 +480,7 @@ class MapFile
    }
 
 
-   private   $names = array();
+   private   $names = [];
    private $filename;
    private $modified;
    private $autoId;
@@ -516,7 +516,7 @@ class CompetitionW
 
    public function getJudges($roundId = 0) {
       $this->readJudges();
-      $arr = array();
+      $arr = [];
       foreach($this->judges as $judge)
       {
          if($roundId === 0)
@@ -567,13 +567,13 @@ class CompetitionW
    }
 
    public function getBaseRounds() {
-      $empty = array();
+      $empty = [];
       return $empty;
    }
 
    public function getAdditionalRounds() {
       $this->getRounds();
-      $arr = array();
+      $arr = [];
       foreach($this->rounds as $round)
       {
          if($round->isAdditional)
@@ -639,10 +639,10 @@ class CompetitionW
       if($groupMaxNumber > 100) //sentinel
          $groupMaxNumber = 100;
 
-      $groups = array();
+      $groups = [];
       for($i = 0; $i < $groupMaxNumber; $i++)
       {
-         $group = array();
+         $group = [];
          $groups[] = $group;
       }
 
@@ -669,7 +669,7 @@ class CompetitionW
    }
 
    public function parseSchedule($scheduleText) {
-      $schedule = array();
+      $schedule = [];
       if(strncmp($scheduleText, self::SCHEDULE_HEADER, strlen(self::SCHEDULE_HEADER)) != 0)
          return $schedule;
       $state = 0; //0->start of line, 1-start of item
@@ -764,7 +764,7 @@ class CompetitionW
    }
 
    public function parseScheduleW($scheduleFile) {
-      $schedule = array();
+      $schedule = [];
       $scheduleRecords = $this->readSchedule($scheduleFile);
       sort($scheduleRecords);
       $this->readDanceMap();
@@ -804,7 +804,7 @@ class CompetitionW
    }
 
    public function parseScheduleFile($scheduleFile) {
-      $schedule = array();
+      $schedule = [];
       if(!file_exists($scheduleFile))
          return $schedule;
       $file = fopen($scheduleFile, 'r');
@@ -863,7 +863,7 @@ class CompetitionW
          return false;
       }
 
-      $couples = array();
+      $couples = [];
       foreach($this->dances as $record)
       {
          if($record->roundId == $roundId)
@@ -894,8 +894,8 @@ class CompetitionW
 
       $this->dropDances();
 
-      $voteArray = array();
-      $voteValue = array('note' => '', 'rmark' => 'false');
+      $voteArray = [];
+      $voteValue = ['note' => '', 'rmark' => 'false'];
       foreach($couples as $couple) 
          $voteArray[$couple] = $voteValue;
 
@@ -917,7 +917,7 @@ class CompetitionW
       $votes = $collectionFile->get($roundId);
       $lock->release();
 
-      $results = array();
+      $results = [];
 
       if(!$votes)
          return $results;
@@ -940,7 +940,7 @@ class CompetitionW
       $this->getRounds();
       $this->readDances($roundId);
 
-      $results = array();
+      $results = [];
       $danceNumber = $this->getDanceNumberInRound($roundId, $danceSignature);
       if($danceNumber == false || $danceNumber < 1 || $danceNumber > self::FIELD_DANCES_MAX_DANCE)
          return false;
@@ -972,7 +972,7 @@ class CompetitionW
       $votes = $collectionFile->get($roundId);
       $lock->release();
 
-      $results = array();
+      $results = [];
 
       if(!$votes)
          return $results;
@@ -995,7 +995,7 @@ class CompetitionW
       $this->getRounds();
       $this->readDances($roundId);
 
-      $results = array();
+      $results = [];
       $danceNumber = $this->getDanceNumberInRound($roundId, $danceSignature);
       if($danceNumber == false || $danceNumber < 1 || $danceNumber > self::FIELD_DANCES_MAX_DANCE)
          return false;
@@ -1043,8 +1043,8 @@ class CompetitionW
 
       foreach($votes as $vote)
       {
-         $voteArray = array();
-         $voteValue = array('note' => $vote->note, 'rmark' => $vote->rmark == 'R' ? 'true' : 'false');
+         $voteArray = [];
+         $voteValue = ['note' => $vote->note, 'rmark' => $vote->rmark == 'R' ? 'true' : 'false'];
          $voteArray[$vote->coupleNumber] = $voteValue;
          if($this->saveVotes($roundId, $vote->danceSignature, $vote->judgeSign, $voteArray) == false)
             $result = false;
@@ -1096,7 +1096,7 @@ class CompetitionW
        $this->haveGroupsOfRound = 0;
        $this->haveMapnames = false;
        $this->mapFile = null;
-       $this->judges = array();
+       $this->judges = [];
     }
 
     private function convert($text, $cp = 1250) {
@@ -1317,7 +1317,7 @@ class CompetitionW
    }
 
    private function splitGroup($group) {
-       $split = array();
+       $split = [];
       for($i = 0; $i < (strlen($group)+2)/3; $i++)
       {
          $number = substr($group, $i * 3, 3);
@@ -1463,7 +1463,7 @@ class CompetitionW
    }
 
    private function readSchedule($scheduleFile) {
-       $schedule = array();
+       $schedule = [];
       $db = new DatabaseDbfFile();
       $db->openFile($scheduleFile);
       if($db->isError())
@@ -1685,7 +1685,7 @@ class CompetitionW
 
    // array: ['judge']=>'A-W' ['note']=>''/'X'/'1-n' ['rmark']=>true/false
    private function unpackVotes($dbVotes) {
-      $arr = array();
+      $arr = [];
       for($i = 0; $i < strlen($dbVotes); $i++)
       {
          $note = substr($dbVotes, $i, 1);
@@ -1705,7 +1705,7 @@ class CompetitionW
                   $note = chr(ord('1') + ord($note) - ord('A'));
             }
          }
-         $vote = array('judge' => chr(ord('A') + $i), 'note' => $note, 'rmark' => $rmark);
+         $vote = ['judge' => chr(ord('A') + $i), 'note' => $note, 'rmark' => $rmark];
          $arr[] = $vote;
       }
       return $arr;
@@ -1779,12 +1779,12 @@ class CompetitionW
    private $eventName;
    private $eventId;
    private $mapFile;
-   private $categories = array();
-   private $judges = array();
-   private $rounds = array();
-   private $dances = array();
-   private $groups = array();
-   private $dancemap = array();
+   private $categories = [];
+   private $judges = [];
+   private $rounds = [];
+   private $dances = [];
+   private $groups = [];
+   private $dancemap = [];
 
    const ERROR_FILE = 1;
    const ERROR_RECORD = 2;

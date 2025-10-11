@@ -14,10 +14,10 @@ class LoginController extends Controller {
 	}
 
     public function postLogin(){
-        $userdata = array(
+        $userdata = [
             'username' => Input::get('username'),
             'password' => Input::get('password')
-        );
+        ];
         if (Auth::attempt($userdata, true)) {
             if(Auth::user()->hasRole('admin')) {
                 if(Cache::has('tournamentDirectory'))
@@ -28,12 +28,12 @@ class LoginController extends Controller {
             }
             else{
                 return redirect('admin/login')
-                    ->withErrors(array('message' => 'Brak uprawnień'))
+                    ->withErrors(['message' => 'Brak uprawnień'])
                     ->withInput(Input::except('password'));
             }
         }
         return redirect('admin/login')
-            ->withErrors(array('message' => 'Nieprawidłowy użytkownik lub hasło'))
+            ->withErrors(['message' => 'Nieprawidłowy użytkownik lub hasło'])
             ->withInput(Input::except('password'));
     }
 

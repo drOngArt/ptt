@@ -76,8 +76,8 @@ class DashboardController extends Controller {
       else
          $mainRounds = Round::where('closed', '=', 0)->orderBy('id')->get();
 
-      $compressedOrder = array();
-      $rounds = array();
+      $compressedOrder = [];
+      $rounds = [];
 
       $firstIndex = PHP_INT_MAX;
       $lastIndex = 0;
@@ -98,9 +98,9 @@ class DashboardController extends Controller {
          }
       }
 
-      $compressedProgram = array();
+      $compressedProgram = [];
       foreach($rounds as $roundDescription) {
-         $dances = array();
+         $dances = [];
          $programRound = false;
          for($i = 0; $i < count($compressedOrder); $i++) {
             $round = $mainRounds[$compressedOrder[$i]];
@@ -112,7 +112,7 @@ class DashboardController extends Controller {
             if($compressedOrder[$i] >= $firstIndex-1 && $compressedOrder[$i] <= $lastIndex+1) {
                $order = $compressedOrder[$i] - $firstIndex + 2;
             }
-            $dances[] = array('dance' => $round->dance, 'closed' => $round->closed, 'danceId' => $round->id, 'order' => $order);
+            $dances[] = ['dance' => $round->dance, 'closed' => $round->closed, 'danceId' => $round->id, 'order' => $order];
          }
          if($programRound !== false) {
             $programRound->dances = $dances;
@@ -130,13 +130,13 @@ class DashboardController extends Controller {
       $maxDance = Config::get('ptt.wallNoOfDances');
       $maxLines = Config::get('ptt.wallLines');
       $roundsFromDB = Round::where('closed', '=', 0)->get();
-      $roundDescriptions = array();
-      $roundAlternativeDescriptions = array();
-      $rounds    = array();
-      $danceNames = array();
-      $couples    = array();
-      $couplesNo    = array();
-      $groupConst   = array();
+      $roundDescriptions = [];
+      $roundAlternativeDescriptions = [];
+      $rounds    = [];
+      $danceNames = [];
+      $couples    = [];
+      $couplesNo    = [];
+      $groupConst   = [];
       $display   = false;
       
       $groups  = false;
