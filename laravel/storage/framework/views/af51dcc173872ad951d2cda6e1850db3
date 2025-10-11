@@ -1,0 +1,108 @@
+<div class="row">
+   <div class="col-lg-12">
+      <div class="table-responsive">
+         <table class="table table-striped table-bordered table-hover">
+            <thead>
+               <tr class="font-14pt">
+                  <th >
+                     Lp.
+                  </th>
+                  <th>
+                     <div class="alignleft">Runda </div>
+                     <div class="alignright">&nbsp&nbsp[ Liczba par ]</div>
+                  </th>
+                  <th class="userTime ekran">Czas</th>
+                  <th>Grup</th>
+                  <th colspan="10">Tańce</th>
+               </tr>
+            </thead>
+            <tbody>
+               <?php $lastDescription = null; $inProgress=1 ?>
+               <?php foreach($compressedProgram as $index => $programRound): ?>
+                  <?php if($programRound->isDance): ?>
+                     <tr>
+                        <td class="btn-circle">
+                           <?php echo e($index+1); ?>.
+                        </td>
+                        <td>
+                           <div class="ekran alignleft" media="only screen">
+                              <?php echo e($programRound->description); ?> <description class="alternativeDescription"> <?php echo e($programRound->alternative_description); ?> </description>
+                           </div>
+                           <div class="ekran alignright" media="only screen">
+                           <?php if( $programRound->couples ): ?>
+                              &nbsp[ <?php echo e($programRound->couples); ?> ]
+                           <?php endif; ?>
+                           </div>
+                           <div class="drukarka alignleft" media="only print">
+                           <?php if( $programRound->alternative_description ): ?>
+                              <?php echo e($programRound->alternative_description); ?> 
+                           <?php else: ?>
+                              <?php echo e($programRound->description); ?>
+
+                           <?php endif; ?>
+                           </div>
+                           <div class="drukarka alignright" media="only print">
+                           <?php if( $programRound->couples ): ?>
+                              &nbsp[ <?php echo e($programRound->couples); ?> ]
+                           <?php endif; ?>
+                           </div>
+                        </td>
+                        <td class="userTime ekran">
+                           <?php if( $times[$index] ): ?>
+                           <div class="font-14pt ekran text-center" media="only screen">
+                              <span class="btn-blue-gray badge badge-pill">
+                                 <?php echo e($times[$index]); ?>
+
+                              </span>
+                           </div>
+                           <div class="font-14pt drukarka text-center" media="only print">
+                              <span class="userTime3 font-14pt">
+                                 <?php echo e($times[$index]); ?>
+
+                              </span>
+                           </div>
+                           <?php endif; ?>
+                        </td>
+                        <td class="font-print-18pt text-center">
+                        <?php if( $programRound->groups != 1 ): ?>
+                            <?php echo e($programRound->groups); ?>
+
+                        <?php endif; ?>
+                        </td>
+                           <?php foreach($programRound->dances as $dance): ?>
+                              <td><tablecell>
+                                 <tc-order>
+                                    <?php echo e($dance['order']); ?>&nbsp
+                                 </tc-order>
+                                 <tc-dance>
+                                    <?php echo e($dance['dance']); ?>
+
+                                    <?php if($dance['closed']): ?>
+                                       <div class="fa fa-check"></div>
+                                       <?php if($inProgress!==2): ?>
+                                          <?php $inProgress=1 ?>
+                                       <?php endif; ?>
+                                    <?php elseif($inProgress==1): ?>
+                                       <div class="fa fa-spinner fa-pulse fa-lg"></div>
+                                       <?php $inProgress=2 ?>
+                                    <?php endif; ?>
+                                 </tc-dance>
+                              </tablecell></td>
+                           <?php endforeach; ?>
+                     </tr>
+                  <?php else: ?>
+                     <tr>
+                        <td class="btn-circle">
+                           <?php echo e($index+1); ?>.
+                        </td>
+                        <td class="text-muted">
+                           <?php echo e($programRound->description); ?> <description class="alternativeDescription"> <?php echo e($programRound->alternative_description); ?> </description>
+                        </td>
+                     </tr>
+                  <?php endif; ?>
+               <?php endforeach; ?>
+            </tbody>
+         </table>
+      </div>
+   </div>
+</div>
