@@ -145,12 +145,11 @@ return [
 		App\Providers\EventServiceProvider::class,
 		App\Providers\RouteServiceProvider::class,
 		App\Providers\TournamentServiceProvider::class,
-
-		'Illuminate\Html\HtmlServiceProvider',
+                
+                'Illuminate\Html\HtmlServiceProvider',
 		'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 		'Zizaco\Entrust\EntrustServiceProvider',
-		'Barryvdh\Debugbar\ServiceProvider',
-		'Sorskod\Larasponse\LarasponseServiceProvider'
+		'Barryvdh\Debugbar\ServiceProvider'
 	],
 
 	/*

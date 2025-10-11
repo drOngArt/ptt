@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f15c98da3d1fd1ced1b6301f2fce243a",
+    "content-hash": "ca9691d9db63dd54acd9e4b8e618b641",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -3238,50 +3238,6 @@
             "time": "2015-03-26T18:43:54+00:00"
         },
         {
-            "name": "pulse00/monolog-parser",
-            "version": "dev-master",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/pulse00/monolog-parser.git",
-                "reference": "2ef54746f428f0efe959a9bdeb11294aa8872d2f"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/pulse00/monolog-parser/zipball/2ef54746f428f0efe959a9bdeb11294aa8872d2f",
-                "reference": "2ef54746f428f0efe959a9bdeb11294aa8872d2f",
-                "shasum": ""
-            },
-            "require": {
-                "monolog/monolog": "1.*"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.5"
-            },
-            "default-branch": true,
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Dubture": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Robert Gruendler",
-                    "email": "r.gruendler@gmail.com"
-                }
-            ],
-            "description": "A parser for monolog log entries",
-            "support": {
-                "issues": "https://github.com/pulse00/monolog-parser/issues",
-                "source": "https://github.com/pulse00/monolog-parser/tree/0.0.3"
-            },
-            "time": "2015-05-21T16:25:17+00:00"
-        },
-        {
             "name": "ralouphie/getallheaders",
             "version": "3.0.3",
             "source": {
@@ -3724,49 +3680,6 @@
                 "source": "https://github.com/sebastianbergmann/version/tree/1.0.6"
             },
             "time": "2015-06-21T13:59:46+00:00"
-        },
-        {
-            "name": "sorskod/larasponse",
-            "version": "dev-L5",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/salebab/larasponse.git",
-                "reference": "567acabdeaeccb26fec4402b3bcf9362cb334e6a"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/salebab/larasponse/zipball/567acabdeaeccb26fec4402b3bcf9362cb334e6a",
-                "reference": "567acabdeaeccb26fec4402b3bcf9362cb334e6a",
-                "shasum": ""
-            },
-            "require": {
-                "illuminate/http": "~5.0",
-                "illuminate/pagination": "~5.0",
-                "illuminate/support": "~5.0",
-                "league/fractal": "~0.11",
-                "php": ">=5.4.0"
-            },
-            "require-dev": {
-                "phpunit/phpunit": "~4.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-0": {
-                    "Sorskod\\Larasponse": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "authors": [
-                {
-                    "name": "Aleksandar Babic",
-                    "email": "salebab@gmail.com"
-                }
-            ],
-            "support": {
-                "issues": "https://github.com/salebab/larasponse/issues",
-                "source": "https://github.com/salebab/larasponse/tree/L5"
-            },
-            "time": "2015-07-06T15:02:20+00:00"
         },
         {
             "name": "swiftmailer/swiftmailer",
@@ -5808,10 +5721,7 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "pulse00/monolog-parser": 20,
-        "sorskod/larasponse": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
