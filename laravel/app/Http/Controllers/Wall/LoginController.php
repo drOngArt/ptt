@@ -15,16 +15,16 @@ class LoginController extends Controller {
 	}
 
 	public function postLogin(){
-		$userdata = array(
+		$userdata = [
 			'username' => Input::get('username'),
 			'password' => Input::get('password') 
-		);
+		];
         if (Auth::attempt($userdata, true)) {
             if(Auth::user()->hasRole('wall'))
                 return redirect('/wall');
         }
         return redirect('/wall/login')
-            ->withErrors(array('message' => 'Brak uprawnień'))
+            ->withErrors(['message' => 'Brak uprawnień'])
             ->withInput(Input::except('password'));
 	}
 }

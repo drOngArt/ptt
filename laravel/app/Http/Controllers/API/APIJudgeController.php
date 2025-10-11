@@ -136,7 +136,7 @@ class APIJudgeController extends Controller {
 
    private function transformVotesReady($competition, $localRound, $round, $adjudicatorSign, $groups){
       $votesRequired = $this->getRequiredVotes($round, $groups);
-      $votes = array(
+      $votes = [
          "status" => 1,
          "competition" => $competition,
          "danceId" => $round->roundId,
@@ -146,7 +146,7 @@ class APIJudgeController extends Controller {
          "roundName" => $localRound->description,
          "isFinal" => (boolean) $round->isFinal,
          "groups" => $groups
-      );
+      ];
       return $votes;
    }
 
@@ -197,10 +197,10 @@ class APIJudgeController extends Controller {
             }
          }
          else{
-            return \Response::json(array("status" => 2));
+            return \Response::json(["status" => 2]);
          }
       }
-      return \Response::json(array("status" => 0));
+      return \Response::json(["status" => 0]);
    }
 
    public function postVotes($danceId){
@@ -215,9 +215,9 @@ class APIJudgeController extends Controller {
       $DBResult = $this->tournamentHelper->setVotes(intval($danceId), $danceSignature, $adjudicatorSign, $votes);
 
       if($DBResult == true)
-         return \Response::json(array("error" => "false"), 200);
+         return \Response::json(["error" => "false"], 200);
       else
-         return \Response::json(array("error" => "true"), 401);
+         return \Response::json(["error" => "true"], 401);
    }
 
    public function postStatus(){
@@ -225,12 +225,12 @@ class APIJudgeController extends Controller {
       $adjudicator = Auth::user();
 
       $key = 'Status ' . $adjudicator->firstName . ' ' . $adjudicator->lastName . ',' . $adjudicator->judgeId;
-      $status = array();
+      $status = [];
       $status['time'] = time();
       foreach($data as $datakey=>$name)
          $status[$datakey] = $name;
       Cache::put($key, $status, 20); //minutes
 
-      return \Response::json(array("error" => "false"), 200);
+      return \Response::json(["error" => "false"], 200);
    }
 }

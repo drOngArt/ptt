@@ -8,7 +8,7 @@
  * @package Zizaco\Entrust
  */
 
-return array(
+return [
 
     /*
     |--------------------------------------------------------------------------
@@ -19,7 +19,7 @@ return array(
     | the role if it is in a different namespace.
     |
     */
-    'role' => 'App\Role',
+    'role' => App\Role::class,
 
     /*
     |--------------------------------------------------------------------------
@@ -75,4 +75,4 @@ return array(
     */
     'role_user_table' => 'role_user',
 
-);
+];
