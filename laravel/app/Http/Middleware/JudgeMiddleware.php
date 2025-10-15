@@ -2,6 +2,7 @@
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Support\Facades\Gate;
 
 class JudgeMiddleware {
 
@@ -25,7 +26,7 @@ class JudgeMiddleware {
                 return redirect()->guest('adjudicator/login');
             }
         }
-        if($this->auth->user()->hasRole('judge'))
+        if (Gate::allows('judge-only'))
             return $next($request);
         else
             return redirect()->guest('adjudicator/login');

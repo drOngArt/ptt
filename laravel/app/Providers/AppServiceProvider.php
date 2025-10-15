@@ -1,4 +1,5 @@
-<?php namespace App\Providers;
+<?php 
+namespace App\Providers;
 
 use App\User;
 use Illuminate\Support\Facades\View;
