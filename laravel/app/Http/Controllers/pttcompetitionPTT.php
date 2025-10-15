@@ -327,12 +327,12 @@ class CPConverter
    }
 
    private static function convert852To1250($text) {
-       $dict  = array(chr(0xA5) => chr(0xB9), chr(0x86) => chr(0xE6), chr(0xA9) => chr(0xEA),
+       $dict  = [chr(0xA5) => chr(0xB9), chr(0x86) => chr(0xE6), chr(0xA9) => chr(0xEA),
                       chr(0x88) => chr(0xB3), chr(0xE4) => chr(0xF1), chr(0xA2) => chr(0xF3),
                       chr(0x98) => chr(0x9C), chr(0xAB) => chr(0x9F), chr(0xBE) => chr(0xBF),
                       chr(0xA4) => chr(0xA5), chr(0x8F) => chr(0xC6), chr(0xA8) => chr(0xCA),
                       chr(0x9D) => chr(0xA3), chr(0xE3) => chr(0xD1), chr(0xE0) => chr(0xD3),
-                      chr(0x97) => chr(0x8C), chr(0x8D) => chr(0x8F), chr(0xBD) => chr(0xAF) );
+                      chr(0x97) => chr(0x8C), chr(0x8D) => chr(0x8F), chr(0xBD) => chr(0xAF) ];
        return strtr($text, $dict);
     }
 }
@@ -414,7 +414,7 @@ class CollectionFile
       if($this->file === false )
          return false;
 
-      $votes = array();
+      $votes = [];
       while(true)
       {
          $line = fgets($this->file);
@@ -709,7 +709,7 @@ class ManualResults
       if($file === false)
          return false;
 
-      $this->results = array();
+      $this->results = [];
       while(true)
       {
          $line = fgets($file);
@@ -751,7 +751,7 @@ class ManualResults
       return $success;
     }
 
-   public $results = array();
+   public $results = [];
 
    private $filename;
 }
@@ -804,7 +804,7 @@ class Round
    public $className;
    public $styleName;
    public $matchType;
-   public $dances = array();
+   public $dances = [];
    public $votesRequired;
    public $isTop;
    public $isFinal;
@@ -845,7 +845,7 @@ class Dance
 {
    public $roundId;
    public $signature;
-   public $couples = array();
+   public $couples = [];
 }
 
 class DanceRecord
@@ -855,9 +855,9 @@ class DanceRecord
    public $coupleId;
    public $coupleNumber;
    public $excluded;
-   public $groupNumberArray = array();
-   public $notesArray = array();
-   public $sumArray = array();
+   public $groupNumberArray = [];
+   public $notesArray = [];
+   public $sumArray = [];
 }
 
 class ScheduledRound
@@ -865,12 +865,12 @@ class ScheduledRound
     function __construct() {
       $this->description = '';
       $this->isDance = false;
-      $this->dances = array();
+      $this->dances = [];
     }
 
    public $description;
    public $isDance;
-   public $dances = array();
+   public $dances = [];
 }
 
 class Vote
@@ -911,7 +911,7 @@ class DanceResult
 
    public $coupleNumber;
 
-   private $votes = array();
+   private $votes = [];
 }
 
 class DanceDatabaseResult
@@ -950,7 +950,7 @@ class CompetitionPTT
 
    public function getJudges($roundId = 0) {
       $this->readJudges();
-      $arr = array();
+      $arr = [];
       
       foreach($this->judges as $judge)
       {
@@ -1005,7 +1005,7 @@ class CompetitionPTT
 
    public function getScrutineers($roundId = 0) {
       $this->readJudges();
-      $arr = array();
+      $arr = [];
       foreach($this->judges as $judge)
       {
          if(strlen($judge->sign) != 1 || $judge->sign[0] < 1 || $judge->sign[0] > 9)
@@ -1084,7 +1084,7 @@ class CompetitionPTT
    
    public function getBaseJudges($roundId) {
       $this->readJudges();
-      $arr = array();
+      $arr = [];
       foreach($this->judges as $judge)
       {
          if(strlen($judge->sign) != 1 || $judge->sign[0] < 'A' || $judge->sign[0] > 'Z')
@@ -1097,7 +1097,7 @@ class CompetitionPTT
    
    public function getJudgesNo($roundId) {
       $this->readJudges();
-      $arr = array();
+      $arr = [];
       foreach($this->judges as $judge)
       {
          if(strlen($judge->sign) != 1 || $judge->sign[0] < 'A' || $judge->sign[0] > 'Z')
@@ -1171,7 +1171,7 @@ class CompetitionPTT
 
    public function getTopRounds() {
       $this->getRounds();
-      $arr = array();
+      $arr = [];
       foreach($this->rounds as $round)
       {
          if($round->isTop)
@@ -1182,7 +1182,7 @@ class CompetitionPTT
 
    public function getAdditionalRounds() {
       $this->getRounds();
-      $arr = array();
+      $arr = [];
       foreach($this->rounds as $round)
       {
          if($round->isAdditional)
@@ -1228,7 +1228,7 @@ class CompetitionPTT
 
    public function getCouples($baseRoundId = 0) {
       $this->readCouples();
-      $arr = array();
+      $arr = [];
       foreach($this->couples as $couple)
       {
          if($baseRoundId == 0){
@@ -1255,7 +1255,7 @@ class CompetitionPTT
       public function getCouplesInRound($myRound) {
       $this->getRounds();
       $this->readCouples();
-      $allCouples = array();
+      $allCouples = [];
       $baseRoundId = 0;
       $error = -1;
       foreach($this->rounds as $round)
@@ -1341,10 +1341,10 @@ class CompetitionPTT
       if($groupMaxNumber > 100) //sentinel
          $groupMaxNumber = 100;
 
-      $groups = array();
+      $groups = [];
       for($i = 0; $i < $groupMaxNumber; $i++)
       {
-         $group = array();
+         $group = [];
          $groups[] = $group;
       }
 
@@ -1371,7 +1371,7 @@ class CompetitionPTT
    }
 
    public function parseScheduleFile($scheduleFile) {
-      $schedule = array();
+      $schedule = [];
       if(!file_exists($scheduleFile))
          return $schedule;
       $file = fopen($scheduleFile, 'r');
@@ -1430,7 +1430,7 @@ class CompetitionPTT
          return false;
       }
 
-      $couples = array();
+      $couples = [];
       foreach($this->dances as $record)
       {
          if($record->roundId == $roundId)
@@ -1461,8 +1461,8 @@ class CompetitionPTT
 
       $this->dropDances();
 
-      $voteArray = array();
-      $voteValue = array('note' => '', 'rmark' => 'false');
+      $voteArray = [];
+      $voteValue = ['note' => '', 'rmark' => 'false'];
       foreach($couples as $couple) 
          $voteArray[$couple] = $voteValue;
 
@@ -1485,7 +1485,7 @@ class CompetitionPTT
       $votes = $collectionFile->get($roundId);
       $lock->release();
 
-      $results = array();
+      $results = [];
 
       $repeat = true;
       while($repeat) {
@@ -1520,7 +1520,7 @@ class CompetitionPTT
       $this->getRounds();
       $this->readDances();
 
-      $results = array();
+      $results = [];
       $danceNumber = $this->getDanceNumberInRound($roundId, $danceSignature);
       if($danceNumber == false || $danceNumber < 1 || $danceNumber > self::FIELD_DANCES_MAX_DANCE)
          return false;
@@ -1553,7 +1553,7 @@ class CompetitionPTT
       $votes = $collectionFile->get($roundId);
       $lock->release();
 
-      $results = array();
+      $results = [];
 
       $repeat = true;
       while($repeat) {
@@ -1589,7 +1589,7 @@ class CompetitionPTT
       $this->getRounds();
       $this->readDances();
 
-      $results = array();
+      $results = [];
       $danceNumber = $this->getDanceNumberInRound($roundId, $danceSignature);
       if($danceNumber == false || $danceNumber < 1 || $danceNumber > self::FIELD_DANCES_MAX_DANCE)
          return false;
@@ -1627,7 +1627,7 @@ class CompetitionPTT
          $prevVotes = $collectionFile->getDescription($roundId, $this->createRoundDescription($round), $round->matchType);
       $lock->release();
 
-      $votes = array();
+      $votes = [];
       if($prevVotes !== false) {
          foreach($prevVotes as $prevVote) {
             $votes[] = $prevVote;
@@ -1650,8 +1650,8 @@ class CompetitionPTT
 
       foreach($votes as $vote)
       {
-         $voteArray = array();
-         $voteValue = array('note' => $vote->note, 'rmark' => $vote->rmark == 'R' ? 'true' : 'false');
+         $voteArray = [];
+         $voteValue = ['note' => $vote->note, 'rmark' => $vote->rmark == 'R' ? 'true' : 'false'];
          $voteArray[$vote->coupleNumber] = $voteValue;
          if($this->saveVotes($roundId, $vote->danceSignature, $vote->judgeSign, $voteArray) == false)
             $result = false;
@@ -1743,7 +1743,7 @@ class CompetitionPTT
       $this->getRounds();
       $this->readDances(true);
 
-      $baseRounds = array();
+      $baseRounds = [];
       foreach($this->rounds as $round) {
          if($round->isAdditional)
             continue;
@@ -1870,7 +1870,7 @@ class CompetitionPTT
       $this->getRounds();
       $this->readDances(true);
 
-      $baseRounds = array();
+      $baseRounds = [];
       foreach($this->rounds as $round) {
          if($round->isAdditional)
             continue;
@@ -1956,7 +1956,7 @@ class CompetitionPTT
 
    //change polish letter to base latin: 'Ą' => 'A'
    private function convert_pl($first) {
-      $second = array(
+      $second = [
         "\xc4\x85" => "\x61", "\xc4\x84" => "\x41",
         "\xc4\x87" => "\x63", "\xc4\x86" => "\x43",
         "\xc4\x98" => "\x45", "\xc4\x99" => "\x65",
@@ -1966,7 +1966,7 @@ class CompetitionPTT
         "\xc5\xbc" => "\x7a", "\xc5\xbb" => "\x5a",
         "\xc5\xba" => "\x7a", "\xc5\xb9" => "\x5a",
         "\xc5\x84" => "\x6e", "\xc5\x83" => "\x4e"
-      );
+      ];
       return strtr($first, $second);
    }
 
@@ -2120,8 +2120,8 @@ class CompetitionPTT
       $this->haveJudgesDB = false;
       $this->haveCSV = false;
       $this->haveCouples = false;
-      $this->judges = array();
-      $this->judgesDB = array();
+      $this->judges = [];
+      $this->judgesDB = [];
     }
 
     private function convert($text, $cp = 1250) {
@@ -2371,7 +2371,7 @@ class CompetitionPTT
 
 
    private function splitDanceNames($names) {
-       $split = array();
+       $split = [];
       //$split = preg_split('/\s+/', $names);
        $triple = 0;
        $name = '';
@@ -2795,7 +2795,7 @@ class CompetitionPTT
 
    // array: ['judge']=>'A-W' ['note']=>''/'X'/'1-n' ['rmark']=>true/false
    private function unpackVotes($dbVotes) {
-      $arr = array();
+      $arr = [];
       for($i = 0; $i < strlen($dbVotes); $i++)
       {
          $note = substr($dbVotes, $i, 1);
@@ -2815,7 +2815,7 @@ class CompetitionPTT
                   $note = chr(ord('1') + ord($note) - ord('A'));
             }
          }
-         $vote = array('judge' => chr(ord('A') + $i), 'note' => $note, 'rmark' => $rmark);
+         $vote = ['judge' => chr(ord('A') + $i), 'note' => $note, 'rmark' => $rmark];
          $arr[] = $vote;
       }
       return $arr;
@@ -2880,7 +2880,7 @@ class CompetitionPTT
    }
 
    private function parseSchedule($scheduleText) {
-      $schedule = array();
+      $schedule = [];
       if(strncmp($scheduleText, self::SCHEDULE_HEADER, strlen(self::SCHEDULE_HEADER)) != 0)
          return $schedule;
       $state = 0; //0->start of line, 1-start of item
@@ -2991,15 +2991,15 @@ class CompetitionPTT
    private $eventName;
    private $eventId;
    private $listycsvname;
-   private $judges = array();
-   private $judgesDB = array();
-   private $judgesCSV = array();
-   private $categoriesCSV = array();
-   private $baseRounds = array();
-   private $rounds = array();
-   private $dances = array();
-   private $couples = array();
-   private $couplesCSV = array();
+   private $judges = [];
+   private $judgesDB = [];
+   private $judgesCSV = [];
+   private $categoriesCSV = [];
+   private $baseRounds = [];
+   private $rounds = [];
+   private $dances = [];
+   private $couples = [];
+   private $couplesCSV = [];
 
    const ERROR_FILE = 1;
    const ERROR_RECORD = 2;

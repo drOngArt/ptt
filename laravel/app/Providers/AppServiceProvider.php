@@ -1,4 +1,5 @@
-<?php namespace App\Providers;
+<?php 
+namespace App\Providers;
 
 use App\User;
 use Illuminate\Support\Facades\View;
@@ -29,7 +30,7 @@ class AppServiceProvider extends ServiceProvider {
 	{
 		$this->app->bind(
 			'Illuminate\Contracts\Auth\Registrar',
-			'App\Services\Registrar'
+			\App\Services\Registrar::class
 		);
 	}
 

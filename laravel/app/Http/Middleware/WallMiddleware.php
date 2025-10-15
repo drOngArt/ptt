@@ -2,6 +2,7 @@
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Support\Facades\Gate;
 
 class WallMiddleware {
 
@@ -25,7 +26,7 @@ class WallMiddleware {
                 return redirect()->guest('wall/login');
             }
         }
-        if($this->auth->user()->hasRole('wall'))
+        if (Gate::allows('wall-only'))
             return $next($request);
         else
             return redirect()->guest('wall/login');

@@ -1,8 +1,9 @@
 <?php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
-class EntrustSetupTables extends Migration
+class CreateRolesAndPermissionsTables extends Migration
 {
     /**
      * Run the migrations.
@@ -63,9 +64,10 @@ class EntrustSetupTables extends Migration
      */
     public function down()
     {
-        Schema::drop('permission_role');
-        Schema::drop('permissions');
-        Schema::drop('role_user');
-        Schema::drop('roles');
+        //Schema::dropIfExists('permission_user');
+        Schema::dropIfExists('permission_role');
+        Schema::dropIfExists('role_user');
+        Schema::dropIfExists('permissions');
+        Schema::dropIfExists('roles');
     }
 }

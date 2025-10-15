@@ -2,6 +2,7 @@
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Support\Facades\Gate;
 
 class AdminMiddleware {
 
@@ -25,10 +26,10 @@ class AdminMiddleware {
                 return redirect()->guest('admin/login');
             }
         }
-        if($this->auth->user()->hasRole('admin'))
+        if (Gate::allows('admin-only'))
             return $next($request);
-        else
-            return redirect()->guest('admin/login');
+                
+        return redirect()->guest('admin/login');
 	}
 
 }

@@ -135,22 +135,22 @@ return [
 		'Illuminate\Translation\TranslationServiceProvider',
 		'Illuminate\Validation\ValidationServiceProvider',
 		'Illuminate\View\ViewServiceProvider',
+		'Illuminate\Broadcasting\BroadcastServiceProvider',
 
 		/*
 		 * Application Service Providers...
 		 */
-		'App\Providers\AppServiceProvider',
-		'App\Providers\BusServiceProvider',
-		'App\Providers\ConfigServiceProvider',
-		'App\Providers\EventServiceProvider',
-		'App\Providers\RouteServiceProvider',
-		'App\Providers\TournamentServiceProvider',
-
-		'Illuminate\Html\HtmlServiceProvider',
+		App\Providers\AppServiceProvider::class,
+		App\Providers\AuthServiceProvider::class,
+		App\Providers\BusServiceProvider::class,
+		App\Providers\ConfigServiceProvider::class,
+		App\Providers\EventServiceProvider::class,
+		App\Providers\RouteServiceProvider::class,
+		App\Providers\TournamentServiceProvider::class,
+                
+        'Illuminate\Html\HtmlServiceProvider',
 		'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
-		'Zizaco\Entrust\EntrustServiceProvider',
-		'Barryvdh\Debugbar\ServiceProvider',
-		'Sorskod\Larasponse\LarasponseServiceProvider'
+		'Barryvdh\Debugbar\ServiceProvider'
 	],
 
 	/*
@@ -179,6 +179,7 @@ return [
 		'Eloquent'  => 'Illuminate\Database\Eloquent\Model',
 		'Event'     => 'Illuminate\Support\Facades\Event',
 		'File'      => 'Illuminate\Support\Facades\File',
+		'Gate'      => 'Illuminate\Support\Facades\Gate',
 		'Hash'      => 'Illuminate\Support\Facades\Hash',
 		'Input'     => 'Illuminate\Support\Facades\Input',
 		'Inspiring' => 'Illuminate\Foundation\Inspiring',
@@ -201,8 +202,7 @@ return [
 
 		'Form'=> 'Illuminate\Html\FormFacade',
 		'HTML'=> 'Illuminate\Html\HtmlFacade',
-        'Entrust' => 'Zizaco\Entrust\EntrustFacade',
-        'Debugbar' => 'Barryvdh\Debugbar\Facade',
+        'Debugbar' => 'Barryvdh\Debugbar\Facade'
 
 	],
 
