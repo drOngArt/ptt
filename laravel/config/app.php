@@ -2,6 +2,7 @@
 
 return [
 
+	'env' => env('APP_ENV', 'production'),
 	/*
 	|--------------------------------------------------------------------------
 	| Application Debug Mode
@@ -113,12 +114,9 @@ return [
 		/*
 		 * Laravel Framework Service Providers...
 		 */
-		'Illuminate\Foundation\Providers\ArtisanServiceProvider',
 		'Illuminate\Auth\AuthServiceProvider',
-		'Illuminate\Bus\BusServiceProvider',
 		'Illuminate\Cache\CacheServiceProvider',
 		'Illuminate\Foundation\Providers\ConsoleSupportServiceProvider',
-		'Illuminate\Routing\ControllerServiceProvider',
 		'Illuminate\Cookie\CookieServiceProvider',
 		'Illuminate\Database\DatabaseServiceProvider',
 		'Illuminate\Encryption\EncryptionServiceProvider',
@@ -142,14 +140,13 @@ return [
 		 */
 		App\Providers\AppServiceProvider::class,
 		App\Providers\AuthServiceProvider::class,
-		App\Providers\BusServiceProvider::class,
 		App\Providers\ConfigServiceProvider::class,
 		App\Providers\EventServiceProvider::class,
 		App\Providers\RouteServiceProvider::class,
 		App\Providers\TournamentServiceProvider::class,
+		Collective\Html\HtmlServiceProvider::class,
                 
-        'Illuminate\Html\HtmlServiceProvider',
-		'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
+       	'Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider',
 		'Barryvdh\Debugbar\ServiceProvider'
 	],
 
@@ -179,8 +176,10 @@ return [
 		'Eloquent'  => 'Illuminate\Database\Eloquent\Model',
 		'Event'     => 'Illuminate\Support\Facades\Event',
 		'File'      => 'Illuminate\Support\Facades\File',
+		'Form'      => Collective\Html\FormFacade::class,
 		'Gate'      => 'Illuminate\Support\Facades\Gate',
 		'Hash'      => 'Illuminate\Support\Facades\Hash',
+		'HTML'      => Collective\Html\HtmlFacade::class,
 		'Input'     => 'Illuminate\Support\Facades\Input',
 		'Inspiring' => 'Illuminate\Foundation\Inspiring',
 		'Lang'      => 'Illuminate\Support\Facades\Lang',
@@ -199,9 +198,7 @@ return [
 		'URL'       => 'Illuminate\Support\Facades\URL',
 		'Validator' => 'Illuminate\Support\Facades\Validator',
 		'View'      => 'Illuminate\Support\Facades\View',
-
-		'Form'=> 'Illuminate\Html\FormFacade',
-		'HTML'=> 'Illuminate\Html\HtmlFacade',
+		
         'Debugbar' => 'Barryvdh\Debugbar\Facade'
 
 	],
