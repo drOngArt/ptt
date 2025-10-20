@@ -17,7 +17,7 @@ class Kernel extends HttpKernel
         'Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse',
         'Illuminate\Session\Middleware\StartSession',
         'Illuminate\View\Middleware\ShareErrorsFromSession',
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
         // 'App\Http\Middleware\ExcludeCsrfTokenMiddleware',
     ];
 
