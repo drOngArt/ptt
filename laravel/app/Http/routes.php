@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -68,22 +69,22 @@ Route::get('/admin/panelSet', ['middleware' => 'adminAuth', 'uses' => 'Admin\Das
 Route::get('/admin/panelSave', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@panelSave']);
 Route::get('/admin/autocomplete', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@autocomplete']);
 
-//wall, display, 
+// wall, display,
 $wallPrefix = '/wall';
 
 Route::get($wallPrefix.'/login', 'Wall\LoginController@showLogin');
 Route::post($wallPrefix.'/login', 'Wall\LoginController@postLogin');
 Route::get($wallPrefix, ['middleware' => 'wallAuth', 'uses' => 'Wall\DashboardController@showConfig']);
-Route::get($wallPrefix.'/board',['middleware' => 'wallAuth', 'uses' => 'Wall\DashboardController@showDashboard']);
+Route::get($wallPrefix.'/board', ['middleware' => 'wallAuth', 'uses' => 'Wall\DashboardController@showDashboard']);
 Route::get($wallPrefix.'/logout', ['middleware' => 'wallAuth', 'uses' => 'Wall\DashboardController@logout']);
 
-//API Routes
+// API Routes
 $apiPrefix = 'api/v1';
-Route::group(['prefix' => $apiPrefix], function(){
+Route::group(['prefix' => $apiPrefix], function () {
     Route::get('/competition', 'API\APICompetitionController@getCompetition');
     Route::get('/adjudicators', 'API\APICompetitionController@getAdjudicators');
 });
-Route::group(['prefix' => $apiPrefix, 'middleware' => 'APIAuth'], function(){
+Route::group(['prefix' => $apiPrefix, 'middleware' => 'APIAuth'], function () {
     Route::post('/login', 'API\APIJudgeLoginController@postLogin');
     Route::get('/dances', 'API\APIJudgeController@getDances');
     Route::get('/votes', 'API\APIJudgeController@getVotes');
