@@ -6,7 +6,7 @@
 
 @section('content')
     <div id="page-wrapper">
-        {!! Form::open(array('method' => 'post', 'url' => 'admin/postPanel')) !!}
+        {!! Form::open(array('method' => 'post', 'url' => 'admin/postPanel')) !!} {!! csrf_field() !!}
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">Panel sędziowski

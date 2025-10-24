@@ -7,9 +7,9 @@
 @section('content')
     <div id="page-wrapper">
         @if( $cmd == false)
-            {!! Form::open(array('method' => 'post', 'action' => array('Admin\DashboardController@postFinalProgram'))) !!}
+            {!! Form::open(array('method' => 'post', 'action' => array('Admin\DashboardController@postFinalProgram'))) !!} {!! csrf_field() !!}
         @else
-            {!! Form::open(array('method' => 'get','action' => array('Admin\DashboardController@selectedCategories', 'something'))) !!}
+            {!! Form::open(array('method' => 'get','action' => array('Admin\DashboardController@selectedCategories', 'something'))) !!} {!! csrf_field() !!}
         @endif
         <div class="row">
             <div class="col-lg-12">

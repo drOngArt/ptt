@@ -1,6 +1,6 @@
 <?php
 
-namespace app\Http\Controllers\API\transformers;
+namespace App\Http\Controllers\API\transformers;
 
 use App\Round;
 use League\Fractal\TransformerAbstract;

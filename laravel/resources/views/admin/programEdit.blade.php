@@ -7,7 +7,7 @@
 
 @section('content')
    <div id="page-wrapper">
-      {!! Form::open(array('method' => 'post', 'action' => array('Admin\DashboardController@postFinalProgram'))) !!}
+      {!! Form::open(array('method' => 'post', 'action' => array('Admin\DashboardController@postFinalProgram'))) !!} {!! csrf_field() !!}
          <div class="row">
             <div class="col-lg-12">
                <h1 class="page-header">Program turnieju

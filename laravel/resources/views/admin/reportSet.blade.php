@@ -6,7 +6,7 @@
 
 @section('content')
     <div id="page-wrapper">
-        {!! Form::open(array('method' => 'post', 'url' => 'admin/reportSet')) !!}
+        {!! Form::open(array('method' => 'post', 'url' => 'admin/reportSet')) !!} {!! csrf_field() !!}
         <input hidden name="roundId" value="{{$round->roundId}}">
         <div class="row">
             <div class="col-lg-12">

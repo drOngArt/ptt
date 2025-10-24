@@ -1,93 +1,122 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
-| Application Routes
+| Web Routes (Laravel 5.3)
 |--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It's a breeze. Simply tell Laravel the URIs it should respond to
-| and give it the controller to call when that URI is requested.
-|
 */
 
-Route::get('/admin/login', 'Admin\LoginController@showLogin');
-Route::post('/admin/login', 'Admin\LoginController@postLogin');
-Route::get('/admin/chooseTournament', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showTournamentChooser']);
-Route::post('/admin/chooseTournament', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postTournamentChooser']);
-Route::get('/admin', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showDashboard']);
-Route::get('/admin/logout', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@logout']);
-Route::get('/admin/password/{userId}/{flag?}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showChangePasswordForm']);
-Route::get('/admin/savePasswordAll', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@savePasswordAll']);
-Route::post('/admin/password/{userId}/{flag?}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postChangePassword']);
-Route::get('/admin/program', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showProgram']);
-Route::get('/admin/program/saveCurrentProgram', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@saveCurrentProgram']);
-Route::post('/admin/program/postAdditionalRound', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postAdditionalRound']);
-Route::post('/admin/program/postAddedRound', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postAddedRound']);
-Route::get('/admin/program/editProgram/{cmd?}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@editProgram']);
-Route::get('/admin/program/saveParameters', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@saveParameters']);
-Route::get('/admin/program/newProgram', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@newProgram']);
-Route::get('/admin/program/selectedCategories/{type?}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@selectedCategories']);
-Route::post('/admin/program/postSelectedCategories/{type?}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postSelectedCategories']);
-Route::post('/admin/program/linkProgram', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@linkProgram']);
-Route::post('/admin/program', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postSelectProgram']);
-Route::post('/admin/program/temp', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postFinalProgram']);
-Route::get('/admin/round', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showCurrentRound']);
-Route::get('/admin/roundFromDb/{dbRoundId}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showRound']);
-Route::get('/admin/help', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showHelp']);
-Route::post('/admin/round', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postCloseRound']);
-Route::get('/admin/report', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showReport']);
-Route::post('/admin/postReport', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postReport']);
-Route::get('/admin/reportRoundData', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportRoundData']);
-Route::get('/admin/reportCouples', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportCouples']);
-Route::get('/admin/reportClubs', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportClubs']);
-Route::get('/admin/reportOpenClubs', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportOpenClubs']);
-Route::get('/admin/reportListsRange', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportListsRange']);
-Route::post('/admin/postRanges', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postRanges']);
-Route::get('/admin/reportLists', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportLists']);
-Route::get('/admin/reportCouplesConflict', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportCouplesConflict']);
-Route::get('/admin/reportResults', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportResults']);
-Route::get('/admin/reportResultsShort', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportResultsShort']);
-Route::get('/admin/reportTrainee', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@reportTrainee']);
-Route::post('/admin/report', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@generateReport']);
-Route::get('/admin/generateReport', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@generateReport']);
-Route::get('/admin/reportSet/{roundId}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showReportSet']);
-Route::post('/admin/reportSet', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@setReport']);
-Route::post('/admin/reportSet', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@setReport']);
-Route::get('/admin/round/forceCloseDance/{roundId}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@forceCloseDance']);
-Route::post('/admin/round/undoRound', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@undoRound']);
-Route::get('/admin/round/isNewRound', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@isNewRound']);
-Route::get('/admin/round/roundResults/{dbRoundId}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@getRoundResult']);
-Route::get('/admin/utils/{userId}', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showUtils']);
-Route::post('/admin/postPanel', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postPanel']);
-Route::post('/admin/postPanelTable', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postPanelTable']);
-Route::post('/admin/postAddedJudge', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@postAddedJudge']);
-Route::get('/admin/panel', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@showPanel']);
-Route::get('/admin/panelSet', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@panelSet']);
-Route::get('/admin/panelSave', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@panelSave']);
-Route::get('/admin/autocomplete', ['middleware' => 'adminAuth', 'uses' => 'Admin\DashboardController@autocomplete']);
+// (opcjonalnie) standardowe trasy logowania/rejestracji/resetu dla zwykłych użytkowników
+// Jeśli nie używasz – usuń te dwie linie.
+//Auth::routes();
+// Route::get('/home', 'HomeController@index')->name('home');
 
-// wall, display,
-$wallPrefix = '/wall';
+/*
+|--------------------------------------------------------------------------
+| ADMIN
+|--------------------------------------------------------------------------
+*/
+Route::group(['prefix' => 'admin'], function () {
+    // logowanie (bez middleware)
+    Route::get('login',  'Admin\LoginController@showLogin');
+    Route::post('login', 'Admin\LoginController@postLogin');
 
-Route::get($wallPrefix.'/login', 'Wall\LoginController@showLogin');
-Route::post($wallPrefix.'/login', 'Wall\LoginController@postLogin');
-Route::get($wallPrefix, ['middleware' => 'wallAuth', 'uses' => 'Wall\DashboardController@showConfig']);
-Route::get($wallPrefix.'/board', ['middleware' => 'wallAuth', 'uses' => 'Wall\DashboardController@showDashboard']);
-Route::get($wallPrefix.'/logout', ['middleware' => 'wallAuth', 'uses' => 'Wall\DashboardController@logout']);
+    // wylogowanie: POST (zamiast starego GET /admin/logout)
+    Route::post('logout', 'Admin\DashboardController@logout')->name('admin.logout');
 
-// API Routes
-$apiPrefix = 'api/v1';
-Route::group(['prefix' => $apiPrefix], function () {
-    Route::get('/competition', 'API\APICompetitionController@getCompetition');
-    Route::get('/adjudicators', 'API\APICompetitionController@getAdjudicators');
+    // reszta tylko dla zalogowanych adminów
+    Route::group(['middleware' => 'adminAuth'], function () {
+        Route::get('/', 'Admin\DashboardController@showDashboard');
+
+        Route::get('chooseTournament',  'Admin\DashboardController@showTournamentChooser');
+        Route::post('chooseTournament', 'Admin\DashboardController@postTournamentChooser');
+
+        Route::get('password/{userId}/{flag?}',  'Admin\DashboardController@showChangePasswordForm');
+        Route::post('password/{userId}/{flag?}', 'Admin\DashboardController@postChangePassword');
+
+        Route::get('savePasswordAll', 'Admin\DashboardController@savePasswordAll');
+
+        // PROGRAM
+        Route::group(['prefix' => 'program'], function () {
+            Route::get('/',                        'Admin\DashboardController@showProgram');
+            Route::get('saveCurrentProgram',       'Admin\DashboardController@saveCurrentProgram');
+            Route::post('postAdditionalRound',     'Admin\DashboardController@postAdditionalRound');
+            Route::post('postAddedRound',          'Admin\DashboardController@postAddedRound');
+            Route::get('editProgram/{cmd?}',       'Admin\DashboardController@editProgram');
+            Route::get('saveParameters',           'Admin\DashboardController@saveParameters');
+            Route::get('newProgram',               'Admin\DashboardController@newProgram');
+            Route::get('selectedCategories/{type?}','Admin\DashboardController@selectedCategories');
+            Route::post('postSelectedCategories/{type?}', 'Admin\DashboardController@postSelectedCategories');
+            Route::post('linkProgram',             'Admin\DashboardController@linkProgram');
+            Route::post('/',                        'Admin\DashboardController@postSelectProgram');
+            Route::post('temp',                     'Admin\DashboardController@postFinalProgram');
+        });
+
+        // ROUND
+        Route::get('round',                           'Admin\DashboardController@showCurrentRound');
+        Route::post('round',                          'Admin\DashboardController@postCloseRound');
+        Route::get('roundFromDb/{dbRoundId}',         'Admin\DashboardController@showRound');
+        Route::get('round/forceCloseDance/{roundId}', 'Admin\DashboardController@forceCloseDance');
+        Route::post('round/undoRound',                'Admin\DashboardController@undoRound');
+        Route::get('round/isNewRound',                'Admin\DashboardController@isNewRound');
+        Route::get('round/roundResults/{dbRoundId}',  'Admin\DashboardController@getRoundResult');
+
+        // REPORTS
+        Route::get('report',                 'Admin\DashboardController@showReport');
+        Route::post('postReport',            'Admin\DashboardController@postReport');
+        Route::get('reportRoundData',        'Admin\DashboardController@reportRoundData');
+        Route::get('reportCouples',          'Admin\DashboardController@reportCouples');
+        Route::get('reportClubs',            'Admin\DashboardController@reportClubs');
+        Route::get('reportOpenClubs',        'Admin\DashboardController@reportOpenClubs');
+        Route::get('reportListsRange',       'Admin\DashboardController@reportListsRange');
+        Route::post('postRanges',            'Admin\DashboardController@postRanges');
+        Route::get('reportLists',            'Admin\DashboardController@reportLists');
+        Route::get('reportCouplesConflict',  'Admin\DashboardController@reportCouplesConflict');
+        Route::get('reportResults',          'Admin\DashboardController@reportResults');
+        Route::get('reportResultsShort',     'Admin\DashboardController@reportResultsShort');
+        Route::get('reportTrainee',          'Admin\DashboardController@reportTrainee');
+
+        // generateReport był u Ciebie zdublowany — zostawiam jedną wersję GET i jedną POST
+        Route::get('generateReport',         'Admin\DashboardController@generateReport');
+        Route::post('report',                'Admin\DashboardController@generateReport');
+
+        Route::get('reportSet/{roundId}',    'Admin\DashboardController@showReportSet');
+        Route::post('reportSet',             'Admin\DashboardController@setReport');
+
+        // UTILS / PANEL
+        Route::get('utils/{userId}',         'Admin\DashboardController@showUtils');
+        Route::post('postPanel',             'Admin\DashboardController@postPanel');
+        Route::post('postPanelTable',        'Admin\DashboardController@postPanelTable');
+        Route::post('postAddedJudge',        'Admin\DashboardController@postAddedJudge');
+        Route::get('panel',                  'Admin\DashboardController@showPanel');
+        Route::get('panelSet',               'Admin\DashboardController@panelSet');
+        Route::get('panelSave',              'Admin\DashboardController@panelSave');
+
+        // inne
+        Route::get('help',                   'Admin\DashboardController@showHelp');
+        Route::get('autocomplete',           'Admin\DashboardController@autocomplete');
+    });
 });
-Route::group(['prefix' => $apiPrefix, 'middleware' => 'APIAuth'], function () {
-    Route::post('/login', 'API\APIJudgeLoginController@postLogin');
-    Route::get('/dances', 'API\APIJudgeController@getDances');
-    Route::get('/votes', 'API\APIJudgeController@getVotes');
-    Route::post('/votes/{danceId}', 'API\APIJudgeController@postVotes');
-    Route::post('/status', 'API\APIJudgeController@postStatus');
+
+/*
+|--------------------------------------------------------------------------
+| WALL
+|--------------------------------------------------------------------------
+*/
+Route::group(['prefix' => 'wall'], function () {
+    // logowanie (bez middleware)
+    Route::get('login',  'Wall\LoginController@showLogin');
+    Route::post('login', 'Wall\LoginController@postLogin');
+
+    // wylogowanie: POST
+    Route::post('logout', 'Wall\DashboardController@logout')->name('wall.logout');
+
+    // chronione
+    Route::group(['middleware' => 'wallAuth'], function () {
+        Route::get('/',      'Wall\DashboardController@showConfig');
+        Route::get('board',  'Wall\DashboardController@showDashboard');
+    });
 });

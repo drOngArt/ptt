@@ -144,7 +144,7 @@
     <!-- /#page-wrapper -->
 
     <div class="modal fade roundCloseModal" tabindex="-1" role="dialog" aria-labelledby="roundClose" aria-hidden="true">
-        {!! Form::open(array('url' => 'admin/round', 'method' => 'POST')) !!}
+        {!! Form::open(array('url' => 'admin/round', 'method' => 'POST')) !!} {!! csrf_field() !!}
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -175,7 +175,7 @@
 
 
     <div class="modal fade roundUndoModal" tabindex="-1" role="dialog" aria-labelledby="roundUndo" aria-hidden="true">
-        {!! Form::open(array('url' => 'admin/round/undoRound', 'method' => 'POST')) !!}
+        {!! Form::open(array('url' => 'admin/round/undoRound', 'method' => 'POST')) !!} {!! csrf_field() !!}
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -206,7 +206,7 @@
     </div>
 
     <div class="modal fade judgeResults" tabindex="-1" role="dialog" aria-labelledby="judgeResults" aria-hidden="true">
-        {!! Form::open(array('url' => 'admin/round/undoRound', 'method' => 'POST', 'id'=>'judgeUndoForm')) !!}
+        {!! Form::open(array('url' => 'admin/round/undoRound', 'method' => 'POST', 'id'=>'judgeUndoForm')) !!} {!! csrf_field() !!}
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">

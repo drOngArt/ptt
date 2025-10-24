@@ -44,7 +44,7 @@
                         <h3 class="panel-title">PTT Admin Login</h3>
                     </div>
                     <div class="panel-body">
-                        {!! Form::open(array('url' => 'admin/login')) !!}
+                        {!! Form::open(array('url' => 'admin/login')) !!} {!! csrf_field() !!}
                             <p class="bg-danger">{{ $errors->first('message') }}</p>
                             @if (Session::has('flash_message'))
                                 <p id="message" class="bg-success">{{ Session::get('flash_message') }}</p>

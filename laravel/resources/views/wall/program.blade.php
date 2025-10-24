@@ -4,6 +4,23 @@
     Program Turnieju
 @stop
 
+@php
+    use Illuminate\Support\Arr;
+
+    // normalizacja wejścia do pustych tablic
+    $rounds     = is_array($rounds ?? null) ? array_values($rounds) : [];
+    $danceNames = is_array($danceNames ?? null) ? array_values($danceNames) : [];
+    $times      = is_array($times ?? null) ? array_values($times) : [];
+    $couples    = is_array($couples ?? null) ? array_values($couples) : [];
+    $couplesNo  = is_array($couplesNo ?? null) ? array_values($couplesNo) : [];
+    $groupConst = is_array($groupConst ?? null) ? array_values($groupConst) : [];
+
+    // pomocnicze „safe get”
+    $get = function ($array, $index, $default = '') {
+        return \Illuminate\Support\Arr::get($array, $index, $default);
+    };
+@endphp
+
 
 @section('content')
 

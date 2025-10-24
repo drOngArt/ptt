@@ -93,7 +93,7 @@ return [
 
     'key' => env('APP_KEY', '5SwsUGjNbnitafq6B3yJxlYtUaoEllRt'),
 
-    'cipher' => MCRYPT_RIJNDAEL_128,
+	'cipher' => 'AES-256-CBC',
 
     /*
     |--------------------------------------------------------------------------
@@ -147,7 +147,7 @@ return [
         'Illuminate\Validation\ValidationServiceProvider',
         'Illuminate\View\ViewServiceProvider',
         'Illuminate\Broadcasting\BroadcastServiceProvider',
-
+        
         /*
          * Application Service Providers...
          */
