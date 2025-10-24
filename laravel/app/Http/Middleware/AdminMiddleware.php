@@ -1,11 +1,13 @@
-<?php namespace App\Http\Middleware;
+<?php
+
+namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Gate;
 
-class AdminMiddleware {
-
+class AdminMiddleware
+{
     protected $auth;
 
     public function __construct(Guard $auth)
@@ -13,23 +15,19 @@ class AdminMiddleware {
         $this->auth = $auth;
     }
 
-	public function handle($request, Closure $next)
-	{
-        if ($this->auth->guest())
-        {
-            if ($request->ajax())
-            {
+    public function handle($request, Closure $next)
+    {
+        if ($this->auth->guest()) {
+            if ($request->ajax()) {
                 return response('Unauthorized.', 401);
-            }
-            else
-            {
+            } else {
                 return redirect()->guest('admin/login');
             }
         }
-        if (Gate::allows('admin-only'))
+        if (Gate::allows('admin-only')) {
             return $next($request);
-                
-        return redirect()->guest('admin/login');
-	}
+        }
 
+        return redirect()->guest('admin/login');
+    }
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace app\Http\Controllers\API\transformers;
+namespace App\Http\Controllers\API\transformers;
 
 use App\Round;
 use League\Fractal\TransformerAbstract;
 
-class RoundTransformer extends TransformerAbstract {
-
+class RoundTransformer extends TransformerAbstract
+{
     public function transform(Round $round)
     {
         return [
@@ -14,7 +14,7 @@ class RoundTransformer extends TransformerAbstract {
             'danceSignature' => $round->dance,
             'roundName' => $round->description,
             'isDance' => (bool) $round->isDance,
-            'isClosed' => (bool) $round->closed
+            'isClosed' => (bool) $round->closed,
         ];
     }
 }

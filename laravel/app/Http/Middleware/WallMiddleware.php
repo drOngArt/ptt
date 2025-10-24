@@ -1,11 +1,13 @@
-<?php namespace App\Http\Middleware;
+<?php
+
+namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Support\Facades\Gate;
 
-class WallMiddleware {
-
+class WallMiddleware
+{
     protected $auth;
 
     public function __construct(Guard $auth)
@@ -15,21 +17,17 @@ class WallMiddleware {
 
     public function handle($request, Closure $next)
     {
-        if ($this->auth->guest())
-        {
-            if ($request->ajax())
-            {
+        if ($this->auth->guest()) {
+            if ($request->ajax()) {
                 return response('Unauthorized.', 401);
-            }
-            else
-            {
+            } else {
                 return redirect()->guest('wall/login');
             }
         }
-        if (Gate::allows('wall-only'))
+        if (Gate::allows('wall-only')) {
             return $next($request);
-        else
+        } else {
             return redirect()->guest('wall/login');
+        }
     }
-
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace app\Http\Controllers\API\transformers;
+namespace App\Http\Controllers\API\transformers;
 
 use App\User;
 use League\Fractal\TransformerAbstract;
 
-class AdjudicatorTransformer extends TransformerAbstract {
-
+class AdjudicatorTransformer extends TransformerAbstract
+{
     public function transform(User $user)
     {
         return [
@@ -14,7 +14,7 @@ class AdjudicatorTransformer extends TransformerAbstract {
             'firstName' => $user->firstName,
             'lastName' => $user->lastName,
             'plId' => $user->judgeId,
-            'username' => $user->username
+            'username' => $user->username,
         ];
     }
 }

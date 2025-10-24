@@ -1,4 +1,4 @@
-﻿@extends('wall.master')
+@extends('wall.master')
 
 @section('title')
     Program Turnieju
@@ -25,7 +25,7 @@
 				<h3 class="w_page-header">...trwa przygotowanie danych turnieju ... :))</h3>
 			</div>
 		@else
-			<?php $pos=0; ?>
+			<?php $pos = 0; ?>
 			@foreach($rounds as $round)
 			<div class="row col-lg-12">
 				@if( $roundDescriptions[$pos] != null && $lastDescription != $roundDescriptions[$pos] )
@@ -78,7 +78,7 @@
 					</tbody>
 				</table>
 				@endif
-				<?php $pos = $pos+1; ?>
+				<?php $pos = $pos + 1; ?>
 			</div> 
 			@endforeach
 		@endif	

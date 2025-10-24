@@ -1,14 +1,15 @@
 <?php
+
 use App\Layout;
 use Illuminate\Database\Seeder;
 
-class LayoutSeeder extends Seeder {
-
+class LayoutSeeder extends Seeder
+{
     public function run()
     {
         DB::table('layout')->delete();
-      
-        $layout = new Layout();
+
+        $layout = new Layout;
         $layout->startTime = '10:00';
         $layout->durationRound = 95;
         $layout->durationFinal = 105;

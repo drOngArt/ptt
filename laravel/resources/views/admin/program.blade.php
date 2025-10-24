@@ -97,7 +97,7 @@
 
     <!-- File input selector -->
     <div class="modal fade programSelectorModal" tabindex="-1" role="dialog" aria-labelledby="programSelector" aria-hidden="true">
-        {!! Form::open(array('url' => 'admin/program', 'method' => 'POST', 'files'=>true)) !!}
+        {!! Form::open(array('url' => 'admin/program', 'method' => 'POST', 'files'=>true)) !!} {!! csrf_field() !!}
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -127,7 +127,7 @@
 
     <!-- Add round selector -->
     <div class="modal fade programAddRoundModal" tabindex="-1" role="dialog" aria-labelledby="programAddRound" aria-hidden="true">
-      {!! Form::open(array('method' => 'post','action' => array('Admin\DashboardController@postAddedRound', 'size'=>'50%'))) !!}
+      {!! Form::open(array('method' => 'post','action' => array('Admin\DashboardController@postAddedRound', 'size'=>'50%'))) !!} {!! csrf_field() !!}
       <div class="modal-dialog">
          <div class="modal-content">
             <div class="modal-header">
@@ -161,7 +161,7 @@
    
 	<!-- File input selector for additional program -->
     <div class="modal fade additionalProgramModal" tabindex="-1" role="dialog" aria-labelledby="additionalProgram" aria-hidden="true">
-        {!! Form::open(array('url' => 'admin/program/linkProgram', 'method' => 'POST', 'files'=>true)) !!}
+        {!! Form::open(array('url' => 'admin/program/linkProgram', 'method' => 'POST', 'files'=>true)) !!} {!! csrf_field() !!}
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -191,7 +191,7 @@
 
    <!-- File save selector -->
    <div class="modal fade saveProgramModal" tabindex="-1" role="dialog" aria-labelledby="saveProgram" aria-hidden="true">
-      {!! Form::open(array('method' => 'get','action' => array('Admin\DashboardController@saveCurrentProgram'))) !!}
+      {!! Form::open(array('method' => 'get','action' => array('Admin\DashboardController@saveCurrentProgram'))) !!} {!! csrf_field() !!}
       <div class="modal-dialog">
          <div class="modal-content">
             <div class="modal-header">
@@ -220,7 +220,7 @@
    
     <!-- Additional round -->
    <div class="modal fade additionalRoundModal" tabindex="-1" role="dialog" aria-labelledby="additionalRound" aria-hidden="true">
-      {!! Form::open(array('url' => 'admin/program/postAdditionalRound', 'method' => 'POST')) !!}
+      {!! Form::open(array('url' => 'admin/program/postAdditionalRound', 'method' => 'POST')) !!} {!! csrf_field() !!}
       <div class="modal-dialog">
          <div class="modal-content">
             <div class="modal-header">
