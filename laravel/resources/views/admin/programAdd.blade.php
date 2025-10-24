@@ -6,11 +6,11 @@
 
 @section('content')
     <div id="page-wrapper">
-        {!! Form::open(array('method' => 'post', 'action' => array('Admin\DashboardController@postFinalProgram'))) !!}
+        {!! Form::open(array('method' => 'post', 'action' => array('Admin\DashboardController@postFinalProgram'))) !!} {!! csrf_field() !!}
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">Aktualny program + dodane rundy
-                <div class="pull-right">{!! Form::submit('Zatwierdź', array('class' => 'btn btn-primary ')) !!}</div>
+                <div class="pull-right">{!! Form::submit('Zatwierdź', array('class' => 'btn btn-primary ')) !!} </div>
                 </h1>
             </div>
             <!-- /.col-lg-12 -->

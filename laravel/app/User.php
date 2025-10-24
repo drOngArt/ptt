@@ -1,19 +1,20 @@
-<?php namespace App;
+<?php
+
+namespace App;
 
 use Illuminate\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Auth\Passwords\CanResetPassword;
-use Illuminate\Foundation\Auth\Access\Authorizable;
-use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\Access\Authorizable;
+use Illuminate\Notifications\Notifiable;
 
-class User extends Model implements AuthenticatableContract, 
-                                    AuthorizableContract,
-                                    CanResetPasswordContract
+class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
-
     use Authenticatable, Authorizable, CanResetPassword;
+    use Notifiable;
 
     /**
      * The database table used by the model.
@@ -28,12 +29,13 @@ class User extends Model implements AuthenticatableContract,
      * @var array
      */
     protected $hidden = ['password', 'remember_token'];
-    
+
     public function getRoleAttribute()
     {
         $firstRole = $this->roles()->first();
+
         return $firstRole ? $firstRole->name : null;
-        //return $this->attributes['role'];
+        // return $this->attributes['role'];
     }
 
     public function roles()
@@ -49,7 +51,7 @@ class User extends Model implements AuthenticatableContract,
     /**
      * Add role to user.
      *
-     * @param mixed $role
+     * @param  mixed  $role
      * @return void
      */
     public function attachRole($role)
@@ -59,7 +61,7 @@ class User extends Model implements AuthenticatableContract,
             $role = $role->id;
         }
 
-        // If $role is name, find ID 
+        // If $role is name, find ID
         if (is_string($role)) {
             $role = Role::where('name', $role)->firstOrFail()->id;
         }

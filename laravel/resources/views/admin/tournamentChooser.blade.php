@@ -51,7 +51,7 @@
                     <p class="bg-danger">{{ $errors->first('message') }}</p>
                     <div class="form-group">
                     Wybierz plik TurniejDir.txt z katalogu programu Turniej
-                    {!! Form::file('tournamentDirectoryFile') !!}
+                    {!! Form::file('tournamentDirectoryFile') !!} {!! csrf_field() !!}
                     </div>
                     <div class="form-group">
                     lub wpisz ścieżkę do katalogu z bazą turnieju

@@ -50,7 +50,12 @@
                     <li><a href="{{$baseURI}}/admin/utils/{{$adminId}}"><i class="fa fa-info-circle fa-fw"></i> Informacje</a>
                     </li>
                     <li class="divider"></li>
-                    <li><a href="{{$baseURI}}/admin/logout"><i class="fa fa-sign-out fa-fw"></i> Wyloguj</a>
+                    <li>
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"> 
+                            <i class="fa fa-sign-out fa-fw"></i> Wyloguj 
+                        </a>
+                        <form id="logout-form" action="{{ url($baseURI.'/admin/logout') }}" method="POST" style="display: none;"> {{ csrf_field() }} </form>
+                    </li>
                     </li>
                 </ul>
                 <!-- /.dropdown-user -->

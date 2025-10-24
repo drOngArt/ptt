@@ -14,7 +14,7 @@
         </div>
         <!-- /.row -->
         <div class="row">
-            {!! Form::open(array('method' => 'post', 'action' => array('Admin\DashboardController@postChangePassword', $user->id, $flag))) !!}
+            {!! Form::open(array('method' => 'post', 'action' => array('Admin\DashboardController@postChangePassword', $user->id, $flag))) !!} {!! csrf_field() !!}
                 <div class="col-lg-8">
                     <div class="col-lg-8">
                         <div class="form-group">

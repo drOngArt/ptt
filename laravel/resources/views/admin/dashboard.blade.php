@@ -117,7 +117,7 @@
     <!-- /#page-wrapper -->
         <!-- Save parameters selector -->
    <div class="modal fade passwordAllModal" tabindex="-1" role="dialog" aria-labelledby="passwordAll" aria-hidden="true">
-      {!! Form::open(array('method' => 'get','action' => array('Admin\DashboardController@savePasswordAll'))) !!}
+      {!! Form::open(array('method' => 'get','action' => array('Admin\DashboardController@savePasswordAll'))) !!} {!! csrf_field() !!}
       <div class="modal-dialog">
          <div class="modal-content">
             <div class="modal-header">
