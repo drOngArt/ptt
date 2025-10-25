@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d136084b5b341cce2e4f3dce2ac2dcd",
+    "content-hash": "6bc2e6ae69b0e0bd16b3066b80bd1810",
     "packages": [
         {
             "name": "barryvdh/laravel-debugbar",
@@ -5220,13 +5220,6 @@
                 "php": ">=5.5.9",
                 "symfony/polyfill-mbstring": "~1.0"
             },
-            "conflict": {
-                "symfony/dependency-injection": "<3.4",
-                "symfony/process": "<3.3"
-            },
-            "provide": {
-                "psr/log-implementation": "1.0"
-            },
             "require-dev": {
                 "symfony/css-selector": "~2.8|~3.0"
             },
@@ -5234,6 +5227,11 @@
                 "symfony/css-selector": ""
             },
             "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.1-dev"
+                }
+            },
             "autoload": {
                 "psr-4": {
                     "Symfony\\Component\\DomCrawler\\": ""
