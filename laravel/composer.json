@@ -8,24 +8,22 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "laravel/framework": "5.5.50",
-        "laravelcollective/html": "5.5.*",
-        "barryvdh/laravel-ide-helper": "~2.0",
+        "laravel/framework": "5.6.*",
+        "laravelcollective/html": "5.6.*",
         "league/csv": "~7.0",
-        "barryvdh/laravel-debugbar": "~2.0",
         "doctrine/dbal": "~2.3",
         "codeception/codeception": "*",
         "league/fractal": "0.19",
-        "symfony/dom-crawler": "~3.0",
-        "symfony/css-selector": "~3.0",
+        "symfony/dom-crawler": "~4.0",
+        "symfony/css-selector": "~4.0",
         "php": ">=7.0.0"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
-        "phpunit/phpunit": "~6.0",
-        "phpspec/phpspec": "~2.1",
-        "symfony/css-selector": "3.1.*",
-        "symfony/dom-crawler": "3.1.*"
+        "barryvdh/laravel-debugbar": "~3.0",
+        "barryvdh/laravel-ide-helper": "~2.0",
+        "phpunit/phpunit": "~7.0",
+        "phpstan/phpstan": "^0.12"
     },
     "autoload": {
         "classmap": [
@@ -48,8 +46,7 @@
             "php artisan clear-compiled"
         ],
         "post-update-cmd": [
-            "php artisan clear-compiled",
-            "php artisan optimize"
+            "php artisan clear-compiled"
         ],
         "post-create-project-cmd": [
             "php -r \"copy('.env.example', '.env');\"",

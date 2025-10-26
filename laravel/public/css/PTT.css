@@ -1,0 +1,138 @@
+.btn:focus{
+    outline: none !important;
+}
+
+.btn-xl {
+    padding: 2px 2px !important;
+    font-size: 10vw !important;
+    border-radius: 8px !important;
+    border-color: #2e3436 !important;
+}
+
+.btn-couple-normal{
+    border-color: #2e3436 !important;
+}
+
+.btn-couple-highlighted {
+    border-color: #65C400 !important;
+    background-color: #47DA47 !important;
+}
+
+.btn-final-couple-selected{
+    background-color: #A3ECA3 !important;
+}
+
+.btn-select-place{
+    background-color: #ffa605 !important;
+}
+
+.nav-tabs{
+    margin-bottom: 15px !important;
+}
+
+label{
+    font-weight: normal !important;
+}
+
+.couple-place{
+    font-size: 20px !important;
+}
+
+.couple-color1{
+    background-color: #eb9316;
+}
+
+.couple-color2{
+    background-color: #009999;
+}
+
+.btn-default:hover{
+    background-color: transparent !important;
+}
+.btn-default:focus{
+    background-color: transparent !important;
+}
+
+.btn-success:hover{
+    background-color: #5CB85C !important;
+}
+.btn-success:focus{
+    background-color: #5CB85C !important;
+}
+
+.btn-danger:hover{
+    background-color: #D9534F !important;
+}
+.btn-danger:focus{
+    background-color: #D9534F !important;
+}
+
+.multirow:hover {
+     color:white;
+     background-color: #71A9DC;
+}
+
+.multirow.selected {
+     color:white;
+     background-color: #337AB7;
+}
+
+tablecell {
+    display: table;
+    width: 100%;
+}
+
+tablecell tc-dance {
+    display: table-cell;
+    text-align: left;
+}
+
+.votes-numbers {
+    text-align:center;
+}
+
+.votes-notes {
+    text-align:center;
+    min-height:14px;
+}
+
+.alternativeDescription {
+    color: #428bca;
+    font-style: italic;
+}
+
+.alternativeInput {
+    color: #428bca;
+}
+
+.text-round-merge {
+  color: IndianRed;
+  background-color: Lavender;
+}
+
+.text-round-merge-muted {
+  color: IndianRed;
+  background-color: Lavender;
+}
+
+@media screen{ 
+tablecell tc-order {
+    display: table-cell;
+    text-align: center;
+    color: #cc6600;
+    font-size: 16px;
+    font-weight: bold;
+    width: 20%;
+}
+}
+
+@media print {
+tablecell tc-order {
+    display: table-cell;
+    text-align: center;
+    color: #cc6600;
+    font: 14pt Arial, Times, serif !important;
+    font-weight: bold;
+    width: 20%;
+}
+}
