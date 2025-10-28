@@ -180,9 +180,7 @@ return [
         'Gate' => Illuminate\Support\Facades\Gate::class,
         'Hash' => Illuminate\Support\Facades\Hash::class,
         'HTML' => Collective\Html\HtmlFacade::class,
-        'Input' => 'Illuminate\Support\Facades\Input',
-        'Inspiring' => 'Illuminate\Foundation\Inspiring',
-         'Lang' => Illuminate\Support\Facades\Lang::class,
+        'Inspiring' => Illuminate\Foundation\Inspiring::class,
         'Log' => Illuminate\Support\Facades\Log::class,
         'Mail' => Illuminate\Support\Facades\Mail::class,
         'Notification' => Illuminate\Support\Facades\Notification::class,
@@ -192,16 +190,14 @@ return [
         'Redis' => Illuminate\Support\Facades\Redis::class,
         'Request' => Illuminate\Support\Facades\Request::class,
         'Response' => Illuminate\Support\Facades\Response::class,
-         'Route' => Illuminate\Support\Facades\Route::class,
+        'Route' => Illuminate\Support\Facades\Route::class,
         'Schema' => Illuminate\Support\Facades\Schema::class,
         'Session' => Illuminate\Support\Facades\Session::class,
         'Storage' => Illuminate\Support\Facades\Storage::class,
         'URL' => Illuminate\Support\Facades\URL::class,
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
-
-        'Debugbar' => 'Barryvdh\Debugbar\Facade',
-
+        'Debugbar' => Barryvdh\Debugbar\Facade::class,
     ],
 
 ];

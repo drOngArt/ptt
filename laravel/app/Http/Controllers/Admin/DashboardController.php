@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App;
+use App\Layout;
+use App\Role;
+use App\Round;
+use App\User;
 use App\Http\Controllers\Club;
 use App\Http\Controllers\Competition;
 use App\Http\Controllers\Controller;
@@ -10,17 +14,13 @@ use App\Http\Controllers\Couple;
 use App\Http\Controllers\Dance;
 use App\Http\Controllers\Judge;
 use App\Http\Controllers\ManualResult;
-use App\Layout;
-use App\Role;
-use App\Round;
-use App\User;
 use Auth;
 use Cache;
 use Carbon\Carbon;
 use Config;
 use DB;
 use Hash;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Response;
 use Session;
@@ -237,7 +237,7 @@ class DashboardController extends Controller
     public function postChangePassword($userId, $flag = 0)
     {
         $user = User::find($userId);
-        $password = Input::get('password');
+        $password = request()->input('password');
         $user->password = Hash::make($password);
         $user->save();
         if ($flag == 'true') {
@@ -268,7 +268,7 @@ class DashboardController extends Controller
     {
         $judgeRole = Role::where('name', 'judge')->first();
         $judges = Role::find($judgeRole->id)->users()->get();
-        $password = Input::get('myPass');
+        $password = request()->input('myPass');
         foreach ($judges as $judge) {
             $first = $this->convert_pl($judge->firstName); // change polish letter to base latin ex.: 'Ą' => 'A'
             $last = $this->convert_pl($judge->lastName);
@@ -294,8 +294,8 @@ class DashboardController extends Controller
     {
         $chooseTournamentPath = 'admin/chooseTournament';
         $filePathOffset = 20;
-        $tournamentDirectoryFile = Input::file('tournamentDirectoryFile');
-        $tournamentDirectoryPath = Input::get('tournamentDirectoryPath');
+        $tournamentDirectoryFile = request()->file('tournamentDirectoryFile');
+        $tournamentDirectoryPath = request()->input('tournamentDirectoryPath');
 
         // reset judges
         $judgeRole = Role::where('name', 'judge')->first();
@@ -477,7 +477,7 @@ class DashboardController extends Controller
     public function saveCurrentProgram()
     {
         $compressedProgram = $this->getCompressedProgram();
-        $fileName = Input::get('fileName');
+        $fileName = request()->input('fileName');
         if ($this->saveProgram($fileName, $compressedProgram, 'new') == false) {
             Session::flash('status', 'error');
         } else {
@@ -720,7 +720,7 @@ class DashboardController extends Controller
         }
 
         if (empty($type)) {
-            $roundSelect = Input::get('selected');
+            $roundSelect = request()->input('selected');
             if (count($roundSelect) == 0) { // empty
                 return redirect('admin/program');
             }
@@ -953,7 +953,7 @@ class DashboardController extends Controller
         } else {// another operation
             if ($type == 'saveFile') { // save file
                 $Program = Session::get('new_program');
-                $fileName = Input::get('fileName');
+                $fileName = request()->input('fileName');
                 if ($this->saveProgram($fileName, $Program, 'old') == false) {
                     Session::flash('status', 'error');
                 } else {
@@ -962,7 +962,7 @@ class DashboardController extends Controller
             } else {
                 $program = Session::get('new_program');
                 if ($type != 'nothing') {
-                    $roundsIds = Input::get('roundId');
+                    $roundsIds = request()->input('roundId');
                     $Program = [];
                     foreach ($roundsIds as $id) {
                         $Program[] = $program[$id];
@@ -989,9 +989,9 @@ class DashboardController extends Controller
         } else {// add round, break, show etc...
             $Program = Session::get('new_program');
             if ($type == 'addRound') {
-                $roundName = Input::get('round');
-                $category = Input::get('category');
-                $additional = Input::get('additional');
+                $roundName = request()->input('round');
+                $category = request()->input('category');
+                $additional = request()->input('additional');
                 $added = clone reset($Program);
                 $added->bg_color = '#7FFF00';
                 if ((($pos = mb_strpos($category, '(')) !== false)) { // found dances
@@ -1042,8 +1042,8 @@ class DashboardController extends Controller
                 }
                 $added_all[] = $added;
             } elseif ($type == 'addShow') {
-                $showName = trim(Input::get('showName'));
-                $showNameDance = trim(Input::get('showNameDance'));
+                $showName = trim(request()->input('showName'));
+                $showNameDance = trim(request()->input('showNameDance'));
                 $added = clone reset($Program);
                 $added->description = $showName;
                 $added->roundName = $showName;
@@ -1074,8 +1074,8 @@ class DashboardController extends Controller
                 }
                 $added_all[] = $added;
             } elseif ($type == 'addBreak') {
-                $BreakName = Input::get('BreakName');
-                $breakTime = Input::get('breakTime');
+                $BreakName = request()->input('BreakName');
+                $breakTime = request()->input('breakTime');
                 $added = clone reset($Program);
                 $added->description = $BreakName;
                 $added->roundName = $BreakName;
@@ -1151,11 +1151,11 @@ class DashboardController extends Controller
 
     public function linkProgram()
     {
-        if (Input::file('program_add') == null) {
+        if (request()->file('program_add') == null) {
             return redirect('admin/program');
         }
         $parsedProgram = $this->getCompressedProgram();
-        $programAdd = $this->tournamentHelper->parseScheduleFile(Input::file('program_add'));
+        $programAdd = $this->tournamentHelper->parseScheduleFile(request()->file('program_add'));
         $all = Round::all();
         $maxId = 0;
         foreach ($all as $oneDance) {
@@ -1201,7 +1201,7 @@ class DashboardController extends Controller
         }
         $program = $this->getCompressedProgram();
         $additionalRounds = [];
-        $additionalRoundId = Input::get('additionalRoundId');
+        $additionalRoundId = request()->input('additionalRoundId');
         $round = $this->tournamentHelper->getRound(intval($additionalRoundId));
         $name = $round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
         foreach ($program as $programRound) {
@@ -1254,15 +1254,15 @@ class DashboardController extends Controller
         }
         $program = $this->getCompressedProgram();
         $additionalRounds = [];
-        $roundName = Input::get('round');
-        $category = Input::get('category');
-        $additional = Input::get('additional');
+        $roundName = request()->input('round');
+        $category = request()->input('category');
+        $additional = request()->input('additional');
         if ($roundName == 'my') {
-            $roundName = Input::get('myround');
+            $roundName = request()->input('myround');
         }
         if ($roundName == 'sh_br') {
-            $roundName = Input::get('mybreakshow_name');
-            $category = '( '.Input::get('mybreakshow_dance').' )';
+            $roundName = request()->input('mybreakshow_name');
+            $category = '( '.request()->input('mybreakshow_dance').' )';
         }
 
         $added = clone reset($program);
@@ -1332,10 +1332,10 @@ class DashboardController extends Controller
         $layout = Layout::get();
         $program = $this->getCompressedProgram();
 
-        $durationRound = Input::get('intDurationElm');
-        $durationFinal = Input::get('intDurationFin');
-        $parameter1 = Input::get('intDurationStart');
-        $parameter2 = Input::get('intDurationEnd');
+        $durationRound = request()->input('intDurationElm');
+        $durationFinal = request()->input('intDurationFin');
+        $parameter1 = request()->input('intDurationStart');
+        $parameter2 = request()->input('intDurationEnd');
 
         if ($durationRound) {
             DB::update('update layout set durationRound = ?', [$durationRound]);
@@ -1356,12 +1356,12 @@ class DashboardController extends Controller
             ->with('layout', $layout[0]);
     }
 
-    public function postSelectProgram()
+    public function postSelectProgram(Request $request)
     {
-        if (Input::file('program') == null) {
+        if ($request->file('program') == null) {
             return redirect('admin/program');
         }
-        $parsedProgram = $this->tournamentHelper->parseScheduleFile(Input::file('program'));
+        $parsedProgram = $this->tournamentHelper->parseScheduleFile($request->file('program'));
 
         return view('admin.programTemp')
             ->with('program', $parsedProgram)
@@ -1680,7 +1680,7 @@ class DashboardController extends Controller
 
     public function postCloseRound()
     {
-        $roundId = Input::get('roundToClose');
+        $roundId = request()->input('roundToClose');
         $result = true;
         $roundFromDB = Round::find($roundId);
         $round = $this->tournamentHelper->getRoundWithType($roundFromDB->description, $roundFromDB->type);
@@ -1755,8 +1755,8 @@ class DashboardController extends Controller
 
     public function undoRound()
     {
-        $roundId = Input::get('roundToUndo');
-        $judgeSign = Input::get('judgeToUndo');
+        $roundId = request()->input('roundToUndo');
+        $judgeSign = request()->input('judgeToUndo');
         if ($judgeSign == null) {
             $judgeSign = '';
         }
@@ -1908,8 +1908,8 @@ class DashboardController extends Controller
 
     public function setReport()
     {
-        $numbers = Input::get('coupleNumber');
-        $roundId = intval(Input::get('roundId'));
+        $numbers = request()->input('coupleNumber');
+        $roundId = intval(request()->input('roundId'));
         $results = [];
         $table = 0;
         foreach ($numbers as $number) {
@@ -1931,11 +1931,11 @@ class DashboardController extends Controller
     public function generateReport()
     {
         $rounds = [];
-        // $baseRounds = Input::get('roundId');
-        $baseRounds = Input::old('roundId');
+        // $baseRounds = request()->input('roundId');
+        $baseRounds = request()->old('roundId');
         if ($baseRounds != null) {
             foreach ($baseRounds as $round) {
-                if (filter_var(Input::old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $rounds[] = $round;
                 }
             }
@@ -1951,10 +1951,10 @@ class DashboardController extends Controller
     {
 
         $rounds = [];
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
         if ($baseRounds != null) {
             foreach ($baseRounds as $round) {
-                if (filter_var(Input::old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $rounds[] = $round;
                 }
             }
@@ -2022,10 +2022,10 @@ class DashboardController extends Controller
     public function reportCouples()
     {
         $rounds = [];
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
         if ($baseRounds != null) {
             foreach ($baseRounds as $round) {
-                if (filter_var(Input::old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $rounds[] = $round;
                 }
             }
@@ -2061,10 +2061,10 @@ class DashboardController extends Controller
     public function reportClubs()
     {
         $rounds = [];
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
         if ($baseRounds != null) {
             foreach ($baseRounds as $round) {
-                if (filter_var(Input::old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $rounds[] = $round;
                 }
             }
@@ -2142,13 +2142,13 @@ class DashboardController extends Controller
 
     public function reportOpenClubs()
     {
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
         $roundsFromPTT = $this->tournamentHelper->getRounds();
 
         $rounds = [];
         if ($baseRounds != null) {
             foreach ($baseRounds as $index) {
-                if (filter_var(Input::old($index), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($index), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $round = $this->tournamentHelper->getBaseRound(intval($index));
                     $rounds[] = $round->baseRoundId;
                 }
@@ -2211,10 +2211,10 @@ class DashboardController extends Controller
     public function reportLists()
     {
         $rounds = [];
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
         if ($baseRounds != null) {
             foreach ($baseRounds as $round) {
-                if (filter_var(Input::old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $rounds[] = $round;
                 }
             }
@@ -2401,10 +2401,10 @@ class DashboardController extends Controller
     public function reportCouplesConflict()
     {
         $rounds = [];
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
         if ($baseRounds != null) {
             foreach ($baseRounds as $round) {
-                if (filter_var(Input::old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $rounds[] = $round;
                 }
             }
@@ -2556,10 +2556,10 @@ class DashboardController extends Controller
     public function reportListsRange()
     {
         $rounds = [];
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
         if ($baseRounds != null) {
             foreach ($baseRounds as $round) {
-                if (filter_var(Input::old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $rounds[] = $round;
                 }
             }
@@ -2632,16 +2632,16 @@ class DashboardController extends Controller
 
     public function postRanges()
     {
-        $range_start = Input::get('main_start_no'); // start number
-        $range_end = Input::get('main_end_no'); // end number
-        $lack = Input::get('lack_no'); // list of lack numbers
-        $blocks = Input::get('blockId'); // list of parts
-        $block_no = Input::get('block_no'); // list of parts
-        $categories = Input::get('roundName'); // rounds name list
-        $roundIds = Input::get('roundId'); // rounds Id list
-        $start_no = Input::get('start_no'); // list of starts numbers
-        $number_same = Input::get('agree');
-        $free_places = Input::get('free_places');
+        $range_start = request()->input('main_start_no'); // start number
+        $range_end = request()->input('main_end_no'); // end number
+        $lack = request()->input('lack_no'); // list of lack numbers
+        $blocks = request()->input('blockId'); // list of parts
+        $block_no = request()->input('block_no'); // list of parts
+        $categories = request()->input('roundName'); // rounds name list
+        $roundIds = request()->input('roundId'); // rounds Id list
+        $start_no = request()->input('start_no'); // list of starts numbers
+        $number_same = request()->input('agree');
+        $free_places = request()->input('free_places');
 
         if (! is_numeric($range_start)) {
             $range_start = 1;
@@ -2850,7 +2850,7 @@ class DashboardController extends Controller
     public function reportResults()
     {
         $rounds = [];
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
 
         $classToModify = Config::get('ptt.classModifyResult');
         $positionsRange = Config::get('ptt.PositionRange_3');
@@ -2868,7 +2868,7 @@ class DashboardController extends Controller
 
         if ($baseRounds != null) {
             foreach ($baseRounds as $index) {
-                if (filter_var(Input::old($index), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($index), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $round = $this->tournamentHelper->getBaseRound(intval($index));
                     if (in_array(mb_strtoupper($round->className, 'UTF-8'), $classToModify)) {// only 'special' classes to modify
                         $rounds[] = $index;
@@ -2936,7 +2936,7 @@ class DashboardController extends Controller
     public function reportResultsShort()
     {
         $rounds = [];
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
 
         $classToModify = Config::get('ptt.classModifyResult');
         $positionsRange = Config::get('ptt.PositionRange_3');
@@ -2954,7 +2954,7 @@ class DashboardController extends Controller
 
         if ($baseRounds != null) {
             foreach ($baseRounds as $index) {
-                if (filter_var(Input::old($index), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($index), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $round = $this->tournamentHelper->getBaseRound(intval($index));
                     if (in_array(mb_strtoupper($round->className, 'UTF-8'), $classToModify)) {// only 'special' classes to modify
                         $rounds[] = $index;
@@ -3038,13 +3038,13 @@ class DashboardController extends Controller
 
     public function reportTrainee()
     {
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
         $roundsFromDB = Round::where('closed', '=', 0)->get();
 
         $rounds = [];
         if ($baseRounds != null) {
             foreach ($baseRounds as $index) {
-                if (filter_var(Input::old($index), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($index), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $round = $this->tournamentHelper->getBaseRound(intval($index));
                     $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
                     $rounds[] = $round;
@@ -3135,25 +3135,25 @@ class DashboardController extends Controller
 
     public function postReport()
     {
-        if (Input::has('rounds')) {
+        if (request()->has('rounds')) {
             return redirect('admin/reportRoundData')->withInput();
-        } elseif (Input::has('couples')) {
+        } elseif (request()->has('couples')) {
             return redirect('admin/reportCouples')->withInput();
-        } elseif (Input::has('lists')) {
+        } elseif (request()->has('lists')) {
             return redirect('admin/reportLists')->withInput();
-        } elseif (Input::has('couplesBr')) {
+        } elseif (request()->has('couplesBr')) {
             return redirect('admin/reportCouplesConflict')->withInput();
-        } elseif (Input::has('ranges')) {
+        } elseif (request()->has('ranges')) {
             return redirect('admin/reportListsRange')->withInput();
-        } elseif (Input::has('clubs')) {
+        } elseif (request()->has('clubs')) {
             return redirect('admin/reportClubs')->withInput();
-        } elseif (Input::has('clubsOpen')) {
+        } elseif (request()->has('clubsOpen')) {
             return redirect('admin/reportOpenClubs')->withInput();
-        } elseif (Input::has('results_f')) {
+        } elseif (request()->has('results_f')) {
             return redirect('admin/reportResults')->withInput();
-        } elseif (Input::has('results_s')) {
+        } elseif (request()->has('results_s')) {
             return redirect('admin/reportResultsShort')->withInput();
-        } elseif (Input::has('trainee')) {
+        } elseif (request()->has('trainee')) {
             return redirect('admin/reportTrainee')->withInput();
         } else {
             return redirect('admin/generateReport')->withInput();
@@ -3199,10 +3199,10 @@ class DashboardController extends Controller
     public function panelSet()
     {
         $rounds = [];
-        $baseRounds = Input::old('roundId');
+        $baseRounds = request()->old('roundId');
         if ($baseRounds != null) {
             foreach ($baseRounds as $round) {
-                if (filter_var(Input::old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
+                if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $rounds[] = $round;
                 }
             }
@@ -3375,17 +3375,17 @@ class DashboardController extends Controller
     /* old version
     public function panelSave()
     {
-        $roundsId = Input::old('roundBaseId');
-        $roundNames = Input::old('roundName');
-        $judgesId = Input::old('judgeId');
-        $judgesNo = Input::old('judgeNo');
-        $judgeNames = Input::old('judgeName');
-        $scrId = Input::old('scrId');
-        $scrNames = Input::old('scrName');
-        $judgeMainId = Input::old('MainJudge');
-        $judgeMainLast = Input::old('my_main_judge_l');
-        $judgeMainFirst = Input::old('my_main_judge_f');
-        $judgeMainCity = Input::old('my_main_judge_c');
+        $roundsId = request()->old('roundBaseId');
+        $roundNames = request()->old('roundName');
+        $judgesId = request()->old('judgeId');
+        $judgesNo = request()->old('judgeNo');
+        $judgeNames = request()->old('judgeName');
+        $scrId = request()->old('scrId');
+        $scrNames = request()->old('scrName');
+        $judgeMainId = request()->old('MainJudge');
+        $judgeMainLast = request()->old('my_main_judge_l');
+        $judgeMainFirst = request()->old('my_main_judge_f');
+        $judgeMainCity = request()->old('my_main_judge_c');
 
         $scheduleParts = $this->tournamentHelper->getPartsCSV();
         for ($i = 0; $i < count($roundsId); $i++) {
@@ -3400,7 +3400,7 @@ class DashboardController extends Controller
             } // first judge by default
 
             foreach ($judgesId as $id) {
-                if (filter_var(Input::old($roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN) == 1) { // checked
+                if (filter_var(request()->old($roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN) == 1) { // checked
                     $judge_set[] = $id;
                 }
             }
@@ -3408,7 +3408,7 @@ class DashboardController extends Controller
             if (count($scrId)) {
                 // find scrutineers also
                 foreach ($scrId as $id) {
-                    if (filter_var(Input::old('s'.$roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN) == 1) { // checked
+                    if (filter_var(request()->old('s'.$roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN) == 1) { // checked
                         $scr_set[] = $id;
                     }
                 }
@@ -3435,18 +3435,18 @@ class DashboardController extends Controller
     public function panelSave()
    {
       // Bezpieczne pobranie "old" – zamieniamy brak na [] i pilnujemy typów
-      $roundsId    = Input::old('roundBaseId', []);
-      $roundNames  = Input::old('roundName', []);
-      $judgesId    = Input::old('judgeId', []);
-      $judgesNo    = Input::old('judgeNo', []);
-      $judgeNames  = Input::old('judgeName', []);
-      $scrId       = Input::old('scrId', []);
-      $scrNames    = Input::old('scrName', []);
+      $roundsId    = request()->old('roundBaseId', []);
+      $roundNames  = request()->old('roundName', []);
+      $judgesId    = request()->old('judgeId', []);
+      $judgesNo    = request()->old('judgeNo', []);
+      $judgeNames  = request()->old('judgeName', []);
+      $scrId       = request()->old('scrId', []);
+      $scrNames    = request()->old('scrName', []);
    
-      $judgeMainId    = Input::old('MainJudge');
-      $judgeMainLast  = Input::old('my_main_judge_l');
-      $judgeMainFirst = Input::old('my_main_judge_f');
-      $judgeMainCity  = Input::old('my_main_judge_c');
+      $judgeMainId    = request()->old('MainJudge');
+      $judgeMainLast  = request()->old('my_main_judge_l');
+      $judgeMainFirst = request()->old('my_main_judge_f');
+      $judgeMainCity  = request()->old('my_main_judge_c');
    
       // Upewnij się, że mamy tablice (a nie stringi/null)
       $roundsId   = is_array($roundsId)   ? $roundsId   : ($roundsId   !== null ? [$roundsId]   : []);
@@ -3478,7 +3478,7 @@ class DashboardController extends Controller
          // Wybrane sędziowie dla tej rundy
          if (!empty($judgesId)) {
                foreach ($judgesId as $id) {
-                  $checked = filter_var(Input::old($roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN);
+                  $checked = filter_var(request()->old($roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN);
                   if ($checked) {
                      $judge_set[] = $id;
                   }
@@ -3488,7 +3488,7 @@ class DashboardController extends Controller
          // Scrutineers (mogą nie istnieć)
          if (is_countable($scrId) && count($scrId) > 0) {
                foreach ($scrId as $id) {
-                  $checked = filter_var(Input::old('s'.$roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN);
+                  $checked = filter_var(request()->old('s'.$roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN);
                   if ($checked) {
                      $scr_set[] = $id;
                   }
@@ -3531,7 +3531,7 @@ class DashboardController extends Controller
 
     public function autocomplete()
     {
-        $term = Input::get('term');
+        $term = request()->input('term');
         $results = [];
         $JudgesDB = [];
         $JudgesDB = $this->tournamentHelper->getJudgesDB();
@@ -3553,10 +3553,10 @@ class DashboardController extends Controller
 
     public function postPanel()
     {
-        if (Input::has('zestaw')) {
+        if (request()->has('zestaw')) {
             return redirect('admin/panelSet')->withInput();
         }
-        if (Input::has('save')) {
+        if (request()->has('save')) {
             return redirect('admin/panelSave')->withInput();
         }
 
