@@ -3,14 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Input;
-
-// use Auth;
-// use Cache;
-// use Input;
 
 class LoginController extends Controller
 {
@@ -19,12 +15,13 @@ class LoginController extends Controller
         return view('admin.login');
     }
 
-    public function postLogin()
+    public function postLogin(Request $request)
     {
         $userdata = [
-            'username' => Input::get('username'),
-            'password' => Input::get('password'),
+            'username' => $request->input('username'),
+            'password' => $request->input('password'),
         ];
+
         if (Auth::attempt($userdata, true)) {
             if (Gate::allows('admin-only')) {
                 if (Cache::has('tournamentDirectory')) {
@@ -35,12 +32,12 @@ class LoginController extends Controller
             } else {
                 return redirect('admin/login')
                     ->withErrors(['message' => 'Brak uprawnień'])
-                    ->withInput(Input::except('password'));
+                    ->withInput($request->except('password'));
             }
         }
 
         return redirect('admin/login')
             ->withErrors(['message' => 'Nieprawidłowy użytkownik lub hasło'])
-            ->withInput(Input::except('password'));
+            ->withInput($request->except('password'));
     }
 }
