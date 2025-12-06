@@ -5,73 +5,82 @@
 @stop
 
 @section('content')
-    <div id="page-wrapper">
-        {!! Form::open(array('method' => 'get', 'url' => 'admin/report')) !!} {!! csrf_field() !!}
-        <div class="row">
-            <div class="col-lg-12">
-              <div class="page-header-break">ZESTAWIENIE KLUBÓW w {{$parts}}<br/></div>
-              <h1 class="page-header">Kluby w {{$parts}}
-                <div class="pull-right">
-                    {!! Form::submit('Powrót', array('id'=>'submitButton1', 'class' => 'btn btn-primary button-menu')) !!}
-                </div>
-                </h1>
-            </div>
-            <!-- /.col-lg-12 -->
-        </div>
-        <!-- /.row -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="pull-right">
-                    <a href="javascript:window.print()" type="button" class="btn button-menu btn-brown" >Drukuj</a>
-                </div>
-            </div>
-        </div>
+<div id="page-wrapper" class="container-fluid">
 
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered table-hover text-center table-pad-2px">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width: 10%">
-                                    Lp.
-                                </th>
-                                <th style="width: 60%">
-                                    Klub - Miasto
-                                </th>
-                                <th style="width: 30%">
-                                    Kraj / Okręg
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php $idx = 0 ?>
-                            @foreach($clubs as $club)
-                              <tr>
-                                 <td class="btn-circle">
-                                    {{$idx+1}}.
-                                    <?php $idx = $idx+1 ?>
-                                 </td>
-                                 <td class="text-left font-12pt">
-                                     {{$club->club}}
-                                 </td>
-                                 <td class="text-left font-12pt">
-                                     {{$club->country}}
-                                 </td>
-                               </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+    {{ html()->form('GET', url('admin/report'))->open() }}
+
+    {{-- Nagłówek + Powrót --}}
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="page-header-break">
+                ZESTAWIENIE KLUBÓW w {{ $parts }}<br/>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="page-header mb-0">Kluby w {{ $parts }}</h1>
+
+                {{ html()
+                    ->submit('Powrót')
+                    ->id('submitButton1')
+                    ->class('btn btn-primary button-menu') }}
+            </div>
+
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-end">
+              <button type="button"
+                  class="btn btn-brown button-menu btn-icon-left my-2"
+                  onclick="window.print()">
+                <i class="fa fa-print"></i>
+                <span class="button-menu-sep"></span>
+                <span>Drukuj</span>
+              </button>
             </div>
         </div>
-        {!! Form::close() !!}
     </div>
-    <!-- /#page-wrapper -->
+
+    {{-- Tabela klubów --}}
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover text-center table-pad-2px">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 10%">Lp.</th>
+                            <th style="width: 60%">Klub - Miasto</th>
+                            <th style="width: 30%">Kraj / Okręg</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @php $idx = 0; @endphp
+
+                        @foreach($clubs as $club)
+                            <tr>
+                                <td class="btn-circle">{{ $idx + 1 }}.</td>
+                                @php $idx++; @endphp
+
+                                <td class="text-start font-12pt">{{ $club->club }}</td>
+                                <td class="text-start font-12pt">{{ $club->country }}</td>
+                            </tr>
+                        @endforeach
+
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    {{ html()->form()->close() }}
+
+</div>
 @stop
 
 @section('customScripts')
-    {!! HTML::script('js/jquery-ui.min.js') !!}
-    <script>
-    </script>
+<script></script>
 @stop

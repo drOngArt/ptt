@@ -629,7 +629,7 @@ class DashboardController extends Controller
         return view('admin.program')
             ->with('program', $program)
             ->with('compressedProgram', $compressedProgram)
-            ->with('additionalRounds', $additionalRounds)
+            ->with('additionalRounds', collect($additionalRounds))
             ->with('roundNames', $roundNames)
             ->with('categoriesNames', $categoriesNames)
             ->with('additNames', $additionalNames)

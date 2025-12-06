@@ -5,89 +5,98 @@
 @stop
 
 @section('content')
-    <div id="page-wrapper">
-        {!! Form::open(array('method' => 'get', 'url' => 'admin/report')) !!} {!! csrf_field() !!}
-        <div class="row">
-            <div class="col-lg-12">
-              <div class="page-header-break">ZESTAW PAR<br/></div>
-              <h1 class="page-header">Numery par w rundach
-                <div class="pull-right">
-                    {!! Form::submit('Powrót', array('id'=>'submitButton1', 'class' => 'btn btn-primary button-menu')) !!}
-                </div>
-                </h1>
-            </div>
-            <!-- /.col-lg-12 -->
-        </div>
-        <!-- /.row -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="pull-right">
-                    <a href="javascript:window.print()" type="button" class="btn button-menu btn-brown" >Drukuj</a>
-                </div>
-            </div>
-        </div>
+<div id="page-wrapper" class="container-fluid">
 
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="table-responsive">
-                    <table class="table table-striped table-bordered table-hover text-center">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width: 5%">
-                                    Lp.
-                                </th>
-                                <th style="width: 40%">
-                                    Kategoria / Klasa
-                                </th>
-                                <th class="text-center" style="width: 10%">
-                                    Liczba par
-                                </th>
-                                <th class="text-center">
-                                    Numery par
-                                </th>
-                                
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php $idx = 0 ?>
-                            @foreach($program as $index => $programRound)
-                              @if ($programRound->baseNumberOfCouples > 0 )
-                                 <tr>
-                                    <td class="btn-circle">
-                                       {{$idx+1}}.
-                                       <?php $idx = $idx+1 ?>
+    {{ html()->form('GET', url('admin/report'))->open() }}
+
+    {{-- Nagłówek --}}
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="page-header-break">ZESTAW PAR<br/></div>
+
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="page-header mb-0">Numery par w rundach</h1>
+
+                {{ html()
+                    ->submit('Powrót')
+                    ->id('submitButton1')
+                    ->class('btn btn-primary button-menu') }}
+            </div>
+
+        </div>
+    </div>
+
+    {{-- Przycisk Drukuj --}}
+    <div class="row mb-2">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-end">
+              <button type="button"
+                  class="btn btn-brown button-menu btn-icon-left my-2"
+                  onclick="window.print()">
+              <i class="fa fa-print"></i>
+              <span class="button-menu-sep"></span>
+              <span>Drukuj</span>
+          </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Tabela --}}
+    <div class="row">
+        <div class="col-lg-12">
+
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover text-center">
+
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">Lp.</th>
+                            <th class="text-start" style="width: 40%">Kategoria / Klasa</th>
+                            <th class="text-center" style="width: 10%">Liczba par</th>
+                            <th class="text-start">Numery par</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @php $idx = 0; @endphp
+
+                        @foreach($program as $index => $programRound)
+                            @if($programRound->baseNumberOfCouples > 0)
+                                <tr>
+                                    {{-- Lp --}}
+                                    <td class="btn-circle">{{ ++$idx }}.</td>
+
+                                    {{-- Opis rundy --}}
+                                    <td class="text-start font-14pt">
+                                        {{ $programRound->description }}
                                     </td>
-                                    <td class="text-left font-14pt">
-                                     {{$programRound->description}}
-                                    </td>
+
+                                    {{-- Liczba par --}}
                                     <td class="font-print-24pt">
-                                       {{$programRound->baseNumberOfCouples}}
+                                        {{ $programRound->baseNumberOfCouples }}
                                     </td>
-                                    <td class="text-left font-print-18pt">
-                                    <?php $idx1 = 0; ?>
-                                    @foreach($couples[$index] as $couple)
-                                       {{$couple->number}}
-                                       <?php $idx1 += 1; ?>
-                                       @if( $idx1 < count($couples[$index]) )
-                                           ,
-                                       @endif
-                                    @endforeach
+
+                                    {{-- Numery par --}}
+                                    <td class="text-start font-print-18pt">
+                                        @foreach($couples[$index] as $i => $couple)
+                                            {{ $couple->number }}@if($i < count($couples[$index]) - 1),@endif
+                                        @endforeach
                                     </td>
                                 </tr>
-                                 @endif
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
+                            @endif
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
         </div>
-        {!! Form::close() !!}
     </div>
-    <!-- /#page-wrapper -->
+    {{ html()->form()->close() }}
+
+</div>
 @stop
 
 @section('customScripts')
-    {!! HTML::script('js/jquery-ui.min.js') !!}
-    <script>        
-    </script>
+<script>
+</script>
 @stop

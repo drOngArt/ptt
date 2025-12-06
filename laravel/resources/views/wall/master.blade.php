@@ -10,17 +10,17 @@
     <meta name="author" content="Ar2r.D">
 
     <title>@yield('title')</title>
-    {!! HTML::style('css/bootstrap.min.css') !!}
-    {!! HTML::style('css/sb-wall.css') !!}
-    {!! HTML::style('css/font-awesome.min.css') !!}
+    <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/css/sb-wall.css') }}" rel="stylesheet">
     
+    <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/bootbox.min.js') }}"></script>
+    <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
     
-    {!! HTML::script('js/jquery-2.1.3.min.js') !!}
-    {!! HTML::script('js/bootstrap.min.js') !!}    
-    {!! HTML::script('js/metisMenu.min.js') !!}    
-    
-    {!! HTML::script('js/underscore-min.js') !!}
-    {!! HTML::script('js/wallCss.js') !!}
+    <script src="{{ asset('js/underscore-min.js') }}"></script>
+    <script src="{{ asset('js/wallCss.js') }}"></script>
     
 </head>
 

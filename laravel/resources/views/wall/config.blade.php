@@ -7,33 +7,35 @@
 @section('content')
 
    <div id="page-wrapper">
-      {!! Form::open(array('method' => 'get','action' => array('Wall\DashboardController@showDashboard'))) !!}
-         <div class="row">
-            <div class="col-lg-12">
-               <h1 class="page-header">Aktualna konfiguracja
-               <div class="pull-right">
-                  <nav id="navbar-darkgreen" class="navbar navbar-default">
-                     <div class="container-fluid">
-                        <ul class="nav navbar-nav">
-                           <li>{!! Form::select('colorSet', $colorSet, '', ['class' => 'btn btn-success button-menu'] )!!}</button></li>
-                           <li>{!! Form::select('divideFactor', $divideFactor, '', ['class' => 'btn btn-info button-menu'] ) !!}</button></li>
-                           <li>{!! Form::submit('Zatwierdź', array('id'=>'submitButton1','class' => 'btn btn-primary button-menu')) !!}</li>
-                        </ul>
-                     </div>
-                  </nav>
-               </div>
-               </h1>
+      {!! html()->form('GET', action('Wall\DashboardController@showDashboard'))->open() !!}
+      <div class="row">
+         <div class="col-lg-12">
+            <h1 class="page-header">Aktualna konfiguracja
+            <div class="pull-right">
+               <nav id="navbar-darkgreen" class="navbar navbar-default">
+                  <div class="container-fluid">
+                  <ul class="nav navbar-nav">
+                     <li>
+                        {{ html()->select('colorSet', $colorSet, null)
+                              ->class('btn btn-success button-menu') }}
+                     </li>
+                     <li>
+                        {{ html()->select('divideFactor', $divideFactor, null)
+                              ->class('btn btn-info button-menu') }}
+                     </li>
+                     <li>
+                        {{ html()->submit('Zatwierdź')
+                              ->id('submitButton1')
+                              ->class('btn btn-primary button-menu') }}
+                     </li>
+                  </ul>
+                  </div>
+               </nav>
             </div>
+            </h1>
          </div>
-         <!-- /.row -->
-         <div class="row">
-            <div class="col-lg-12">
-               <div style="border: 2px solid orange;">
-               </div>
-            </div>
-         </div>
-
-      {!! Form::close() !!}
+      </div>
+      {!! html()->form()->close() !!}
    </div>
    <!-- /#page-wrapper -->
       <div id="page-wrapper-left" style="position: absolute; top: 210px; left: 2%;  min-height: 200px;">
@@ -111,7 +113,7 @@
 @stop 
 
 @section('customScripts')
-   {!! HTML::script('js/jquery-ui.min.js') !!}
+   <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
    <script>
    var state_color = 0;
    $( document ).ready(function() {

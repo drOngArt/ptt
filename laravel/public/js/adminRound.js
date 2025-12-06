@@ -20,7 +20,7 @@ function checkResults (){
                 var completedDiv = $("#completed"+judgeSign);
                 var completedTextDiv = $("#completedText"+judgeSign);
                 if(result['judges'][i]['completed'] == true){
-                    completedDiv.removeClass('hidden');
+                    completedDiv.removeClass('d-none');
 
                     var votes = result['judges'][i]['votes'];
                     var numbers = [];
@@ -62,14 +62,14 @@ function checkResults (){
                     completedTextDiv.html(votesText);
                 }
                 else{
-                    completedDiv.addClass('hidden');
+                    completedDiv.addClass('d-none');
                     completedTextDiv.html("");
                 }
                 var statusDiv = $("#status"+judgeSign);
                 var judgeSignIcon = '<button class="btn-circle">'+judgeSign+'</button> ';
                 var judgePass = '<span class="font-14pt"> ';
                 if(result['judges'][i]['without_pass'] == true)
-                   judgePass = '<a class="btn btn-orange" role="button" href="password/' + result['judges'][i]['id'] + '/false"> USTAW HASŁO </a><span class="font-14pt"> ';
+                   judgePass = '<a class="btn btn-dorange" role="button" href="password/' + result['judges'][i]['id'] + '/false"> USTAW HASŁO </a><span class="font-14pt"> ';
                 if(result['judges'][i]['status'] == true){
                     var batteryIcon = '<i class="fa fa-battery-full fa-rotate-270"></i>';
                     if(result['judges'][i]['batteryLevel'] < 20)

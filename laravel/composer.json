@@ -8,22 +8,23 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "laravel/framework": "^6.0",
-        "laravelcollective/html": "^6.4",
+        "laravel/framework": "^7.0",
         "league/csv": "~7.0",
         "doctrine/dbal": "~2.3",
         "codeception/codeception": "*",
         "league/fractal": "0.19",
-        "symfony/dom-crawler": "~4.0",
-        "symfony/css-selector": "~4.0",
+        "symfony/dom-crawler": "~5.0",
+        "symfony/css-selector": "~5.0",
         "php": ">=7.2.0",
-        "laravel/helpers": "^1.8"
+        "laravel/helpers": "^1.8",
+        "spatie/laravel-html": "^2.30",
+        "laravel/ui": "^2.0"
     },
     "require-dev": {
         "filp/whoops": "~2.0",
         "barryvdh/laravel-debugbar": "~3.0",
         "barryvdh/laravel-ide-helper": "~2.0",
-        "phpunit/phpunit": "~7.0",
+        "phpunit/phpunit": "^8.5",
         "phpstan/phpstan": "^0.12"
     },
     "autoload": {

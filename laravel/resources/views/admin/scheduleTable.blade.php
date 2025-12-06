@@ -3,7 +3,7 @@
       <div class="table-responsive">
          <table class="table table-striped table-bordered table-hover">
             <thead>
-               <tr class="font-14pt">
+               <tr class="font-14pt px-2">
                   <th >
                      Lp.
                   </th>
@@ -21,10 +21,10 @@
                @foreach($compressedProgram as $index => $programRound)
                   @if($programRound->isDance)
                      <tr>
-                        <td class="btn-circle">
+                        <td class="btn-circle fs-5 p-1">
                            {{$index+1}}.
                         </td>
-                        <td>
+                        <td class="p-1">
                            <div class="ekran alignleft" media="only screen">
                               {{$programRound->description}} <description class="alternativeDescription"> {{$programRound->alternative_description}} </description>
                            </div>
@@ -46,7 +46,7 @@
                            @endif
                            </div>
                         </td>
-                        <td class="userTime ekran">
+                        <td class="userTime ekran ps-1">
                            @if( $times[$index] )
                            <div class="font-14pt ekran text-center" media="only screen">
                               <span class="btn-blue-gray badge badge-pill">
@@ -60,13 +60,13 @@
                            </div>
                            @endif
                         </td>
-                        <td class="font-print-18pt text-center">
+                        <td class="font-print-18pt text-center p-1">
                         @if( $programRound->groups != 1 )
                             {{$programRound->groups}}
                         @endif
                         </td>
                            @foreach($programRound->dances as $dance)
-                              <td><tablecell>
+                              <td class="p-1"><tablecell>
                                  <tc-order>
                                     {{$dance['order']}}&nbsp
                                  </tc-order>

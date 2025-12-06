@@ -4,10 +4,6 @@ namespace App\Http\Controllers\Wall;
 
 use App\Http\Controllers\Competition;
 use App\Http\Controllers\Controller;
-// use Tracy\Debugger;
-// require 'c:\xampp\htdocs\ptt\laravel\vendor\tracy\tracy\src\tracy.php';
-// Debugger::enable();
-// Debugger::$strictMode = TRUE;
 
 use App\Layout;
 use App\Round;
@@ -15,7 +11,8 @@ use Cache;
 use Carbon\Carbon;
 use Config;
 use Illuminate\Support\Facades\Auth;
-use Input;
+use Illuminate\Http\Request;
+use Response;
 use View;
 
 class DashboardController extends Controller
@@ -63,9 +60,9 @@ class DashboardController extends Controller
         $divideFactor = array_add($divideFactor, 35, '35%-65%');
 
         if ($type == 'color') {
-            $color = Input::get('colorSet');
+            $color = request()->input('colorSet');
         } elseif ($type == 'factor') {
-            $factor = Input::get('divideFactor');
+            $factor = request()->input('divideFactor');
         }
 
         return view('wall.config')
@@ -326,7 +323,8 @@ class DashboardController extends Controller
                         if ($groups == true) {
                             // maybe constant groups??
                             foreach ($dance->couples as $index => $group) {
-                                if ($tmp_pos > 0 && count($dance->couples) == count($couples[$tmp_pos - 1])) {// the same group number, not for first group of course
+                                //if ($tmp_pos > 0 && count($dance->couples) == count($couples[$tmp_pos - 1])) {// the same group number, not for first group of course
+                                if ($tmp_pos > 0 && is_countable($dance->couples) && is_countable($couples[$tmp_pos - 1]) && count($dance->couples) == count($couples[$tmp_pos - 1])) {
                                     $group_const = true;
                                     asort($dance->couples[$index]);
                                     for ($idx = 0; $idx < count($group); $idx++) {

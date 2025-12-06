@@ -79,7 +79,6 @@ Route::group(['prefix' => 'admin'], function () {
         Route::get('reportResultsShort',     'Admin\DashboardController@reportResultsShort');
         Route::get('reportTrainee',          'Admin\DashboardController@reportTrainee');
 
-        // generateReport był u Ciebie zdublowany — zostawiam jedną wersję GET i jedną POST
         Route::get('generateReport',         'Admin\DashboardController@generateReport');
         Route::post('report',                'Admin\DashboardController@generateReport');
 

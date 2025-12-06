@@ -117,15 +117,14 @@
 
 
 @section('customScripts')
-    {!! HTML::script('js/wallRound.js') !!}
+    <script src="{{ asset('js/wallRound.js') }}"></script>
     <script>
-        var wallRefreshTimer = "{{Config::get('ptt.wallRefreshTimer')}}";
-        var color = "{{Input::get('colorSet')}}";
-        var factor = "{{Input::get('divideFactor')}}";
+        var wallRefreshTimer = "{{ config('ptt.wallRefreshTimer') }}";
+        var color = "{{ request()->input('colorSet') }}";
+        var factor = "{{ request()->input('divideFactor') }}";
 
         @if($rounds[0] != null)
-            var roundName = "{{$roundDescriptions[0]}}" + ", " + "{{$danceNames[0]}}";
+            var roundName = "{{ $roundDescriptions[0] }}, {{ $danceNames[0] }}";
         @endif
     </script>
 @stop
-

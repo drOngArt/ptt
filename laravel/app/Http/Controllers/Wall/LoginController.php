@@ -3,14 +3,9 @@
 namespace App\Http\Controllers\Wall;
 
 use App\Http\Controllers\Controller;
-// use App\Role;
-// use Auth;
-// use Illuminate\Http\Request;
-// use Illuminate\Support\Facades\Input;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Input;
+use Illuminate\Http\Request;
 
 class LoginController extends Controller
 {
@@ -19,11 +14,11 @@ class LoginController extends Controller
         return view('wall.login');
     }
 
-    public function postLogin()
+    public function postLogin(Request $request)
     {
         $userdata = [
-            'username' => Input::get('username'),
-            'password' => Input::get('password'),
+            'username' => $request->input('username'),
+            'password' => $request->input('password'),
         ];
         if (Auth::attempt($userdata, true)) {
             if (Gate::allows('wall-only')) {
@@ -33,6 +28,6 @@ class LoginController extends Controller
 
         return redirect('/wall/login')
             ->withErrors(['message' => 'Brak uprawnień'])
-            ->withInput(Input::except('password'));
+            ->withInput($request->except('password'));
     }
 }
