@@ -5,83 +5,65 @@
 @stop
 
 @section('content')
-    <div id="page-wrapper">
-        {!! Form::open(array('method' => 'get', 'url' => 'admin/report')) !!} {!! csrf_field() !!}
-        <div class="row">
-            <div class="col-lg-12">              
-              <h1 class="page-header">Wyniki
-                <div class="pull-right">
-                    {!! Form::submit('Powrót', array('id'=>'submitButton1', 'class' => 'btn btn-primary button-menu')) !!}
-                </div>
-                </h1>
-            </div>
-            <!-- /.col-lg-12 -->
-        </div>
-        <!-- /.row -->
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="pull-right">
-                    <a href="javascript:window.print()" type="button" class="btn button-menu btn-brown" >Drukuj</a>
-                </div>
-            </div>
-        </div>
+  <div id="page-wrapper" class="container-fluid">
+    {!! html()->form('GET', url('admin/report'))->open() !!}
 
-        <div class="row">
-            <div class="col-lg-12">
-            @foreach($couples as $index => $couple)
-               <div class="div-no-break text-center">WYNIKI<br/>
-               <div class="text-center h3" >Kategoria: {{$index}} ( par: {{$Numbers[$index]}} )<br/></div>
-                  <div class="table-responsive">
-                    <table class="table-cont table table-striped table-bordered table-hover text-center table-pad-2px font-print-18pt">
-                        <thead>
-                           <tr>
-                              <th class="text-center font-14pt">
-                                 Miejsce
-                              </th>
-                              <th class="text-center font-14pt">
-                                 Numery par
-                              </th>
-                           </tr>
-                        </thead>
-                        <tbody>                          
-                        @foreach($couple as $position=>$numbers)
-                           <tr>                           
-                              <td class="text-center font-print-18pt" style="height:42px">
-                                 {{$position}}                                       
-                              </td>
-                              <td class="text-left font-print-18pt" style="height:42px">
-                                 {{$numbers}}                            
-                              </td>                           
-                           </tr>
-                         @endforeach                            
-                        </tbody>
-                    </table>
-                </div>
-                </div>                
-                @endforeach                
-            </div>
-        </div>        
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="pull-right">
-                  {!! Form::submit('Powrót', array('id'=>'submitButton1', 'class' => 'btn btn-primary button-menu')) !!}</br>
-                </div>
-            </div>
+    <div class="row mb-3">
+      <div class="col-12 d-flex align-items-center">
+        <h1 class="page-header mb-0">Wyniki</h1>
+  
+        <div class="ms-auto d-flex gap-2">
+          {!! html()
+              ->submit('Powrót')
+              ->id('submitButton1')
+              ->class('btn btn-primary button-menu') !!}
+  
+          <button type="button"
+                  class="btn btn-brown button-menu btn-icon-left"
+                  onclick="window.print()">
+            <i class="fa fa-print"></i>
+            <span class="button-menu-sep"></span>
+            <span>Drukuj</span>
+          </button>
         </div>
-        {!! Form::close() !!}
-        <div class="row">
-            <div class="col-lg-12">
-               <div class="pull-right">
-                  <a href="javascript:window.print()" type="button" class="btn button-menu btn-brown" >Drukuj</a>
-               </div>
+      </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+        @foreach($couples as $index => $couple)
+          <div class="div-no-break text-center">
+            WYNIKI<br/>
+            <div class="text-center h3">
+              Kategoria: {{ $index }} ( prezentacji: {{ $Numbers[$index] }} )<br/>
             </div>
+              <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover text-center table-pad-2px font-print-18pt">
+                    <thead>
+                      <tr>
+                          <th class="text-center font-14pt">Miejsce</th>
+                          <th class="text-center font-14pt">Numery</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($couple as $position => $numbers)
+                      <tr>
+                          <td class="text-center font-print-18pt" style="height:42px">{{ $position }}</td>
+                          <td class="text-left font-print-18pt" style="height:42px">{{ $numbers }}</td>
+                      </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+          </div>
+        @endforeach
         </div>
     </div>
-    <!-- /#page-wrapper -->
+    {!! html()->form()->close() !!}
+  </div>
 @stop
 
 @section('customScripts')
-    {!! HTML::script('js/jquery-ui.min.js') !!}
-    <script>        
+    <script>
     </script>
 @stop

@@ -4,10 +4,6 @@ namespace App\Http\Controllers\Wall;
 
 use App\Http\Controllers\Competition;
 use App\Http\Controllers\Controller;
-// use Tracy\Debugger;
-// require 'c:\xampp\htdocs\ptt\laravel\vendor\tracy\tracy\src\tracy.php';
-// Debugger::enable();
-// Debugger::$strictMode = TRUE;
 
 use App\Layout;
 use App\Round;
@@ -15,7 +11,8 @@ use Cache;
 use Carbon\Carbon;
 use Config;
 use Illuminate\Support\Facades\Auth;
-use Input;
+use Illuminate\Http\Request;
+use Response;
 use View;
 
 class DashboardController extends Controller
@@ -63,9 +60,9 @@ class DashboardController extends Controller
         $divideFactor = array_add($divideFactor, 35, '35%-65%');
 
         if ($type == 'color') {
-            $color = Input::get('colorSet');
+            $color = request()->input('colorSet');
         } elseif ($type == 'factor') {
-            $factor = Input::get('divideFactor');
+            $factor = request()->input('divideFactor');
         }
 
         return view('wall.config')
@@ -220,10 +217,10 @@ class DashboardController extends Controller
                 $times[] = '';
             }
         }
-        if (count($compressedProgram) > 0) {// exist rounds
+        if (count((array)$compressedProgram) > 0) {// exist rounds
             $times[] = $definedTime->addMinutes($layoutData[0]->parameter2)->Format('H:i');
         }
-        //   try {
+        //try {
         for ($screen_max = 1; $pos < $maxDance; $pos++) { // configured in Config/ptt.php
             $different = true;
             if ($pos != 0) {
@@ -252,10 +249,10 @@ class DashboardController extends Controller
                                     $dance = $this->tournamentHelper->getDanceCouples($rounds[$idx]->roundId, $roundsFromDB[$pos]->dance, $error);
                                 }
                                 if ($dance !== false) {
-                                    if (count($couples[$idx]) == 1) {// one group !!
+                                    if( count((array)$couples[$idx]) == 1) {// one group !!
                                         $danceNames[$idx] .= ' / '.$this->convert_dance($roundsFromDB[$pos]->dance);
                                         $only_one_dance = true;
-                                    } elseif (count($couples[$idx]) > 1) { // groups
+                                    } elseif( count((array)$couples[$idx]) > 1) { // groups
                                         // maybe constant groups??
                                         foreach ($dance->couples as $index => $group) {
                                             if ($tmp_pos > 0 && count($dance->couples) == count($couples[$idx])) {// the same group number, not for first group of course
@@ -263,7 +260,6 @@ class DashboardController extends Controller
                                                 asort($dance->couples[$index]);
                                                 for ($id = 0; $id < count($group); $id++) {
                                                     if (count($group) != count($couples[$idx][$index])) {
-                                                        //  dd(count($group),$idx,$index,$id,$group,$couples );
                                                         $group_const = false;
                                                         break; // different groups
                                                     }
@@ -306,10 +302,26 @@ class DashboardController extends Controller
                 if ($screen_max > $maxLines && ($groups == true || $first == true)) {// not too much lines on the screen
                     break;
                 }
-                $rounds[$tmp_pos] = $this->tournamentHelper->getRoundWithType($roundsFromDB[$pos]->description, $roundsFromDB[$pos]->type);
-                $roundDescriptions[$tmp_pos] = $roundsFromDB[$pos]->description;
-                $roundAlternativeDescriptions[$tmp_pos] = $roundsFromDB[$pos]->alternative_description;
+                //try find couples for 'Pokazowa'
+                if (($posit = mb_strpos(mb_strtoupper($roundsFromDB[$pos]->description, 'UTF-8'), 'POKAZOWA')) !== false) {
+                  $round = $this->tournamentHelper->getRoundWithType('Wstępna'.substr($roundsFromDB[$pos]->description, 
+                                  $posit + 8, strlen($roundsFromDB[$pos]->description) - $posit - 8),
+                                  $roundsFromDB[$pos]->type);
+                  if ($round == false) {
+                    $round = $this->tournamentHelper->getRoundWithType('Finał'.substr($roundsFromDB[$pos]->description, 
+                                $posit + 8, strlen($roundsFromDB[$pos]->description) - $posit - 8),
+                                $roundsFromDB[$pos]->type);
+                  }
+                  $rounds[$tmp_pos] = $round;
+                  $roundDescriptions[$tmp_pos] = $roundsFromDB[$pos]->description;
+                  $roundAlternativeDescriptions[$tmp_pos] = $roundsFromDB[$pos]->alternative_description;
 
+                }
+                else{
+                  $rounds[$tmp_pos] = $this->tournamentHelper->getRoundWithType($roundsFromDB[$pos]->description, $roundsFromDB[$pos]->type);
+                  $roundDescriptions[$tmp_pos] = $roundsFromDB[$pos]->description;
+                  $roundAlternativeDescriptions[$tmp_pos] = $roundsFromDB[$pos]->alternative_description;
+                }
                 $couples[$tmp_pos] = null;
                 $couplesNo[$tmp_pos] = false;
                 $groupConst[$tmp_pos] = false;
@@ -326,12 +338,13 @@ class DashboardController extends Controller
                         if ($groups == true) {
                             // maybe constant groups??
                             foreach ($dance->couples as $index => $group) {
-                                if ($tmp_pos > 0 && count($dance->couples) == count($couples[$tmp_pos - 1])) {// the same group number, not for first group of course
+                                //if ($tmp_pos > 0 && count($dance->couples) == count($couples[$tmp_pos - 1])) {// the same group number, not for first group of course
+                                if ($tmp_pos > 0 && is_countable($dance->couples) && is_countable($couples[$tmp_pos - 1]) && count($dance->couples) == count($couples[$tmp_pos - 1])) {
                                     $group_const = true;
                                     asort($dance->couples[$index]);
                                     for ($idx = 0; $idx < count($group); $idx++) {
-                                        if (count($group) != count($couples[$idx][$index])) {
-                                            //  dd(count($group),$idx,$index,$id,$group,$couples );
+                                      if ( is_countable($group) && isset($couples[$idx]) && is_countable($couples[$index][$idx] ?? null)
+                                            && count($group) != count($couples[$index][$idx])) {
                                             $group_const = false;
                                             break; // different groups
                                         }
@@ -398,19 +411,19 @@ class DashboardController extends Controller
                 }
             }
         }
-        //   } catch (Exception $e) {
-        //
-        //            $message = $e->getMessage();
-        //            dd('Exception Message: '. $message);
-        //
-        //            $code = $e->getCode();
-        //            dd('Exception Code: '. $code);
-        //
-        //            $string = $e->__toString();
-        //            dd('Exception String: '. $string);
-        //
-        //            exit;
-        //        }
+      //} catch (Exception $e) {
+      //
+      //         $message = $e->getMessage();
+      //         dd('Exception Message: '. $message);
+      //
+      //         $code = $e->getCode();
+      //         dd('Exception Code: '. $code);
+      //
+      //         $string = $e->__toString();
+      //         dd('Exception String: '. $string);
+      //
+      //         exit;
+      //     }
 
         if (count($roundDescriptions) > 0) {
             foreach ($roundDescriptions as $index => $desc) {
@@ -420,7 +433,7 @@ class DashboardController extends Controller
                 }
             }
         }
-
+        //dd('show -',$program, $mainRounds, $rounds, $couples, $couplesNo);
         if ($display != false) {
             return view('wall.program')
                 ->with('program', $program)
@@ -434,8 +447,6 @@ class DashboardController extends Controller
                 ->with('couplesNo', $couplesNo)
                 ->with('groupConst', $groupConst)
                 ->with('times', $times);
-            // ->with('color', $color)
-            // ->with('factor', $factor);
         } else {
             return view('wall.program')
                 ->with('program', $program)
@@ -449,8 +460,6 @@ class DashboardController extends Controller
                 ->with('couplesNo', null)
                 ->with('groupConst', null)
                 ->with('times', null);
-            // ->with('color', $color)
-            // ->with('factor', $factor);
         }
     }
 

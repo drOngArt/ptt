@@ -1,77 +1,89 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="pl">
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
 
     <title>Wybór turnieju</title>
-    {!! HTML::style('css/bootstrap.min.css') !!}
-    {!! HTML::style('css/sb-admin-2.css') !!}
-    {!! HTML::style('css/metisMenu.min.css') !!}
-    {!! HTML::style('css/font-awesome.min.css') !!}
 
-    {!! HTML::script('js/jquery-2.1.3.min.js') !!}
-    {!! HTML::script('js/bootstrap.min.js') !!}
-    {!! HTML::script('js/metisMenu.min.js') !!}
-    {!! HTML::script('js/sb-admin-2.js') !!}
+    {{-- Bootstrap 5 + Twoje style --}}
+    <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/sb-admin-2.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/font-awesome.min.css') }}">
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-    <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
-
-
-    <script type="text/javascript">
-        /*$(document).ready(function(){
-            $('#tournamentDirectoryFile').change(function(){
-                this.form.submit();
-            });
-        });*/
-    </script>
+    <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
+    {{-- jeśli masz bundle dla BS5, lepiej użyć tego pliku --}}
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+    <script src="{{ asset('js/sb-admin-2.js') }}"></script>
 </head>
 
-<body>
+<body class="bg-light">
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 col-md-offset-3">
-            {!! Form::open(array('url' => 'admin/chooseTournament', 'enctype' => 'multipart/form-data')) !!}
-            <div class="login-panel panel panel-default">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Wybierz turniej</h3>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+
+            {{-- formularz --}}
+            {!! html()
+                ->form('POST', url('admin/chooseTournament'))
+                ->attribute('enctype', 'multipart/form-data')
+                ->open() !!}
+
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h3 class="card-title h5 mb-0">Wybierz turniej</h3>
                 </div>
-                <div class="panel-body">
-                    <p class="bg-danger">{{ $errors->first('message') }}</p>
-                    <div class="form-group">
-                    Wybierz plik TurniejDir.txt z katalogu programu Turniej
-                    {!! Form::file('tournamentDirectoryFile') !!} {!! csrf_field() !!}
-                    </div>
-                    <div class="form-group">
-                    lub wpisz ścieżkę do katalogu z bazą turnieju
-                    {!! Form::text('tournamentDirectoryPath', '', array('class' => 'form-control', 'placeholder' => 'scieżka do katalogu')) !!}
-                    </div>
-                    <div class="form-group">                        
-                        <div class="pull-left">
-                           {!! link_to(URL::previous(), 'Anuluj', ['class' => 'btn btn-lg btn-warning button-menu']) !!}
+
+                <div class="card-body">
+
+                    {{-- komunikat błędu --}}
+                    @if($errors->first('message'))
+                        <div class="alert alert-danger py-2 mb-3">
+                            {{ $errors->first('message') }}
                         </div>
-                        <div class="pull-right">
-                           {!! Form::submit('Wybierz', array('class' => 'btn btn-lg btn-primary button-menu')) !!}
-                        </div>
+                    @endif
+
+                    {{-- wybór pliku TurniejDir.txt --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Wybierz plik <code>TurniejDir.txt</code> z katalogu programu „Turniej”
+                        </label>
+                        {!! html()->file('tournamentDirectoryFile')
+                               ->class('form-control') !!}
+                    </div>
+
+                    {{-- ścieżka do katalogu --}}
+                    <div class="mb-3">
+                        <label for="tournamentDirectoryPath" class="form-label fw-semibold">
+                            Lub wpisz ścieżkę do katalogu z bazą turnieju
+                        </label>
+                        {!! html()->text('tournamentDirectoryPath')
+                               ->id('tournamentDirectoryPath')
+                               ->class('form-control')
+                               ->placeholder('ścieżka do katalogu') !!}
+                    </div>
+
+                </div>
+
+                <div class="card-footer bg-white">
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url()->previous() }}"
+                           class="btn btn-warning button-menu">
+                            Anuluj
+                        </a>
+
+                        {!! html()->submit('Wybierz')
+                               ->class('btn btn-primary button-menu') !!}
                     </div>
                 </div>
             </div>
-            {!! Form::close() !!}
+
+            {!! html()->form()->close() !!}
+
         </div>
     </div>
 </div>
 
 </body>
-
 </html>

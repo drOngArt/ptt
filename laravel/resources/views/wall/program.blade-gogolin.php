@@ -89,7 +89,7 @@
 
 
 @section('customScripts')
-    {!! HTML::script('js/wallRound.js') !!}
+    <script src="{{ asset('js/wallRound.js') }}"></script>
     <script>
         var wallRefreshTimer = "{{Config::get('ptt.wallRefreshTimer')}}";
         @if($rounds[0] != null)
