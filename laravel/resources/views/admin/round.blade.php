@@ -71,7 +71,7 @@
                             </span>
                             <button class="btn btn-deep-orange d-inline-flex align-items-center" type="button">
                                 Awans
-                                <span class="badge rounded-pill bg-primary ms-2 fs-6">
+                                <span class="badge rounded-pill bg-danger ms-2 fs-6">
                                     {{ $votes }}
                                 </span>
                             </button>
@@ -326,7 +326,7 @@
       <div class="modal-dialog modal-lg">
          <div class="modal-content">
             <div class="modal-header">
-               <h4 class="modal-title" align="center"><b>Lista par w {{$roundDescription}}</b></h4>
+               <h4 class="modal-title" align="center"><b>Lista zgłoszonych w {{$roundDescription}}</b></h4>
             </div>
             <div class="modal-body">
                <div class="row">

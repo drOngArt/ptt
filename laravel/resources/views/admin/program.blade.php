@@ -226,56 +226,66 @@
     {{ html()->form()->close() }}
   </div>
   
-  
   {{-- Modal “Add round selector” --}}
   <div class="modal fade programAddRoundModal"
       tabindex="-1"
       aria-labelledby="programAddRoundLabel"
       aria-hidden="true">
     {{ html()->form('POST', action('Admin\DashboardController@postAddedRound'))->open() }}
-      <div class="modal-dialog modal-lg">
-        <div class="modal-content">
   
-          <div class="modal-header">
-            <h5 class="modal-title" id="programAddRoundLabel">Dodaj rundę do programu turnieju</h5>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              {{-- Runda --}}
-              <label for="my_round" class="form-label">Runda</label>
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+  
+        <div class="modal-header">
+          <h5 class="modal-title" id="programAddRoundLabel">Dodaj rundę/pokaz/przerwę do programu turnieju</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+        </div>
+  
+        <div class="modal-body">
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-lg-4" id="wrap_round">
+              <label for="my_round" class="form-label mb-1">Runda</label>
               {{ html()->select('round', $roundNames, null)
                   ->id('my_round')
-                  ->class('form-select mb-3') }}
-  
-              {{-- Kategoria (jeśli jest) --}}
-              @if($categoriesNames !== false)
-                <label for="my_category" class="form-label">Kategoria</label>
+                  ->class('form-select') }}
+            </div>
+            @if($categoriesNames !== false)
+              <div class="col-12 col-lg-4" id="wrap_category">
+                <label for="my_category" class="form-label mb-1">Kategoria</label>
                 {{ html()->select('category', $categoriesNames, null)
                     ->id('my_category')
-                    ->class('form-select mb-3') }}
-              @endif
+                    ->class('form-select') }}
+              </div>
+            @endif
   
-              {{-- Typ dodatkowy --}}
-              <label for="my_additional" class="form-label">Typ rundy</label>
+            <div class="col-12 col-lg-4" id="wrap_additional">
+              <label for="my_additional" class="form-label mb-1">Typ rundy</label>
               {{ html()->select('additional', $additNames, null)
                   ->id('my_additional')
-                  ->class('form-select mb-3') }}
-  
-              {{-- Nazwy własne / przerwy / pokazy --}}
+                  ->class('form-select') }}
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12" id="wrap_myround">
               <label for="myround" class="form-label">Nazwa własna rundy (opcjonalnie)</label>
               {{ html()->text('myround')
                   ->id('myround')
                   ->placeholder('Nazwa własna?')
                   ->maxlength(20)
-                  ->class('form-control mb-3 text-start') }}
+                  ->class('form-control text-start') }}
+            </div>
   
+            <div class="col-12 col-lg-6" id="wrap_breakshow_name">
               <label for="mybreakshow_name" class="form-label">Nazwa przerwy/pokazu (opcjonalnie)</label>
               {{ html()->text('mybreakshow_name')
                   ->id('mybreakshow_name')
                   ->placeholder('nazwa?')
                   ->maxlength(20)
-                  ->class('form-control mb-3 text-start') }}
+                  ->class('form-control text-start') }}
+            </div>
   
+            <div class="col-12 col-lg-6" id="wrap_breakshow_dance">
               <label for="mybreakshow_dance" class="form-label">Tańce / minuty (opcjonalnie)</label>
               {{ html()->text('mybreakshow_dance')
                   ->id('mybreakshow_dance')
@@ -285,22 +295,24 @@
             </div>
           </div>
   
-          <div class="modal-footer">
-            <button type="button"
-                    class="btn btn-warning button-menu ms-start"
-                    data-bs-dismiss="modal">
-              Anuluj
-            </button>
-  
-            {{ html()->submit('Dodaj')->class('btn btn-primary button-menu ms-auto') }}
-          </div>
-  
         </div>
+  
+        <div class="modal-footer">
+          <button type="button"
+                  class="btn btn-warning button-menu"
+                  data-bs-dismiss="modal">
+            Anuluj
+          </button>
+  
+          {{ html()->submit('Dodaj')->class('btn btn-primary button-menu ms-auto') }}
+        </div>
+  
       </div>
+    </div>
+  
     {{ html()->form()->close() }}
   </div>
-  
-  
+
   {{-- Modal “Additional Program” --}}
   <div class="modal fade additionalProgramModal"
       tabindex="-1"
@@ -415,17 +427,41 @@
 @stop
 
 @section('customScripts')
-    <script src="{{ asset('js/jquery.dragtable.js') }}"></script>
     <script src="{{ asset('js/jquery.multisortable.js') }}"></script>
 
     <script>
     $(function(){
-        $('#my_name').hide();
-        $('#my_sb_name').hide();
-        $('#my_sb_dance').hide();
-        $('#my_category').show();
-        $('#my_additional').show();
-        $('#my_round').on('change', function () {
+      function showOnly(mode){
+        $('#wrap_myround, #wrap_breakshow_name, #wrap_breakshow_dance').addClass('d-none');
+        // domyślnie pokazuj selecty (kategoria/typ)
+        $('#wrap_category, #wrap_additional').removeClass('d-none');
+
+        if (mode === 'custom') {
+          $('#wrap_myround').removeClass('d-none');
+        }
+        if (mode === 'breakshow') {
+          $('#wrap_category, #wrap_additional').addClass('d-none');
+          $('#wrap_breakshow_name, #wrap_breakshow_dance').removeClass('d-none');
+        }
+      }
+
+      showOnly('round');
+      $('#my_round').on('change', function () {
+        const v = this.value;
+        // schowaj wszystko (wrappery!)
+        $('#wrap_category, #wrap_additional, #wrap_myround, #wrap_breakshow_name, #wrap_breakshow_dance')
+          .addClass('d-none');
+
+        if (v === 'sh_br') { // Pokaz/Przerwa
+          $('#wrap_breakshow_name, #wrap_breakshow_dance').removeClass('d-none');
+        } else if (v === 'my') { // Zdefiniuj własną:
+          $('#wrap_myround, #wrap_category, #wrap_additional').removeClass('d-none');
+        } else { // normalna runda
+          $('#wrap_category, #wrap_additional').removeClass('d-none');
+        }
+      }).trigger('change'); // ustawia od razu po otwarciu
+
+/*        $('#my_round').on('change', function () {
             var v = this.value;
             if( v == 'my' ) {
                //console.log('my_round - my ',this.value);
@@ -450,7 +486,7 @@
                $('#my_sb_name').hide();
                $('#my_sb_dance').hide();
             }
-        });
+        });*/
         $('#withTimes').on('click', function () {
             $('.userTime').addClass('drukarka');
             $('.userTime').removeClass('ekran');

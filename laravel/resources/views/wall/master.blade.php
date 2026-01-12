@@ -12,7 +12,7 @@
     <title>@yield('title')</title>
     <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/css/sb-wall.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/sb-wall.css') }}" rel="stylesheet">
     
     <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
@@ -24,31 +24,23 @@
     
 </head>
 
-<body>
+<body class="wall-body">
 
-<div id="wrapper">
-
-    <!-- Navigation -->
-    <nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
-        <div class="navbar-header">
-            <a class="navbar-brand" href="{{$baseURI}}/{{$wallPrefix}}"><b>{{$tournamentName}}</b></a>
-        </div>
-        <!-- /.navbar-header -->
-
+  <div id="wrapper">
+    <nav class="navbar navbar-expand navbar-dark bg-dark fixed-top">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="{{ $baseURI }}/{{ $wallPrefix }}">
+          <b>{{ $tournamentName }}</b>
+        </a>
+      </div>
     </nav>
-
-    @yield('content')
+    {{-- treść pod fixed navbar --}}
+    <main class="container-fluid wall-content">
+      @yield('content')
+    </main>
     @yield('customScripts')
-</div>
-<!-- /#wrapper -->
-<!--[if lt IE 8]>
-<script src="js/jquery-1.11.2.min.js">
-<![endif]-->
-
-@yield('additionalResources')
-
-
-
+  </div>
+  @yield('additionalResources')
 </body>
 
 </html> 

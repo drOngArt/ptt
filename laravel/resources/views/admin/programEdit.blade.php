@@ -10,7 +10,6 @@
     {{-- GŁÓWNY FORMULARZ --}}
     {{ html()->form('POST', action('Admin\DashboardController@postFinalProgram'))->open() }}
 
-    {{-- HEADER: tytuł + przyciski po prawej --}}
     <div class="row mb-3">
         <div class="col-lg-12">
             <div class="page-header-break">PROGRAM TURNIEJU</div>
@@ -66,7 +65,7 @@
                                         @endif
                                     </div>
                                     <div class="alignright">
-                                        [ Liczba par ]
+                                        [ Prezentacji ]
                                     </div>
                                 </div>
                             </th>
@@ -309,39 +308,101 @@
 
 @section('customScripts')
    <script src="{{ asset('js/adminProgramEdit.js') }}"></script>
+   <script src="{{ asset('js/jquery.multisortable.js') }}"></script>
    <script>
-      $(function() {
-         var removeIntent = false;
-
-         $("#sortable1").sortable({
-            connectWith: ".connectedSortable",
-            update: function(event,ui){
-              $(this).find('tr').each(function(i){
-                $(this).find('td:first').text((i+1) + '.');
-              });
-            },
-            start: function(event,ui){
-              ui.item.css('background-color','#F2F5A9');
-              ui.item.css('border-radius','8px');
-              ui.item.css('border','2px solid #428bca');
-            },
-            out: function(event,ui){
-              removeIntent = true;
-            },
-            beforeStop: function(event,ui){
-              if(removeIntent){
-                ui.item.remove();
-              }
-            },
-            stop: function(event,ui){
-              ui.item.css('border','');
-              ui.item.css('background-color','#E0ECF8');
-            },
-         });
-
-         $('td').each(function(){
-            $(this).css('width', $(this).width() + 'px');
-         });
+    $(function () {
+      const $tbody = $("#sortable1");
+      const $table = $tbody.closest("table");
+      let lastMouse = { x: 0, y: 0 };
+      let tracking = false;
+    
+      function renumber() {
+        $tbody.find("tr").each(function(i){
+          $(this).find("td:first").text((i+1) + ".");
+        });
+      }
+    
+      function isOutsideTable(x, y) {
+        const o = $table.offset();
+        const left = o.left, top = o.top;
+        const right = left + $table.outerWidth();
+        const bottom = top + $table.outerHeight();
+        const margin = 12;
+        return (x < left - margin || x > right + margin || y < top - margin || y > bottom + margin);
+      }
+    
+      $(document).on("mousemove.sortDelete", function(e){
+        if (!tracking) return;
+        lastMouse.x = e.pageX;
+        lastMouse.y = e.pageY;
       });
-   </script>
+    
+      // helper, który zachowuje szerokości kolumn (bez clone + bez body)
+      const fixHelper = function(e, ui) {
+        ui.children().each(function() {
+          $(this).width($(this).width()); // “zamraża” szerokość komórki na czas drag
+        });
+        return ui;
+      };
+    
+      $tbody.sortable({
+        axis: "y",
+        items: "> tr",
+        tolerance: "pointer",
+        helper: fixHelper,
+        forcePlaceholderSize: true,
+        placeholder: "sortable-placeholder",
+    
+        start: function(_e, ui) {
+          tracking = true;
+    
+          // placeholder ma mieć wysokość jak wiersz
+          ui.placeholder.height(ui.item.outerHeight());
+    
+          // delikatny styl dragowanego wiersza
+          ui.item.addClass("dragging-row");
+        },
+    
+        stop: function(_e, ui) {
+          tracking = false;
+
+          ui.item.removeClass("dragging-row");
+          ui.item.css('border', '');
+          ui.item.css('background-color', '#E0ECF8');
+
+          // ODBLOKUJ szerokości komórek po upuszczeniu (ważne!)
+          ui.item.children().css("width", "");
+    
+          if (isOutsideTable(lastMouse.x, lastMouse.y)) {
+            ui.item.fadeOut(120, function(){
+              $(this).remove();
+              renumber();
+            });
+          } else {
+            renumber();
+          }
+        },
+    
+        update: function(){
+          renumber();
+        }
+      }).disableSelection();
+    });
+    </script>
+    
+    <style>
+    /* placeholder w tabeli */
+    .sortable-placeholder td{
+      background: rgba(0,0,0,.04);
+      border: 2px dashed rgba(0,0,0,.2);
+    }
+    
+    /* wygląd podczas przeciągania */
+    .dragging-row{
+      background: #F2F5A9 !important;
+      border-radius: 8px;
+      outline: 2px solid #428bca;
+    }
+    </style>
+
 @stop

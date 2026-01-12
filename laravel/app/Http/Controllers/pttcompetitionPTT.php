@@ -2311,7 +2311,7 @@ class CompetitionPTT
         return strtr($first, $second);
     }
 
-    public function SaveJudge2CSV($category_name, $part, $judgesId, $count, $scrutineerId)
+    public function SaveJudge2CSV($category_name, $part, $judgesId, $count)
     {
         $judgeFile = new FileCSV(CPConverter::convert($this->folder.'/Listy/'.'Judges '.$part.' '.$this->convert_pl($category_name).'.csv', 'UTF-8', 'CP1250'));
         $orderJ = '_ABCDEFGHIJKLMNOPRSTUWXYZ';
@@ -2359,18 +2359,36 @@ class CompetitionPTT
             $judgeFile->write();
         }
         // scrutineers now
-        for ($i = 0; $i < 2; $i++) {
+        $Scrutineers = [];
+        $ScrutineersforRound = [];
+        $Scrutineers = $this->getScrutineersCSV();
+        // add scrutineers from ptt program to csv listed
+        $ScrutineersforRound = $this->getScrutineers(0);
+        if (count($ScrutineersforRound) > 0) {// add to all
+            foreach ($ScrutineersforRound as $scrforR) {
+                $yes = true;
+                foreach ($Scrutineers as $scr) {
+                    if ($scrforR->firstName == $scr->firstName && $scrforR->lastName == $scr->lastName) {
+                        $yes = false;
+                        break;
+                    }
+                }
+                if ($yes) { // new, add to list
+                    if ($scrforR->plId == '' && $scrforR->plId2 == '') { // without plId - maybe manual write, not form base
+                        $scrforR->plId2 = $scrforR->lastName.';'.$scrforR->firstName.';'.$scrforR->city.';'.$scrforR->country;
+                    }
+                    $Scrutineers = array_add($Scrutineers, $scrforR->plId2, $scrforR);
+                }
+            }
+        }
+        $i = 0;
+        foreach( $Scrutineers as $scr){
             $judge = false;
-            if (count($scrutineerId) > $i && $scrutineerId[$i] != '000000' && $scrutineerId[$i] != 0 && $scrutineerId[$i] != ' ' && is_numeric($scrutineerId[$i])) {
-                $judge = $this->getJudgeDBbyID($scrutineerId[$i]);
+            if( $scr->plId != '000000' && $scr->plId != 0 && $scr->plId != ' ' && is_numeric($scr->plId)) {
+                $judge = $this->getJudgeDBbyID($scr->plId);
             }
-
-            if ($i < 2) {
-                $judgeFile->set($i + 1);
-            } else {
-                break;
-            }
-
+            $judgeFile->set($i + 1);
+            $i++;
             if ($judge) {
                 $judgeFile->append($judge->lastName);
                 $judgeFile->append($judge->firstName);
@@ -2378,8 +2396,8 @@ class CompetitionPTT
                 $judgeFile->append($judge->country);
                 $judgeFile->append($judge->plId);
                 $judgeFile->append($judge->categoryS);
-            } elseif (count($scrutineerId) > $i && ! is_numeric($scrutineerId[$i])) {// maybe manual added
-                $parts = explode(';', $scrutineerId[$i]);
+            } elseif (count($Scrutineers) > $i && ! is_numeric($scr->plId)) {// maybe manual added
+                $parts = explode(';', $scr);
                 $judgeFile->append($parts[0]);
                 $judgeFile->append($parts[1]);
                 $judgeFile->append($parts[2]);

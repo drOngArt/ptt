@@ -45,8 +45,8 @@
                 @if($round)
                     <div style="clear: both;"></div>
 
-                    <div class="table-responsive mb-4">
-                        <table class="trainee table table-cont table-striped table-bordered" style="table-layout: fixed; width: auto;">
+                    <div class="table-responsive">
+                        <table class="trainee table table-cont table-striped table-bordered" style="table-layout: fixed; width: auto;margin-bottom: 2px;">
                             <tbody>
                                 @if(isset($couples[$pos]) && $couples[$pos])
                                     @if(strpos($name, $round->roundName.$round->categoryName.$round->className.$round->styleName) === false)

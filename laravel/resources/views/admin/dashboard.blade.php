@@ -23,23 +23,28 @@
                 </button>
             </div>
           </div>
-          <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="d-flex align-items-center mb-2">
             @if($filterInProgram)
-              <div class="form-check form-check-inline align-items-center me-auto">
-                <input class="form-check-input custom-checkbox mx-2 ps-0" type="checkbox" id="presentFilter">
-                  <label class="form-check-label ms-2 px-2" for="presentFilter">Pokaż wszystkich</label>
-              </div>
+                <div class="form-check form-check-inline align-items-center me-auto">
+                    <input class="form-check-input custom-checkbox mx-2 ps-0"
+                          type="checkbox"
+                          id="presentFilter">
+                    <label class="form-check-label ms-2 px-2" for="presentFilter">
+                        Pokaż wszystkich
+                    </label>
+                </div>
+            @else
+                {{-- placeholder żeby prawa strona zawsze była wypchnięta --}}
+                <div class="me-auto"></div>
             @endif
             @if(count($judges))
-              <div class="d-flex justify-content-end">
                 <button type="button"
-                        class="btn btn-brown button-menu btn-icon-left my-2"
+                        class="btn btn-brown button-menu btn-icon-left my-2 ms-auto"
                         onclick="window.print()">
                     <i class="fa fa-print"></i>
                     <span class="button-menu-sep"></span>
                     <span>Drukuj</span>
                 </button>
-              </div>
             @endif
           </div>
         </div>
@@ -182,7 +187,7 @@
     $(function() {
       function restripeTable($table) {
         const $rows = $table.find('> tr:visible');
-        console.log('visible in ', $table.attr('id'), '- rows: ',$rows.length);
+        //console.log('visible in ', $table.attr('id'), '- rows: ',$rows.length);
         $rows.filter(':even').css({"background-color": "rgba(0, 0, 0, 0.03)"});
       };
       restripeTable($('#judgesTable'));

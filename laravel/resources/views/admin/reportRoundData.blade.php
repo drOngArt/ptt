@@ -15,7 +15,7 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h1 class="page-header mb-0">
-                        Zestaw rund (liczby par, grup)
+                        Zestaw rund (liczba startujących, grup)
                     </h1>
 
                     {{ html()
@@ -48,9 +48,9 @@
                             <tr>
                                 <th class="text-center" style="width: 5%">Lp.</th>
                                 <th style="width: 45%">Runda</th>
-                                <th class="text-center">Liczba par</th>
-                                <th class="text-center">Typowań</th>
-                                <th class="text-center">Grup</th>
+                                <th class="text-center">&Sigma;</th>
+                                <th class="text-center">Typowania</th>
+                                <th class="text-center">Grupy</th>
                             </tr>
                         </thead>
                         <tbody>

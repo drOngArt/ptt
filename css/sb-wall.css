@@ -1,547 +1,193 @@
-/*!
- * Start Bootstrap - SB Admin 2 Bootstrap Admin Theme (http://startbootstrap.com)
- * Code licensed under the Apache License v2.0.
- * For details, see http://www.apache.org/licenses/LICENSE-2.0.
- */
- 
-#wrapper {
-    width: 100%;
-}
- 
-body {
-    background-color: #bbb;
+/* === WALL layout (BS5-friendly) ======================================== */
+
+:root{
+  --wall-top: 60px;   /* wysokość navbara */
+  --wall-left: 36%;
+  --wall-gap: 6px;
 }
 
-
-#page-wrapper-left {
-   position: absolute;
-   left: 0%;  
-   top: 45px;
-   width: 35.7%;
-   padding: 0 2px;
-   min-height: 978px;
-   color: #FFFCa0;
-   background-color: darkblue;
-   text-align: left;
-   font-size: 24px;
-   font-family: Verdana;
-   font-style: normal;
-   font-weight: bold;
-   line-height: 0;
-   -webkit-font-smoothing: antialiased;
-   -moz-osx-font-smoothing: grayscale;
-   text-shadow: 6px 8px 6px #ddd;
+html, body{
+  height: 100%;
 }
 
-#page-wrapper-right {
-   position: absolute;
-   left: 36%;  
-   top: 45px;
-   width: 66.7%;
-   padding: 0 5px;
-   min-height: 978px;
-   color: black;
-   background-color: #ff8;
-   font-family: Arial;
-   font-style: normal;
-   font-weight: bold;
-   line-height: 0;
-   -webkit-font-smoothing: antialiased;
-   -moz-osx-font-smoothing: grayscale;
+#wrapper{
+  padding-top: var(--wall-top);
 }
 
-@media(min-width:768px) {
-    #page-wrapper {
-        position: inherit;
-        margin: 0 0 0 0px;
-        padding: 0 30px;
-        border-left: 1px solid #e7e7e7;
-    }
-    #page-wrapper-2 {
-        
-        margin: 0 0 0 0px;
-        padding: 0 30px;
-        border-left: 1px solid #e7e7e7;
-    }
-
+/* main pod wrapperem niech ma już tylko "oddech" */
+.wall-content{
+  padding-top: 4px !important;
 }
 
-/*.fa-spinner{
-  background-color: red;
-}*/
-
-.class_in_progress{
- font-size: 22px;
- background-color: #d33;
- color: white;
- border-radius: 0 16px 0 16px ;
+/* ✅ wall-layout już nie potrzebuje margin-top (bo padding robi wrapper) */
+.wall-layout{
+  display: flex;
+  gap: var(--wall-gap);
+  padding: 0 var(--wall-gap) var(--wall-gap);
+  box-sizing: border-box;
+  font-size: 20px;        /* ← punkt wyjścia (TV-friendly) */
+  line-height: 1.15;
 }
 
-.class_next{
-  font-style: strong;
-  font-size: 20px;
-  /*color: white*/;
+.wall-layout .table td,
+.wall-layout .table th{
+  padding: .35rem .45rem;
+  vertical-align: middle;
 }
 
+/* ✅ Podgląd na stronie konfiguracji: nie musi mieć pełnego height */
+.wall-layout-preview{
+  height: 360px;              /* możesz zmienić */
+}
 
-.text-muted {
-  color: HoneyDew;
-  background-color: Coral;
+/* body dla wall */
+body.wall-body{
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  scrollbar-width: none;        /* Firefox */
+  -ms-overflow-style: none;     /* Edge legacy */
+}
+
+body.wall-body::-webkit-scrollbar{
+  width: 0;
+  height: 0;
+}
+
+/* panele */
+.wall-left{
+  flex: 0 0 var(--wall-left);
+  min-width: 260px; /* zabezpieczenie */
+  overflow: hidden;
+  padding: 6px;
+  border-radius: 10px;
+}
+
+.wall-right{
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 6px;
+  border-radius: 10px;
+}
+
+/* nagłówki/teksty (z Twoich klas) */
+.w_page-header{
+  margin: 6px 0 8px;
+  padding-top: 6px;
+  border-top: 4px solid currentColor;
+  line-height: 1.15;
+}
+
+.w_page-header-dance{
+  margin: 0 0 8px;
+  padding: 4px 6px;
   border-radius: 8px;
+  line-height: 1.15;
 }
 
-.w_page-header {
-  font-family: Roman;
-  font-weight: bold;
-  color: darkblue;
-  //text-align: center;
-  //padding-bottom: 1px;
-  margin: 10px 0 4px;
-  border-top: 4px solid darkblue;     
+.table-couples-main{
+  line-height: 1.2;
 }
 
-.w_page-header-dance {
-  font-size: 20px;
-  font-family: "Comic Sans MS";
-  font-weight: bold;
-  //background: darkblue;
-  padding-bottom: 1px;
-  margin: 3px 2px 1px 1px;
-  display: inline-block;  
-  color: #ffffe0;
-  border-radius: 12px 2px 12px 2px ;
-    
-  background: linear-gradient(to right, darkblue, blue, black, gold );
-  background: -moz-linear-gradient(left, darkblue, blue, black, gold  ); /* For Firefox 3.6 to 15 */
-  background: -o-linear-gradient(left, darkblue, blue, black, gold );     /* For Opera 11.1 to 12.0 */   
-}
-
-.table-couples-main {    
-   font-size: 26px;
-   font-family: Arial;
-   color: #ffffe0;
-   padding: 1px 5px 1px 5px;
-    
-   background: linear-gradient(to right, #333, blue, #111 );
-   background: -moz-linear-gradient(left, #333, blue, #111  ); /* For Firefox 3.6 to 15 */
-   background: -o-linear-gradient(left,#333, blue, #111 );     /* For Opera 11.1 to 12.0 */       
-}
-
-.table-striped>tbody>tr:nth-of-type(odd){
-   color:darkblue;   
-   background-color:#eee;
-   text-shadow: 1px 0px 1px #999;
-}
-
-.table-striped>tbody>tr:nth-of-type(even){
-   
-   color:#eee;
-   background-color:darkblue;
-   text-shadow: 1px 0px 1px #999;
-}
-    
-/*.w_page-header:first-letter{
-   color: black;
-   font-size: 24px;
-}*/
-
-.button-menu{
-    color: #fff;
-    font-size: 14px;
-    width: 155px;
-    height: 33px;
-    padding: 6px 12px;
-    margin: 0 0 0 4px;
-}
-
-
-.row {
-   margin-right: -5px;
-   margin-left: -5px;
-}
-
-
-.navbar-top-links {
-   margin-right: 0;
-}
-
-.navbar-top-links li {
-   display: inline-block;
-}
-
-.navbar-top-links li:last-child {
-   margin-right: 15px;
-}
-
-.navbar-top-links li a {
-   padding: 15px;
-   min-height: 50px;
-}
-
-.navbar-top-links .dropdown-menu li {
-   display: block;
-}
-
-.navbar-top-links .dropdown-menu li:last-child {
-    margin-right: 0;
-}
-
-.navbar-top-links .dropdown-menu li a {
-    padding: 3px 20px;
-    min-height: 0;
-}
-
-.navbar-top-links .dropdown-menu li a div {
-    white-space: normal;
-}
-
-.navbar-top-links .dropdown-messages,
-.navbar-top-links .dropdown-tasks,
-.navbar-top-links .dropdown-alerts {
-    width: 310px;
-    min-width: 0;
-}
-
-.navbar-top-links .dropdown-messages {
-    margin-left: 5px;
-}
-
-.navbar-top-links .dropdown-tasks {
-    margin-left: -59px;
-}
-
-.navbar-top-links .dropdown-alerts {
-    margin-left: -123px;
-}
-
-.navbar-top-links .dropdown-user {
-    /*right: 0;*/
-    /*left: auto;*/
-}
-
-.sidebar .sidebar-nav.navbar-collapse {
-    padding-right: 0;
-    padding-left: 0;
-}
-
-.sidebar .sidebar-search {
-    padding: 15px;
-}
-
-.sidebar ul li {
-    border-bottom: 1px solid #e7e7e7;
-}
-
-.sidebar ul li a.active {
-    background-color: #eee;
-}
-
-.sidebar .arrow {
-    float: right;
-}
-
-.sidebar .fa.arrow:before {
-    content: "\f104";
-}
-
-.sidebar .active>a>.fa.arrow:before {
-    content: "\f107";
-}
-
-.sidebar .nav-second-level li,
-.sidebar .nav-third-level li {
-    border-bottom: 0!important;
-}
-
-.sidebar .nav-second-level li a {
-    padding-left: 37px;
-}
-
-.sidebar .nav-third-level li a {
-    padding-left: 52px;
-}
-
-@media(min-width:768px) {
-    .sidebar {
-        z-index: 1;
-        position: absolute;
-        width: 250px;
-        margin-top: 51px;
-    }
-
-    .navbar-top-links .dropdown-messages,
-    .navbar-top-links .dropdown-tasks,
-    .navbar-top-links .dropdown-alerts {
-        margin-left: auto;
-    }
-}
-
-.btn-outline {
-    color: inherit;
-    background-color: transparent;
-    transition: all .5s;
-}
-
-.btn-primary.btn-outline {
-    color: #428bca;
-}
-
-.btn-success.btn-outline {
-    color: #5cb85c;
-}
-
-.btn-info.btn-outline {
-    color: #5bc0de;
-}
-
-.btn-warning.btn-outline {
-    color: #f0ad4e;
-}
-
-.btn-danger.btn-outline {
-    color: #d9534f;
-}
-
-.btn-primary.btn-outline:hover,
-.btn-success.btn-outline:hover,
-.btn-info.btn-outline:hover,
-.btn-warning.btn-outline:hover,
-.btn-danger.btn-outline:hover {
-    color: #fff;
-}
-
-.chat {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-.chat li {
-    margin-bottom: 10px;
-    padding-bottom: 5px;
-    border-bottom: 1px dotted #999;
-}
-
-.chat li.left .chat-body {
-    margin-left: 60px;
-}
-
-.chat li.right .chat-body {
-    margin-right: 60px;
-}
-
-.chat li .chat-body p {
-    margin: 0;
-}
-
-.panel .slidedown .glyphicon,
-.chat .glyphicon {
-    margin-right: 5px;
-}
-
-.chat-panel .panel-body {
-    height: 350px;
-    overflow-y: scroll;
-}
-
-.login-panel {
-    margin-top: 25%;
-}
-
-.flot-chart {
-    display: block;
-    height: 400px;
-}
-
-.flot-chart-content {
-    width: 100%;
-    height: 100%;
-}
-
-.dataTables_wrapper {
-    position: relative;
-    clear: both;
-}
-
-table.dataTable thead .sorting,
-table.dataTable thead .sorting_asc,
-table.dataTable thead .sorting_desc,
-table.dataTable thead .sorting_asc_disabled,
-table.dataTable thead .sorting_desc_disabled {
-    background: 0 0;
-}
-
-table.dataTable thead .sorting_asc:after {
-    content: "\f0de";
-    float: right;
-    font-family: fontawesome;
-}
-
-table.dataTable thead .sorting_desc:after {
-    content: "\f0dd";
-    float: right;
-    font-family: fontawesome;
-}
-
-table.dataTable thead .sorting:after {
-    content: "\f0dc";
-    float: right;
-    font-family: fontawesome;
-    color: rgba(50,50,50,.5);
-}
-
-.btn-circle {
-    width: 30px;
-    height: 30px;
-    padding: 6px 0;
-    border-radius: 15px;
-    text-align: center;
-    font-size: 12px;
-    line-height: 1.428571429;
-}
-
-.btn-circle.btn-lg {
-    width: 50px;
-    height: 50px;
-    padding: 10px 16px;
-    border-radius: 25px;
-    font-size: 18px;
-    line-height: 1.33;
-}
-
-.btn-circle.btn-xl {
-    width: 70px;
-    height: 70px;
-    padding: 10px 16px;
-    border-radius: 35px;
-    font-size: 24px;
-    line-height: 1.33;
-}
-
-.show-grid [class^=col-] {
-    padding-top: 10px;
-    padding-bottom: 10px;
-    border: 1px solid #ddd;
-    background-color: #eee!important;
-}
-
-.show-grid {
-    margin: 15px 0;
-}
-
-.huge {
-    font-size: 40px;
-}
-
-.panel-green {
-    border-color: #5cb85c;
-}
-
-.panel-green .panel-heading {
-    border-color: #5cb85c;
-    color: #fff;
-    background-color: #5cb85c;
-}
-
-.panel-green a {
-    color: #5cb85c;
-}
-
-.panel-green a:hover {
-    color: #3d8b3d;
-}
-
-.panel-red {
-    border-color: #d9534f;
-}
-
-.panel-red .panel-heading {
-    border-color: #d9534f;
-    color: #fff;
-    background-color: #d9534f;
-}
-
-.panel-red a {
-    color: #d9534f;
-}
-
-.panel-red a:hover {
-    color: #b52b27;
-}
-
-.panel-yellow {
-    border-color: #f0ad4e;
-}
-
-.panel-yellow .panel-heading {
-    border-color: #f0ad4e;
-    color: #fff;
-    background-color: #f0ad4e;
-}
-
-.panel-yellow a {
-    color: #f0ad4e;
-}
-
-.panel-yellow a:hover {
-    color: #df8a13;
-}
-
-
-.table {
+/* tabela z parami */
+.couples-table{
+  table-layout: fixed;   /* 🔥 klucz */
   width: 100%;
-  max-width: 100%;
-  margin-bottom: 3px;
-}
-.table > thead > tr > th,
-.table > tbody > tr > th,
-.table > tfoot > tr > th,
-.table > thead > tr > td,
-.table > tbody > tr > td,
-.table > tfoot > tr > td {
-  padding: 4px;
-  line-height: 1.42857143;
-  vertical-align: top;  
 }
 
-.table > thead > tr > th {
-  vertical-align: bottom;
-  border-bottom: 2px solid #ddd;
-}
-.table > caption + thead > tr:first-child > th,
-.table > colgroup + thead > tr:first-child > th,
-.table > thead:first-child > tr:first-child > th,
-.table > caption + thead > tr:first-child > td,
-.table > colgroup + thead > tr:first-child > td,
-.table > thead:first-child > tr:first-child > td {
-  border-top: 0;
-}
-.table > tbody + tbody {
-  border-top: 2px solid #ddd;
-}
-.table .table {
-  background-color: #fff;
+/* 1. kolumna – zawsze 150px */
+.couples-col-label{
+  width: 187px;
+  min-width: 150px;
+  max-width: 187px;
+  white-space: nowrap;
+  vertical-align: top;
 }
 
-tablecell {
-    display: table;
-    width: 100%;   
+/* 2. kolumna – startuje OD RAZU po 150px */
+.couples-col-numbers{
+  width: auto;
+  vertical-align: top;
 }
 
-tablecell tc-dance {
-    display: table-cell;
-    text-align: left;
+/* === RIGHT PANEL TYPOGRAPHY === */
+/* 1️⃣ kategoria + liczba */
+.wall-right .w_page-header{
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 4px;
 }
 
-tablecell tc-order {
-   display: table-cell;
-   text-align: left;
-   color:#d74;
-   animation: blink 3s linear 1s infinite alternate;
+/* 2️⃣ tańce – mniejsze */
+.wall-right .w_page-header-dance{
+  font-size: 15px;
+  font-weight: 600;
+  opacity: .85;
+  margin-bottom: 6px;
 }
 
-.badge {
-  font-size: 18px; 
+/* 3️⃣ numery par – największe */
+.wall-right .table-couples-main{
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+/* poprawa czytelności tabel na wall */
+.wall-layout table{
+  margin-bottom: 0;
+}
+
+.wall-layout .table td,
+.wall-layout .table th{
+  padding: .35rem .45rem;
+  vertical-align: middle;
+}
+
+/* ✅ opis może się zawijać */
+.wall-schedule-desc{
+  white-space: normal;        /* pozwala łamać */
+  word-break: break-word;
+  line-height: 1.2;
+}
+
+
+/* ✅ tańce niech będą widoczne, zawsze w jednej linii */
+.wall-schedule-dances{
+  white-space: nowrap;        /* ❗ najważniejsze */
+  display: inline-flex;       /* w jednej linii */
+  gap: 6px;
+  align-items: center;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+
+/* ✅ pojedynczy “kafelek” tańca */
+.wall-pill{
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: .35rem .6rem;
+  border-radius: .75rem;
+  font-weight: 700;
+  white-space: nowrap;        /* taniec + numer nie łamie się */
+}
+
+.wall-layout .table{
+  font-size: inherit;   /* ❗ nie pozwól Bootstrapowi zmniejszać */
+}
+
+.wall-pill,
+.wall-schedule-dance{
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.wall-schedule-note{
+  opacity: .9;
+  font-weight: 700;
 }
 
 .btn-indigo {
@@ -552,6 +198,26 @@ tablecell tc-order {
 .btn-indigo .badge {
     color: #3E50B4;
     background-color: #FFF;    
+}
+
+/* button-menu żeby wyglądał równo także jako dropdown */
+.button-menu{
+  color:#fff;
+  font-size:14px;
+  width:155px;
+  height:33px;
+  padding:6px 12px;
+  margin:0 0 0 4px;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:.35rem;
+}
+
+/* upewnij się, że dropdown-toggle nie psuje wysokości */
+.button-menu.dropdown-toggle{
+  height:33px;
 }
 
 .btn-deep-orange {
@@ -576,12 +242,112 @@ tablecell tc-order {
     background-color: #FFF;    
 }
 
-@keyframes blink {
-    0%   {color: #fff865;}
-    10%  {color: orange;}
-    30%  {color: red;}
-    50%  {color: darkred;}
-    70%  {color: red;}
-    90%  {color: orange;}
-    100% {color: #fff865;}
+.btn-indigo:hover{ filter: brightness(0.95); color:#fff; }
+.btn-deep-orange:hover{ filter: brightness(0.95); color:#fff; }
+
+/* jeżeli chcesz zachować Twój dawny wygląd (a nie bootstrapowy) */
+.wall-body .text-muted{
+  color: HoneyDew;
+  background-color: Coral;
+  border-radius: 8px;
+  padding: 2px 6px;
+  display: inline-block;
 }
+
+
+/* === THEMES (colorSet) ================================================= */
+
+/* 1: black/white */
+.theme-1 .wall-left,
+.theme-1 .wall-right{
+  background: #000;
+  color: #fff;
+}
+.theme-1 .w_page-header-dance,
+.theme-1 .table-couples-main{
+  background: #000;
+  color: #fff;
+}
+.theme-1 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#000; color:#fff; }
+.theme-1 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:#fff; color:#000; }
+
+/* 2: white/black */
+.theme-2 .wall-left,
+.theme-2 .wall-right{
+  background: #fff;
+  color: #000;
+}
+.theme-2 .w_page-header-dance,
+.theme-2 .table-couples-main{
+  background: #fff;
+  color: #000;
+}
+.theme-2 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#fff; color:#000; }
+.theme-2 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:#000; color:#fff; }
+
+/* 3: Twoje darkblue/yellow */
+.theme-3 .wall-left{
+  background: darkblue;
+  color: #FFFCa0;
+  text-shadow: 6px 8px 6px #ddd;
+  font-family: Verdana, Arial, sans-serif;
+  font-weight: 700;
+}
+.theme-3 .wall-right{
+  background: #FFFC00;
+  color: #000;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+  text-shadow: none;
+}
+.theme-3 .w_page-header{ color: darkblue; }
+.theme-3 .w_page-header-dance{
+  color: #ffffe0;
+  background: linear-gradient(to right, darkblue, blue, black, gold);
+}
+.theme-3 .table-couples-main{
+  color: #ffffe0;
+  background: linear-gradient(to right, #333, blue, #111);
+  border-radius: 8px;
+  padding: 3px 6px;
+}
+.theme-3 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#eee; color:darkblue; }
+.theme-3 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:darkblue; color:#eee; }
+
+/* 4: wariant “róż/brąz/złoto” (z Twojego) */
+.theme-4 .wall-left{ background:#7F525D; color:#FCDFFF; font-family: Verdana, Arial, sans-serif; font-weight: 700; }
+.theme-4 .wall-right{ background:#FDD017; color:#B87333; font-family: Arial, sans-serif; font-weight: 700; }
+.theme-4 .w_page-header{ color:#7F5217; }
+.theme-4 .w_page-header-dance{
+  color:#ffffe0;
+  background: linear-gradient(to right, #7F5217, goldenrod, #E56717);
+}
+.theme-4 .table-couples-main{
+  color:#ffffe0;
+  background: linear-gradient(to right, #7F5217, #E56717, #FFD801);
+  border-radius: 8px;
+  padding: 3px 6px;
+}
+.theme-4 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#FDD7E4; color:#7D0552; }
+.theme-4 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:#7D0552; color:#FDD7E4; }
+
+/* 5: “ekran” (Twoje centrum + inne fonty) */
+.theme-5 .wall-left{
+  background: darkblue;
+  color: #FFFC00;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  font-weight: 800;
+  text-shadow: none;
+}
+.theme-5 .wall-right{
+  background: #FFFC00;
+  color: #000;
+  font-family: Arial, sans-serif;
+  font-weight: 800;
+}
+.theme-5 .w_page-header{ color: darkblue; font-family: Arial, sans-serif; }
+.theme-5 .w_page-header-dance{ color: darkblue; background:#FFFC00; }
+.theme-5 .table-couples-main{ background: darkblue; color:#fff; border-radius: 8px; padding: 3px 6px; }
+.theme-5 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#fff; color:darkblue; }
+.theme-5 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:darkblue; color:#eee; }

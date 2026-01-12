@@ -20,8 +20,8 @@
                      <li>{!! html()->submit('- przydział numerów')->name('ranges')->class('btn-coral button-menu text-left') !!}</li>
                      <li>{!! html()->submit('- startowe')->name('lists')->class('btn-coral button-menu text-left') !!}</li>
                      <li>{!! html()->submit('- klubów')->name('clubs')->class('btn-coral button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- klubów aktualnych')->name('clubsOpen')->class('btn-coral button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- par o różnych klas.', '')->name('couplesBr')->class('btn-coral button-menu text-left') !!}</li>
+                     <li>{!! html()->submit('- aktualnych klubów')->name('clubsOpen')->class('btn-coral button-menu text-left') !!}</li>
+                     <li>{!! html()->submit('- startów w wielu kl./kat.')->name('couplesBr')->class('btn-coral button-menu text-left') !!}</li>
                    </ul>
                  </li>
                  <li class="dropdown">
@@ -30,7 +30,7 @@
                        ->attribute('data-bs-toggle','dropdown') !!}
                    <ul class="dropdown-menu">
                      <li>{!! html()->submit('- wykaz rund')->name('rounds')->class('btn-coral button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- numery par')->name('couples')->class('btn-coral button-menu text-left') !!}</li>
+                     <li>{!! html()->submit('- numery startowe')->name('couples')->class('btn-coral button-menu text-left') !!}</li>
                      <li>{!! html()->submit('- stażysta')->name('trainee')->class('btn-coral button-menu text-left') !!}</li>
                    </ul>
                  </li>
@@ -99,11 +99,13 @@
                                  <button id="select_{{$round->positionW}}" type="button" class="btn btn-primary">&nbsp;Zaznacz&nbsp;</button>
                               </td>
                               <td class="text-center">&nbsp;BLOK&nbsp;{{$round->positionW}}</td>
-                              <td class="text-center">PAR</td>
+                              <td class="text-center">UCZESTNIKÓW</td>
                            </tr>
                            <tr>
-                              <td class="text-center">
-                                 <input class="roundCheckbox_{{$round->positionW}}" type="checkbox" id="{{$round->roundId}}" name="{{$round->roundId}}">
+                              <td class="check-cell">
+                                <div class="check-wrapper">
+                                  <input class="form-check-input roundCheckbox_{{$round->positionW}}" type="checkbox" id="{{$round->roundId}}" name="{{$round->roundId}}">
+                                </div>
                               </td>
                               <td>
                                  {!! html()->hidden('roundId[]', $round->roundId) !!}
@@ -117,8 +119,10 @@
                               @endif
                            @else
                               <tr>
-                                 <td class="text-center" style="width: 15%">
-                                    <input class="roundCheckbox_{{$round->positionW}}" type="checkbox" id="{{$round->roundId}}" name="{{$round->roundId}}">
+                                 <td class="text-center check-cell" style="width: 15%">
+                                  <div class="check-wrapper">
+                                    <input class="form-check-input roundCheckbox_{{$round->positionW}}" type="checkbox" id="{{$round->roundId}}" name="{{$round->roundId}}">
+                                  </div>
                                  </td>
                                  <td>
                                     {!! html()->hidden('roundId[]', $round->roundId) !!}

@@ -90,7 +90,7 @@
     <div class="row mb-2">
       <div class="col-lg-12">
         <div class="d-flex align-items-center flex-wrap gap-2">
-          {{ html()->label('Ten sam numer dla pary w różnych blokach?')
+          {{ html()->label('Ten sam numer dla startujących w różnych blokach?')
                 ->class('btn btn-blue3 ekran width_450px mb-0') }}
 
           <div class="form-check ms-2">
@@ -135,7 +135,7 @@
           <tr>
             <th class="text-end">Kategoria</th>
             <th class="text-center">Zdefiniowany zakres</th>
-            <th class="text-center">Liczba par</th>
+            <th class="text-center">Prezentacji</th>
             <th class="text-center">Numer początkowy</th>
           </tr>
         </thead>

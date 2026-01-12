@@ -141,7 +141,7 @@
             $("#sortable2").sortable({
                 connectWith: ".connectedSortable",
                 update: function(event, ui) {
-                    console.log("update", event);
+                    //console.log("update", event);
                     $(this).find('tr').each(function(i) {
                         $(this).find('td:first').text(i + 1);
                     });

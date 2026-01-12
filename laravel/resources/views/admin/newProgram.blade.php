@@ -46,26 +46,33 @@
                                 @endif
 
                                 <tr>
-                                  <td class="text-center"> 
-                                    <input class="form-check-input px-2 roundCheckbox_{{ $round->positionW }}"
-                                           name="selected[]" type="checkbox" value="{{ $round->roundId }}"> 
+                                  <td class="check-cell">
+                                    <div class="check-wrapper">
+                                        <input
+                                            class="form-check-input roundCheckbox_{{ $round->positionW }}"
+                                            name="selected[]"
+                                            type="checkbox"
+                                            value="{{ $round->roundId }}"
+                                        >
+                                    </div>
                                   </td>
-                                    <td>
-                                        <span class="description">
-                                            {{ $round->roundName }}
-                                            {{ $round->categoryName }}
-                                            {{ $round->className }}
-                                            {{ $round->styleName }}
-                                        </span>
 
-                                        @if($round->isAdditional)
-                                            &nbsp;{{ $round->matchType }}
-                                        @endif
-
-                                        @foreach($round->dances as $dance)
-                                            &nbsp;{{ $dance }}
-                                        @endforeach
-                                    </td>
+                                  <td>
+                                    <span class="description">
+                                          {{ $round->roundName }}
+                                          {{ $round->categoryName }}
+                                          {{ $round->className }}
+                                          {{ $round->styleName }}
+                                    </span>
+                                    @if($round->isAdditional)
+                                        &nbsp;{{ $round->matchType }}
+                                    @endif
+                                    <span class="text-primary font-italic"> &nbsp; (
+                                    @foreach($round->dances as $dance)
+                                        &nbsp;{{ $dance }}
+                                    @endforeach
+                                    ) </span>
+                                  </td>
                                 </tr>
                             @endif
                         @endforeach

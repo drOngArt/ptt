@@ -13,11 +13,11 @@
     <div class="row">
         <div class="col-lg-12">
             <div class="page-header-break">
-                ZESTAW PAR TAŃCZĄCYCH W RÓŻNYCH KLASACH<br/>
+                RAPORT TAŃCZĄCYCH W RÓŻNYCH KLASACH<br/>
             </div>
 
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h1 class="page-header mb-0">Pary tańczące w różnych klasach.</h1>
+                <h1 class="page-header mb-0">Startujący w różnych klasach.</h1>
 
                 {{ html()
                     ->submit('Powrót')

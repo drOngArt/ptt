@@ -4,8 +4,16 @@
   Panel
 @stop
 
+@section('printStyles')
+  <style media="print">
+    @page { size: A4 {{ (($printMode ?? 'V') === 'H') ? 'landscape' : 'portrait' }}; }
+  </style>
+@endsection
+
+
 @section('content')
-<div id="page-wrapper" class="container-fluid">
+<div class="d-print-none">
+ <div id="page-wrapper" class="container-fluid">
 
   <div class="page-header-break text-center mb-3">
     LISTA SĘDZIÓW&nbsp;{{ $parts }}<br>
@@ -20,6 +28,34 @@
         <div class="d-flex gap-2">
           {{ html()->submit('Zapisz...')->name('save')->class('btn btn-cyan button-menu') }}
           {{ html()->submit('Powrót')->id('submitButton1')->class('btn btn-primary button-menu') }}
+          <div class="dropdown print-dropdown">
+            <button type="button"
+                    class="btn btn-brown button-menu dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+              <i class="fa fa-print me-2"></i>
+              <span class="border-start border-1 border-light px-2 ms-1">Drukuj</span>
+            </button>
+
+            @php $basePrintUrl = url('admin/panelSet'); @endphp
+
+            <ul class="dropdown-menu dropdown-menu-end print-menu"
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2"
+                  target="_blank" rel="noopener"
+                  href="{{ $basePrintUrl.'?'.http_build_query(['print'=>'V','autoprint'=>1]) }}">
+                  <i class="fa fa-file-text-o"></i> Pionowo
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item d-flex align-items-center gap-2"
+                  target="_blank" rel="noopener"
+                  href="{{ $basePrintUrl.'?'.http_build_query(['print'=>'H','autoprint'=>1]) }}">
+                  <i class="fa fa-file-o"></i> Poziomo
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
@@ -32,85 +68,72 @@
     </div>
   @endif
 
-  <div class="row g-3">
-    <div class="col-lg-12 d-flex justify-content-between align-items-start">
-      <div class="me-3 ekran">
-        {{ html()->label('Sędzia główny:')->class('form-label fw-semibold mb-1') }}
-        {{ html()->select('MainJudge', $judgelist, null)->id('mainJudge')->class('form-select') }}
-        <br>
-        <div class="row g-2">
-          <div class="col-sm-6 col-md-4">
-            {{ html()->text('main_judge_l')->placeholder('Nazwisko')->maxlength(25)->class('form-control my_main_judge') }}
-          </div>
-          <div class="col-sm-6 col-md-4">
-            {{ html()->text('main_judge_f')->placeholder('Imię')->maxlength(15)->class('form-control my_main_judge') }}
-          </div>
-          <div class="col-sm-6 col-md-4">
-            {{ html()->text('main_judge_c')->placeholder('Miasto')->maxlength(15)->class('form-control my_main_judge') }}
-          </div>
-        </div>
+<div class="row g-3">
+  <div class="col-12">
+    <div class="d-flex align-items-center gap-3 ekran flex-wrap">
+
+      {{-- LABEL + SELECT W JEDNEJ LINII --}}
+      <div class="d-flex align-items-center gap-2" style="min-width: 320px;">
+        {{ html()->label('Sędzia główny:')
+              ->class('form-label fw-semibold mb-0 text-nowrap') }}
+
+        {{ html()->select('MainJudge', $judgelist, null)
+              ->id('mainJudge')
+              ->class('form-select') }}
       </div>
 
-      <div class="ms-auto">
-        <div class="d-flex justify-content-end align-items-center gap-2">
-          <button id="selectAll" type="button" class="btn btn-deep-orange button-menu">Zaznacz</button>
-
-          <div class="dropdown print-dropdown ms-auto">
-            <button type="button"
-                    class="btn btn-brown button-menu dropdown-toggle"
-                    data-bs-toggle="dropdown">
-                    <i class="fa fa-print me-2"></i>
-                    <span class="border-start border-1 border-light px-2 ms-1">
-                      Drukuj
-                    </span>
-            </button>
-            <ul class="dropdown-menu print-dropdown-menu dropdown-menu-end">
-              <li>
-                <a class="dropdown-item print-dd-item" href="#" id="printFormatV">
-                  <i class="fa fa-ellipsis-v me-2 px-1"></i>
-                  <span class="dd-sep"></span>
-                  Pionowo
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item print-dd-item" href="#" id="printFormatH">
-                  <i class="fa fa-ellipsis-h me-2"></i>
-                  <span class="dd-sep"></span>
-                  Poziomo
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
+      {{-- Nazwisko --}}
+      <div style="width:160px;">
+        {{ html()->text('main_judge_l')
+              ->placeholder('Nazwisko')
+              ->maxlength(25)
+              ->class('form-control my_main_judge') }}
       </div>
+
+      {{-- Imię --}}
+      <div style="width:120px;">
+        {{ html()->text('main_judge_f')
+              ->placeholder('Imię')
+              ->maxlength(15)
+              ->class('form-control my_main_judge') }}
+      </div>
+
+      {{-- Miasto --}}
+      <div style="width:140px;">
+        {{ html()->text('main_judge_c')
+              ->placeholder('Miasto')
+              ->maxlength(15)
+              ->class('form-control my_main_judge') }}
+      </div>
+
     </div>
   </div>
+</div>
+
 
   <div class="row mt-1">
     <div class="col-12">
       <div class="table-scroll">
         <table id="my_table" class="table table-striped table-hover table-panel">
-          <thead class="font-14pt">
+          <thead class="font-12pt">
             <tr class="header-row">
-              {{-- 1. kolumna – Kategoria --}}
               <th class="headcol sticky-col-1 text-end align-bottom fs-4">
                 Kategoria<br>Klasa<br>Styl
               </th>
-              {{-- 2. kolumna – pionowe "Liczba sędziów" --}}
               <th class="sticky-col-2 align-bottom sum-header p-2 fs-2">
                 &Sigma;
               </th>
-              {{-- dalej: SĘDZIOWIE w kolumnach --}}
               @foreach($judges as $pl_id => $judge)
-                <th class="text-center fixed-col judge-vertical" data-judge="{{ $pl_id }}">
+                <th class="text-center fixed-col judge-vertical rotate-20" data-judge="{{ $pl_id }}">
                   <div class="judge-vertical-text">
-                    <span class="lname">{{ $judge->lastName }}</span><br>
-                    <span class="fname">{{ $judge->firstName }}</span>
+                    <span class="judge-two-lines">
+                      <span class="lname">{{ $judge->lastName }}</span>
+                      <span class="fname">{{ $judge->firstName }}</span>
+                    </span>
                   </div>
                   <i class="fa fa-chevron-right rowToggle d-block mt-1 py-1"
                     data-judge="{{ $pl_id }}"
                     style="cursor:pointer;"></i>
-          
                   {{ html()->hidden('judgeId[]',   $pl_id) }}
                   {{ html()->hidden('judgeName[]', $judge->firstName.' '.$judge->lastName) }}
                 </th>
@@ -120,25 +143,37 @@
 
           <tbody id="sortable">
             @foreach($program as $roundIndex => $category)
+              @php $pos = $loop->index; @endphp
               <tr data-round="{{ $roundIndex }}">
                 {{-- 1. kolumna – Kategoria --}}
-                <th class="headcol sticky-col-1 text-start align-middle">
-                  <div class="fw-semibold">{{ $category->categoryName }} {{ $category->className }}</div>
-                  <div class="text-muted px-2">{{ $category->styleName }}</div>
+                {{ html()->hidden('roundBaseId[]', $category->baseRoundId) }}
+                {{ html()->hidden('roundName[]', $category->description) }}
+                <th class="headcol sticky-col-1 category-cell text-start align-middle">
+                  <div class="category-two-lines">
+                    <span class="category-name">
+                      {{ $category->categoryName }} {{ $category->className }}
+                    </span>
+                    <span class="category-style">
+                      {{ $category->styleName }}
+                    </span>
+                  </div>
                 </th>
-                {{-- 2. kolumna – licznik (tutaj JS wpisuje 9 (OK), 9 (-2), 9 (+1) ) --}}
+                </th>
                 <td class="sticky-col-2 text-center align-middle requirement-cell fs-6"
                     data-judge-no="{{ $category->judgesNo }}">
-                  <span class="judge-counter small text-muted"></span>
+                    {{ html()->hidden('judgeNo[]', $category->judgesNo) }}
+                  <span class="judge-counter small text-muted font-print-18pt"></span>
                 </td>
-          
-                {{-- 3+ kolumny – sędziowie --}}
                 @foreach($judges as $pl_id => $judge)
-                  @php
-                    $checked = isset($judge->sign[$roundIndex]) && $judge->sign[$roundIndex] !== ' ';
-                  @endphp
-                  <td class="text-center fixed-col">
-                    {{ html()->checkbox($roundIndex.'-'.$pl_id, $checked, 1)
+                  <td class="text-center fixed-col align-middle">
+                    @php
+                      $checked = isset($judge->sign[$pos]) && $judge->sign[$pos] !== ' ';
+                    @endphp
+
+                    {{ html()
+                        ->checkbox($roundIndex.'-'.$pl_id)
+                        ->value(1)
+                        ->checked($checked)
                         ->class('form-check-input judgeCheckbox')
                         ->data('round', $roundIndex)
                         ->data('judge', $pl_id) }}
@@ -171,12 +206,123 @@
   </div>
 
   {{ html()->form()->close() }}
+  <script>
+    //console.log('judges:', @json($judges));
+  </script>
+ </div>
 </div>
+@php
+  // tryb druku
+  $pm = ($printMode ?? request('print') ?? 'V');     // 'V' albo 'H'
+  $perPage = ($pm === 'H') ? 24 : 15;
+
+  // $judges to Twoja mapa pl_id => Judge
+  $judgeChunks = array_chunk($judges, $perPage, true);
+@endphp
+
+<div class="d-none d-print-block">
+  @foreach($judgeChunks as $chunkIndex => $judgesPage)
+
+    {{-- proste “łamanie strony” między porcjami --}}
+    @if($chunkIndex > 0)
+      <!--<div class="page-break"></div>-->
+    @endif
+
+    <div class="print-page">
+
+      <div class="mb-2 fw-bold print-title">
+        Panel sędziowski — {{ $parts }}
+        (strona {{ $chunkIndex+1 }} / {{ count($judgeChunks) }})
+      </div>
+
+      <table class="table table-bordered table-sm print-table">
+        <thead class="font-12pt">
+          <tr class="header-row">
+            {{-- 1. kolumna --}}
+            <th class="headcol sticky-col-1 text-end align-bottom fs-4">
+              Kategoria<br>Klasa<br>Styl
+            </th>
+
+            {{-- 2. kolumna --}}
+            <th class="sticky-col-2 align-bottom sum-header p-2 fs-2 text-center">
+              &Sigma;
+            </th>
+
+            {{-- sędziowie (tylko porcja na tę stronę) --}}
+            @foreach($judgesPage as $pl_id => $judge)
+              <th class="text-center fixed-col judge-vertical print-judge-col" data-judge="{{ $pl_id }}">
+                <div class="judge-rot-wrap">
+                <div class="judge-vertical-text">
+                  <span class="judge-two-lines">
+                    <span class="lname">{{ $judge->lastName }}</span>
+                    <span class="fname">{{ $judge->firstName }}</span>
+                  </span>
+                </div>
+                </div>
+              </th>
+            @endforeach
+          </tr>
+        </thead>
+
+        <tbody>
+          @php $rowPos = 0; @endphp
+          @foreach($program as $roundIndex => $category)
+            <tr data-round="{{ $roundIndex }}">
+              <th class="headcol sticky-col-1 text-start align-middle category-cell">
+                <span class="cat-two-lines">
+                  <span class="cat-title">{{ $category->categoryName }} {{ $category->className }}</span>
+                  <span class="cat-style"> {{ $category->styleName }}</span>
+                </span>
+              </th>
+              <td class="sticky-col-2 text-center align-middle requirement-cell print-sum"
+                  data-judge-no="{{ $category->judgesNo }}">
+                {{-- w druku możesz zostawić puste albo wstawić samą liczbę --}}
+                <span class="judge-counter">{{ $category->judgesNo }}</span>
+              </td>
+
+              @foreach($judgesPage as $pl_id => $judge)
+                @php
+                  // UWAGA: tu używasz już “kolejnego idx”, a nie baseRoundId klucza.
+                  // Jeśli u Ciebie sign jest już wypełnione po idx = 0..N, to roundIndex w foreach($program as ...) OK.
+                  $checked = isset($judge->sign[$roundIndex]) && $judge->sign[$roundIndex] !== ' ';
+                @endphp
+                <td class="print-check">
+                  <div class="check-wrap">
+                    <span class="tick">
+                      {!! $checked ? '&#10003;' : '&nbsp;' !!}
+                    </span>
+                  </div>
+                </td>
+              @endforeach
+            </tr>
+          @endforeach
+        </tbody>
+      </table>
+
+    </div>
+  @endforeach
+</div>
+
 @stop
 
 @section('customScripts')
   <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
   <script src="{{ asset('js/jquery.dragtable.min.js') }}"></script>
+
+  @parent
+  @if(request()->boolean('autoprint'))
+    <script>
+      // Debug: zobaczysz w konsoli, czy w ogóle trafiasz do tego widoku
+      console.log('AUTOPRINT on panelSet, print=', @json(request('print')));
+
+      window.addEventListener('load', function () {
+        setTimeout(() => window.print(), 200);
+      });
+
+      // opcjonalnie zamknij po druku
+      window.addEventListener('afterprint', function(){ window.close(); });
+    </script>
+  @endif
 
   <script>
   $(function() {
@@ -307,7 +453,23 @@
     style.type  = 'text/css';
     style.media = 'print';
 
-    $('#printFormatV').on('click', function(e) {
+    $('#printFormatV').on('click', function(e){
+      e.preventDefault();
+      const url = new URL(window.location.href);
+      url.searchParams.set('print', 'V');
+      url.searchParams.set('autoprint', '1');
+      window.open(url.toString(), '_blank', 'noopener');   // ✅ ważne
+    });
+    
+    $('#printFormatH').on('click', function(e){
+      e.preventDefault();
+      const url = new URL(window.location.href);
+      url.searchParams.set('print', 'H');
+      url.searchParams.set('autoprint', '1');
+      window.open(url.toString(), '_blank', 'noopener');
+    });
+
+    /*$('#printFormatV').on('click', function(e) {
       e.preventDefault();
       style.textContent = css_v;
       head.appendChild(style);
@@ -318,7 +480,7 @@
       style.textContent = css_h;
       head.appendChild(style);
       window.print();
-    });
+    });*/
 
     // === 7. Sortowanie rund (wierszy) ===
     $('#sortable').sortable({

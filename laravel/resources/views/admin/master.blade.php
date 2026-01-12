@@ -10,12 +10,12 @@
     <link href="{{ asset('css/bootstrap.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet">
     <link href="{{ asset('css/sb-admin-2.css') }}" rel="stylesheet">
-    <link href="{{ asset('css/dragtable.min.css') }}" rel="stylesheet">
-
-    <header class="onlyprint">{{ $tournamentName }}</header>
+    <!--<link href="{{ asset('css/dragtable.min.css') }}" rel="stylesheet">-->
+    @yield('printStyles')
+    
 </head>
 <body>
-
+<header class="onlyprint">{{ $tournamentName ?? '' }}</header>
 <nav class="navbar navbar-expand-lg navbar-light rounded-3" role="navigation" style="margin-bottom: 1; background-color: #F0F8FF;">
     <div class="container-fluid">
         <a class="navbar-brand fst-italic" href="{{ $baseURI }}/admin">{{ $tournamentName }}</a>
@@ -91,6 +91,7 @@
 <script src="{{ asset('js/sb-admin-2.js') }}"></script>
 <script src="{{ asset('js/bootbox.min.js') }}"></script>
 <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
+<script src="{{ asset('js/jquery.multisortable.js') }}"></script>
 @yield('customScripts')
 </body>
 </html>

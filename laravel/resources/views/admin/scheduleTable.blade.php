@@ -9,7 +9,7 @@
                   </th>
                   <th>
                      <div class="alignleft">Runda </div>
-                     <div class="alignright">&nbsp&nbsp[ Liczba par ]</div>
+                     <div class="alignright">&nbsp&nbsp[ Tańczących ]</div>
                   </th>
                   <th class="userTime ekran">Czas</th>
                   <th>Grup</th>
@@ -21,7 +21,7 @@
                @foreach($compressedProgram as $index => $programRound)
                   @if($programRound->isDance)
                      <tr>
-                        <td class="btn-circle fs-5 p-1">
+                        <td class="btn-circle fs-6 py-2">
                            {{$index+1}}.
                         </td>
                         <td class="p-1">

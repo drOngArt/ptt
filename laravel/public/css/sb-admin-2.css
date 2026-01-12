@@ -1635,7 +1635,7 @@ pre code {
 
 .table th,
 .table td {
-  padding: 0.75rem;
+  padding: 0.5rem;
   vertical-align: top;
   border-top: 1px solid #e3e6f0;
 }
@@ -10888,13 +10888,13 @@ a:focus {
 }
 
 .btn-circle {
-    width: 30px;
-    height: 30px;
-    padding: 6px 0;
+    width: 24px;
+    height: 24px;
+    padding: 2px 0;
     border-radius: 15px;
     text-align: center;
-    font-size: 12px;
-    line-height: 1.428571429;
+    font-size: 10px;
+    line-height: 1.2;
 }
 
 .btn-circle.btn-lg {
@@ -12080,10 +12080,6 @@ input[type=checkbox]
    float: right;
 }
 
-/* ============================
-   Panel sędziowski – tabela pivot
-   ============================ */
-/* Kontener: JEDEN scroll (poziom + pion) */
 .table-scroll {
   height: 70vh;
   max-width: 100%;
@@ -12093,7 +12089,6 @@ input[type=checkbox]
   /*display: block;*/
 }
 
-/* Tabela bazowa */
 .table-panel {
   position: relative;
   width: 100%;
@@ -12103,13 +12098,12 @@ input[type=checkbox]
   background-color: #fff;
 }
 
-/* Komórki ogólnie */
 .table-panel th,
 .table-panel td {
   box-sizing: border-box;
   padding: 4px 6px;
   border: 1px solid #dee2e6;
-  font-size: 0.95rem;
+  font-size: 0.90rem;
   line-height: 1.2;
   color: #212529;
   vertical-align: middle;
@@ -12119,7 +12113,6 @@ input[type=checkbox]
   text-align: center;
 }
 
-/* sticky dla CAŁEGO thead (pewniejsze niż dla pojedynczych th) */
 .table-panel thead {
   position: sticky !important;
   top: 0 !important;
@@ -12127,7 +12120,6 @@ input[type=checkbox]
   background: #fff !important;
 }
 
-/* Sticky – cały nagłówek przyklejony do góry */
 .table-panel thead th {
   position: sticky;
   top: 0;
@@ -12137,45 +12129,41 @@ input[type=checkbox]
   color: #333;
 }
 
-/* 1. rząd nagłówka (nazwiska sędziów) – sticky do góry */
 .table-panel thead tr.header-row th {
   position: sticky;
   top: 0;
   z-index: 29;
-  background: #fff;  /* koniecznie pełne tło */
-  height: 160px;     /* pod obrót tekstu */
+  background: #fff;
+  height: 130px;
   vertical-align: bottom;
 }
 
-/* 1. kolumna – kategoria/klasa/styl – sticky w poziomie */
 .table-panel th.headcol,
 .table-panel td.headcol {
   position: sticky;
   left: 0;
   z-index: 60;
   background: #fff;
-  width: 150px !important;
-  min-width: 150px !important;
-  max-width: 150px !important;
+  width: 160px !important;
+  min-width: 160px !important;
+  max-width: 160px !important;
   white-space: normal !important;
 }
 
-/* 2. kolumna – Σ / liczba sędziów */
 .table-panel th.sticky-col-2,
 .table-panel td.sticky-col-2 {
   position: sticky;
-  left: 150px;         /* = szerokość 1. kolumny */
+  left: 160px;
   z-index: 59;
   background: #fff;
-  width: 48px !important;
-  min-width: 48px !important;
-  max-width: 48px !important;
+  width: 58px !important;
+  min-width: 58px !important;
+  max-width: 58px !important;
   font-family: monospace;
   white-space: nowrap;
   text-align: center;
 }
 
-/* 1. kolumna – ma przykrywać wszystko co pod nią „wjeżdża” */
 .table-panel th.sticky-col-1,
 .table-panel td.sticky-col-1 {
   position: sticky;
@@ -12188,19 +12176,16 @@ input[type=checkbox]
   display: table-header-group;
 }
 
-/* (opcjonalnie) wiersze tbody zostaw jako normalne table-row */
 .table-panel tbody tr {
   display: table-row-group !important;
 }
 
-/* Kolumny sędziów – nagłówek + checkboxy: ta sama szerokość */
 .table-panel th.judge-vertical
 {
   white-space: nowrap;
   z-index: 10;
 }
 
-/* komórki z checkboxami – taka sama szerokość jak header */
 .table-panel td.fixed-col {
   width: 48px;
   min-width: 48px;
@@ -12210,7 +12195,6 @@ input[type=checkbox]
   padding-right`: 0.25rem;
 }
 
-/* Sticky 1 rząd */
 .table-panel thead tr:nth-child(1) th {
   position: sticky;
   top: 0;
@@ -12218,32 +12202,143 @@ input[type=checkbox]
   background: #fff;
 }
 
-.judge-vertical {
+#my_table thead,
+#my_table thead tr,
+#my_table thead th{
+  overflow: visible !important;
+}
+
+th.judge-vertical{
+  position: relative;
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+
+  height: 130px;
+  padding: 0 !important;
+  vertical-align: bottom;
+
+  overflow: visible !important;
+}
+
+.judge-vertical{
   width: 48px !important;
   min-width: 48px !important;
   max-width: 48px !important;
   padding: 2px 0 !important;
-  /*overflow: visible !important;*/
   white-space: nowrap !important;
   z-index: 9 !important;
+
+  height: 130px;
+  vertical-align: bottom;
+  overflow: hidden;
 }
 
-.judge-vertical-text {
-  transform: rotate(-90deg);
+/* kolumna sędziego */
+.judge-vertical{
+  width: 48px !important;
+  min-width: 48px !important;
+  max-width: 48px !important;
+  padding: 2px 0 !important;
+  vertical-align: bottom;
+  position: relative;
+}
+
+th.judge-vertical .judge-vertical-text{
+  position: absolute;
+  width: 120px;        /* kontrola łamania / widoczności */
+  left: 34px;
+  transform-origin: left bottom;
+  display: block;
+  pointer-events: none;
+  transform: rotate(-80deg);
+}
+
+/* nagłówki kolumn sędziów */
+#my_table thead th.judge-vertical{
+  border: none !important;
+}
+
+th.rotate-20{
+  transform: rotate(20deg) translateX(-10px) translateY(-8px);
+  transform-origin: left bottom;
+  background-color: transparent !important;
+}
+
+/* wrapper obracany */
+.judge-vertical-text{
+  position: absolute;
+  bottom: 22px;
   transform-origin: bottom left;
-  display: inline-block;
-  margin-bottom: -20px;
-  margin-left: 44px;
+  width: 125px;
+  text-align: left;
+  pointer-events: none;
 }
 
-.judge-vertical-text .lname {
+/* DWIE LINIE – kontrola */
+.judge-two-lines{
+  display: block;
+  line-height: 1.1;
+}
+
+/* nazwisko */
+.judge-two-lines .lname{
+  display: block;
   font-weight: 700;
+  white-space: normal;
+  word-break: break-word;
 }
 
-.judge-vertical-text .fname {
-  font-size: 0.75rem;
+/* imię */
+.judge-two-lines .fname{
+  display: block;
+  margin-top: 2px;
+  margin-left: 4px;
+  font-size: 0.72rem;
   color: #666;
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
+th.judge-vertical .judge-two-lines{
+  display: block;
+  width: 100%;
+  line-height: 1.12;
+  white-space: normal;
+}
+
+th.judge-vertical .judge-two-lines .lname{
+  display: block;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+th.judge-vertical .judge-two-lines .fname{
+  display: block;
+  margin-top: 2px;
+  padding-left: 2px;     /* lekkie wcięcie */
+  font-size: .72rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+th.judge-vertical .rowToggle{
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  transform: translateX(-50%);
+  margin: 0 !important;
+  padding: 0 !important;
+  z-index: 2;
+}
+
 
 /* Komórki z checkboxami sędziów */
 .table-panel td.fixed-col {
@@ -12351,10 +12446,8 @@ input[type=checkbox]
     background-color: rgba(0, 123, 255, 0.18);
 }
 
-/* --- Dropdown dla wszystkich button-menu --- */
-
 .button-menu-dropdown {
-    min-width: 100%;               /* szerokość = szerokość przycisku */
+    min-width: 100%;
     padding: 0;
     border-radius: 0 0 6px 6px;
     background: #fff;
@@ -12376,26 +12469,23 @@ input[type=checkbox]
     font-size: 1rem;
 }
 
-/* separator pionowy */
 .button-menu-sep {
     border-left: 1px solid #ccc;
     height: 18px;
     margin-right: .35rem;
 }
 
-/* hover */
 .button-menu-item:hover {
     background: rgba(0,0,0,0.05);
     color: var(--bs-primary);
 }
 
-/* ikona + tekst wyrównane do lewej wewnątrz samego przycisku */
 .button-menu.btn-icon-left {
     display: inline-flex;
     align-items: center;
-    justify-content: flex-start;    /* W środku przycisku wszystko idzie do lewej */
+    justify-content: flex-start;
     gap: 0.5rem;
-    padding-left: 0.75rem;          /* odsunięcie od lewej krawędzi */
+    padding-left: 0.75rem;
 }
 
 .button-menu.btn-icon-left i {
@@ -12451,6 +12541,101 @@ input[type=checkbox]
     max-width: 520px;   /* dopasuj wartość */
 }
 
+.ui-state-highlight {
+  height: 42px;
+  background: rgba(0,0,0,0.04);
+  border: 2px dashed rgba(0,0,0,0.25);
+}
+
+tr.row-moved > td {
+  background-image: linear-gradient(to right, rgba(255,193,7,0.15), transparent);
+}
+
+/* tylko ta strona / blok */
+.program-tables table.table > :not(caption) > * > *{
+  padding: 0.10rem 0.10rem !important;   /* mocniej */
+  line-height: 1.15 !important;
+  vertical-align: middle !important;
+}
+
+.program-tables table.table thead th{
+  font-size: 0.92rem !important;
+  padding-top: 0.1rem !important;
+  padding-bottom: 0.1rem !important;
+}
+
+.program-tables .description{
+  font-size: 1.0rem !important;
+  line-height: 1.15 !important;
+}
+
+.program-tables .btn-circle{
+  padding: 0.1rem 0.1rem !important;
+  line-height: 1 !important;
+}
+
+
+.program-tables .move-right,
+.program-tables .move-left{
+  padding: 0.15rem 0.2rem !important;
+  line-height: 1 !important;
+}
+
+td.check-cell {
+    width: 56px;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;
+}
+
+td.check-cell .check-wrapper {
+    display: flex;
+    justify-content: center;  /* poziom */
+    align-items: center;      /* pion */
+    height: 100%;
+}
+
+td.check-cell .form-check-input {
+    margin: 0;
+    width: 1.4rem;
+    height: 1.4rem;
+    cursor: pointer;
+}
+
+.category-cell{
+  height: 56px;
+  padding: 4px 6px;
+  overflow: hidden;
+}
+
+.category-two-lines{
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;     /* ← ZAWSZE 2 linie */
+  line-height: 1.25;
+  overflow: hidden;
+}
+
+.category-name{
+  font-weight: 600;
+}
+
+.category-style{
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-left: .35em;
+  white-space: nowrap;
+}
+
+.print-dropdown { position: relative; }
+
+.print-dropdown > .dropdown-menu.print-menu{
+  --bs-dropdown-min-width: 0;
+  min-width: 100% !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
 
 } /* end of screen */
 /* -- print -------------------------------------------------------------------- */
@@ -12512,6 +12697,9 @@ input[type=checkbox]
      size: A4;
   }
 
+  .print-page { page-break-after: always; break-after: page; }
+  .print-page:last-child { page-break-after: auto; break-after: auto; }
+
   header.onlyprint {
      display: block !important;
      font-size: 22px;
@@ -12526,11 +12714,14 @@ input[type=checkbox]
      page-break-after: avoid;
   }
 
+  .font-arial,
+  .font-arial *{
+    font-family: Calibri, sans-serif !important;
+  }
+
   body {
-     font: 14pt Georgia, "Times New Roman", Times, serif !important;
-     /*font: 14pt Arial, Times, serif !important;*/
+     font: 14pt Georgia, "Times New Roman", Times, serif;
      -webkit-print-color-adjust: exact;
-     //line-height: 1.3 !important;
      counter-reset: page 1;
   }
   
@@ -12646,24 +12837,24 @@ input[type=checkbox]
   }
   
   .drukarka {
-     font-size: 14pt;
+     font-size: 14pt !important;
   }
   .btn-circle {
      text-align: center;
      font-size: 14pt;
   }
   .font-14pt{
-     font-size: 14pt;
+     font-size: 14pt !important;
   }
   .font-12pt{
      font-size: 12pt;
   }
   .font-print-18pt{
-     font-size: 18pt;
+     font-size: 18pt !important;
   }
   
   .font-print-24pt{
-     font-size: 24pt;
+     font-size: 24pt !important;
   }
   
   
@@ -12673,18 +12864,18 @@ input[type=checkbox]
   .table-panel > thead > tr > td,
   .table-panel > tbody > tr > td,
   .table-panel > tfoot > tr > td {
-    padding: 3px 5px;
-    line-height: 1.3;
+    padding: 2px 3px;
+    line-height: 1.1;
     vertical-align: middle;  
   } 
   
   .headcol {
-     width: 150px;
+     width: 48mm;
      top: auto;
      left: 10px;
      margin-left: 10px;
      height: auto;
-     font-size: 16pt;
+     font-size: 14pt;
      padding: 4px 4px;
   }
   .panel-col{
@@ -12711,7 +12902,6 @@ input[type=checkbox]
   
   input[type=checkbox]
   {
-    /* Double-sized Checkboxes */
     -ms-transform: scale(1.4); /* IE */
     -moz-transform: scale(1.4); /* FF */
     -webkit-transform: scale(1.4); /* Safari and Chrome */
@@ -12774,8 +12964,6 @@ input[type=checkbox]
     font-size: 14pt;
   }
 
-  /* przywracamy klasyczną semantykę tabeli,
-     żeby header powtarzał się na każdej stronie */
   .table-panel thead {
     display: table-header-group !important;
   }
@@ -12786,7 +12974,6 @@ input[type=checkbox]
     display: table-footer-group !important;
   }
 
-  /* wyłączamy sticky – w PDF niepotrzebny i przeszkadza */
   .table-panel thead th,
   .table-panel th.headcol,
   .table-panel td.headcol,
@@ -12799,50 +12986,41 @@ input[type=checkbox]
     background: #fff !important;
   }
 
-  /* komórki – porządne obramowanie */
+
   .table-panel th,
   .table-panel td {
     border: 1px solid #000 !important;
-    padding: 3px 4px !important;
-    white-space: normal !important;       /* pozwól łamać tekst */
+    padding: 2px !important;
+    white-space: normal !important;
     overflow: visible !important;
     text-overflow: clip !important;
     text-align: center;
   }
 
-  /* 1. kolumna (kategorie) – trochę szersza w PDF */
   .table-panel th.headcol,
   .table-panel td.headcol {
-    width: 150px !important;
-    min-width: 150px !important;
-    max-width: 150px !important;
+    width: 46mm !important;
+    min-width: 46mm !important;
+    max-width: 46mm !important;
     text-align: left;
   }
 
-  /* kolumny sędziów – minimalnie ciaśniejsze */
   .table-panel th.judge-vertical,
   .table-panel td.fixed-col {
-    width: 65px !important;
-    min-width: 65px !important;
-    max-width: 65px !important;
-  }
-
-  /* pionowe nazwiska – nie ucinaj */
-  .judge-vertical {
-    overflow: visible !important;
+    width: 15mm !important;
+    min-width: 15mm !important;
+    max-width: 15mm !important;
   }
 
   .fixed-col {  
-    width: 70px !important;
-    min-width: 70px !important;
-    max-width: 70px !important;
+    width: 15mm !important;
+    min-width: 15mm !important;
+    max-width: 15mm !important;
     text-align: center;
     overflow: visible !important;
     white-space: nowrap !important;
   } 
 
-
-  /* Wymuszenie widoczności checkboksów */
   .judgeCheckbox {
     appearance: auto !important;
     -webkit-appearance: checkbox !important;
@@ -12851,37 +13029,84 @@ input[type=checkbox]
     opacity: 1 !important;
   }
 
-  /* Wymuś też kolor zaznaczenia */
   .judgeCheckbox:checked {
     accent-color: #000 !important; /* czarny na wydruk */
   }
 
-  /* Usuń ukrywanie inputów przez Bootstrap */
   input[type="checkbox"] {
     display: inline-block !important;
   }
 
-  .judge-vertical-text {
-    writing-mode: vertical-rl !important;
-    transform: rotate(180deg) !important; /* opcjonalnie odwrócić kierunek czytania */
-    text-orientation: mixed !important;
-    display: inline-block !important;
-    margin-left: 2px !important;
-    margin-top: 2px !important;
+  table.print-table{
+    table-layout: fixed;
+    width: auto;
+    border-collapse: collapse;
   }
 
-  .judge-vertical-text .lname {
-    font-size: 18pt;
-    padding: 1px 1px;
-    vertical-align: bottom !important;
+  table.print-table td,
+  table.print-table th{
+    border: 1px solid #000;
+    vertical-align: middle;
+  }
+  
+  table.print-table thead tr.header-row{
+    height: 36mm !important;
   }
 
-  .judge-vertical-text .fname {
-    font-size: 15pt;
+  table.print-table th.judge-vertical{
+    position: relative;
+    vertical-align: bottom;
+    overflow: visible;
+    padding: 0;
+    border: 1px solid #000;
   }
 
+  table.print-table th.judge-vertical .judge-rot-wrap{
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    height: 36mm;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    overflow: visible;
+  }
 
-  /* kolory w kolumnie „Liczba sędziów” – jaśniejsze, drukowalne */
+  table.print-table th.judge-vertical .judge-vertical-text{
+    transform: rotate(-90deg) translateX(52px) translateY(16px);
+    transform-origin: bottom center;
+    width: 35mm;
+    line-height: 1.05;
+    text-align: left;
+  }
+
+  table.print-table .judge-two-lines{
+    display: block;
+  }
+
+  table.print-table .judge-two-lines .lname{
+    display: block;
+    font-size: 14pt;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  table.print-table .judge-two-lines .fname{
+    display: block;
+    margin-left: 8px;                /* STAŁE wcięcie */
+    font-size: 8.5pt;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  th.judge-vertical .rowToggle{
+    display: none !important;
+  }
+
   .requirement-cell.table-ok {
     background-color: #d9ead3 !important; /* jasna zieleń */
     color: #065f46 !important;
@@ -12895,9 +13120,7 @@ input[type=checkbox]
     color: #991b1b !important;
   }
 
-  /* --- Dzielenie na strony / unikanie rozrywania wierszy --- */
 
-  /* nie rozrywaj pojedynczych wierszy */
   .table-panel tr {
     page-break-inside: avoid;
     break-inside: avoid;
@@ -12915,6 +13138,127 @@ input[type=checkbox]
   .page-break {
     break-after: page;
     page-break-after: always;
+  }
+
+/*  .category-cell,
+  .category-cell *{
+    font-family: Arial, Helvetica, sans-serif !important;
+  }*/
+
+
+  .category-cell{
+    height: 10mm; 
+    vertical-align: middle;
+  }
+  
+  .category-cell .cat-two-lines{
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;   /* dokładnie 2 linie */
+    overflow: hidden;
+  
+    line-height: 1.0;
+    max-height: calc(2 * 1.0em);  /* żeby było równo */
+  }
+
+  .category-cell .cat-title{
+    font-weight: 700;
+  }
+  
+  .category-cell .cat-style{
+    font-weight: 400;
+    opacity: .9;
+    margin-left: .35em;      /* lekkie odsunięcie od tytułu */
+    white-space: nowrap;     /* styl NIE zawija się sam – ma się przykleić */
+  }
+
+  .category-cell .cat-style{
+    color: #000 !important;
+    opacity: .85 !important;
+  }
+
+
+  .print-dropdown {
+    position: relative;
+
+  }
+
+  .print-dropdown > .dropdown-menu.print-menu{
+    --bs-dropdown-min-width: 0;       /* zbija bootstrapowe 10rem */
+    min-width: 100% !important;       /* twarde zwycięstwo */
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  .print-title { font-size: 12pt; }
+
+  .print-dropdown, #selectAll { display: none !important; } /* jeśli chcesz ukryć przyciski */
+
+  .print-page{
+    break-after: page;
+    page-break-after: always;
+  }
+  .print-page:last-child{
+    break-after: auto;
+    page-break-after: auto;
+  }
+
+  .print-table { width: auto !important; border-collapse: collapse !important; }
+
+  .print-table th, .print-table td {
+    border: 1px solid #000 !important;
+  }
+
+  .sticky-col-1 {
+    width: 48mm !important;
+    min-width: 48mm !important;
+    max-width: 48mm !important;
+  }
+
+  .sticky-col-2 {
+    width: 12mm !important;
+    min-width: 12mm !important;
+    max-width: 12mm !important;
+    text-align: center !important;
+  }
+
+  /* każdy sędzia 44px ~ 12mm */
+  th.judge-vertical,
+  td.fixed-col {
+    width: 12mm !important;
+    min-width: 12mm !important;
+    max-width: 12mm !important;
+  }
+
+  /* poprawa czytelności kategorii */
+  .print-cat .fw-semibold { font-size: 12pt !important; line-height: 1.05 !important; }
+  .print-cat .text-muted  { font-size: 10pt !important;  line-height: 1.05 !important; }
+
+  table.print-table td.print-check{
+    width: 12mm;
+    padding: 0;
+    text-align: center;
+    vertical-align: middle;   /* ⬅️ wyrównanie do wiersza */
+  }
+
+  /* wrapper robi centrowanie */
+  table.print-table td.print-check .check-wrap{
+    display: flex;
+    align-items: center;      /* pion */
+    justify-content: center;  /* poziom */
+    height: 100%;             /* ⬅️ WAŻNE */
+  }
+
+  table.print-table td.print-check .tick{
+    font-size: 12pt;
+    line-height: 1;
+  }
+  /* jeżeli masz gdzieś sticky/position dla ekranu – w druku często przeszkadza */
+  .sticky-col-1, .sticky-col-2, .headcol {
+    position: static !important;
+    left: auto !important;
+    z-index: auto !important;
   }
 
 }

@@ -1,130 +1,122 @@
 @extends('wall.master')
 
 @section('title')
-    Program Turnieju
+  Program Turnieju
 @stop
 
 @php
-    use Illuminate\Support\Arr;
+  $rounds     = is_array($rounds ?? null) ? array_values($rounds) : [];
+  $danceNames = is_array($danceNames ?? null) ? array_values($danceNames) : [];
+  $times      = is_array($times ?? null) ? array_values($times) : [];
+  $couples    = is_array($couples ?? null) ? array_values($couples) : [];
+  $couplesNo  = is_array($couplesNo ?? null) ? array_values($couplesNo) : [];
+  $groupConst = is_array($groupConst ?? null) ? array_values($groupConst) : [];
 
-    // normalizacja wejścia do pustych tablic
-    $rounds     = is_array($rounds ?? null) ? array_values($rounds) : [];
-    $danceNames = is_array($danceNames ?? null) ? array_values($danceNames) : [];
-    $times      = is_array($times ?? null) ? array_values($times) : [];
-    $couples    = is_array($couples ?? null) ? array_values($couples) : [];
-    $couplesNo  = is_array($couplesNo ?? null) ? array_values($couplesNo) : [];
-    $groupConst = is_array($groupConst ?? null) ? array_values($groupConst) : [];
-
-    // pomocnicze „safe get”
-    $get = function ($array, $index, $default = '') {
-        return \Illuminate\Support\Arr::get($array, $index, $default);
-    };
+  $lastDescription = null;
 @endphp
 
-
 @section('content')
+  @php
+  $cs = (string) request()->input('colorSet', '3');
+  $df = (string) request()->input('divideFactor', '36');
+@endphp
 
-   <?php $lastDescription = null; ?>
-   <div id="page-wrapper-left">
-      <div class="row col-lg-12">
-            <h1 class="page-header">PROGRAM&nbsp; TURNIEJU</br></h1>
-            <h3>@if( $times[0] )
-                    Aktualny czas: {{$times[0]}}
-                @endif    
-                @if( count($compressedProgram) )
-                    Koniec: ~ {{$times[count($compressedProgram)+1]}}
-                @endif
-           </h3>
-        </div>
-        <!-- /.row -->
-      @include('wall.scheduleTable')
-   </div>
-   
+    <div class="theme-{{ $cs }}" style="--wall-left: {{ is_numeric($df) ? $df.'%' : '36%' }};">
+      <div class="wall-layout">
+        <aside class="wall-left">
+          <h1 class="mb-2">PROGRAM TURNIEJU</h1>
+    
+          <h3 class="mb-3">
+            @if(!empty($times[0]))
+              Aktualny czas: {{ $times[0] }}
+            @endif
+            @if(!empty($compressedProgram))
+              <br>Koniec: ~ {{ $times[count($compressedProgram)+1] ?? '' }}
+            @endif
+          </h3>
 
-   <div id="page-wrapper-right">
-      @if($rounds == null )
-         <div class="row col-lg-12">
+          @include('wall.scheduleTable')
+        </aside>
+
+        <main class="wall-right">
+        <div>
+
+          @if(empty($rounds))
             <h3 class="w_page-header">...trwa przygotowanie danych turnieju ... :))</h3>
-         </div>
-      @else
-         <?php $pos=0; ?>
-         @foreach($rounds as $round)
-         <div class="row col-lg-12">
-            @if( $roundDescriptions[$pos] != null && $lastDescription != $roundDescriptions[$pos] )
-               <h2 class="w_page-header">
-                  @if($roundAlternativeDescriptions[$pos] != "")
-                     {{$roundAlternativeDescriptions[$pos]}}
-                  @else
-                     {{$roundDescriptions[$pos]}}
-                  @endif
-                  @if( $couplesNo[$pos] )
-                      (<i class="fa fa-female" aria-hidden="true"></i><i class="fa fa-male" aria-hidden="true"></i>
-                      {{$couplesNo[$pos]}})
-                  @endif
-               </h2></br>
-               <?php $lastDescription = $roundDescriptions[$pos]; ?>
-            @endif
-            @if($round != null && $danceNames[$pos] != null )
-               <h4 class="w_page-header-dance">&nbsp;{{$danceNames[$pos]}}&nbsp;</h4>
-            @elseif( $danceNames[$pos] != null )
-               <h4 class="w_page-header-dance">&nbsp;{{$danceNames[$pos]}}&nbsp;</h4>
-            @endif
-         </div>
-            
-         <div class="col-lg-12">
-            @if($round != null)
-            <table class="table table-responsive">
-               <tbody>
-                  @if($couples[$pos] != null)
-                     @foreach($couples[$pos] as $index => $group)
-                     <tr>
-                        <td>
-                        <div class="table-couples-main">
-                        @if( $groupConst[$pos] == true )
-                           Grupa&nbsp;stała&nbsp;{{$index+1}}:
-                        @elseif( count($couples[$pos]) > 1 )
-                           Grupa&nbsp;{{$index+1}}:
-                        @else
-                           Pary:
-                        @endif
-                        </div></td>
-                        <td>
-                           <div class="table-couples-main">
-                              <?php $idx = 0; ?>
-                              @foreach($group as $couple)
-                                 {{$couple->number}}
-                                 <?php $idx += 1; ?>
-                                 @if( $idx < count($group) )
-                                       ,
-                                 @endif
-                              @endforeach
-                           </div>
-                        </td>
-                     </tr>
-                     @endforeach
-                  @endif
-               </tbody>
-            </table>
-            @endif
-            <?php $pos = $pos+1; ?>
-         </div> 
-         @endforeach
-      @endif
-    </div>
+          @else
+            @foreach($rounds as $pos => $round)
+              @php
+                $desc = $roundDescriptions[$pos] ?? null;
+                $alt  = $roundAlternativeDescriptions[$pos] ?? '';
+              @endphp
 
-    <!-- /#page-wrapper -->
+              @if($desc && $lastDescription !== $desc)
+                <h2 class="w_page-header mb-1">
+                  {{ $alt !== '' ? $alt : $desc }}
+
+                  @if(!empty($couplesNo[$pos]))
+                    (<i class="fa fa-female" aria-hidden="true"></i><i class="fa fa-male" aria-hidden="true"></i>
+                    {{ $couplesNo[$pos] }})
+                  @endif
+                </h2>
+                @php $lastDescription = $desc; @endphp
+              @endif
+
+              @if(!empty($danceNames[$pos]))
+                <h4 class="w_page-header-dance mb-1">&nbsp;{{ $danceNames[$pos] }}&nbsp;</h4>
+              @endif
+
+              @if(!empty($round))
+               <table class="table mb-1 couples-table">
+                <tbody>
+                  @if(!empty($couples[$pos]))
+                    @foreach($couples[$pos] as $index => $group)
+                      <tr>
+                        {{-- KOLUMNA 1 – STAŁA --}}
+                        <td class="couples-col-label">
+                          <div class="table-couples-main">
+                            @if(!empty($groupConst[$pos]))
+                              Grupa&nbsp;stała&nbsp;{{ $index+1 }}
+                            @elseif(count($couples[$pos]) > 1)
+                              Grupa&nbsp;{{ $index+1 }}
+                            @else
+                              Numery:
+                            @endif
+                          </div>
+                        </td>
+                        {{-- KOLUMNA 2 – NUMERY --}}
+                        <td class="couples-col-numbers">
+                          <div class="table-couples-main">
+                            @foreach($group as $i => $couple)
+                              {{ $couple->number }}@if($i < count($group)-1), @endif
+                            @endforeach
+                          </div>
+                        </td>
+                      </tr>
+                    @endforeach
+                  @endif
+                </tbody>
+              </table>
+              @endif
+            @endforeach
+          @endif
+
+        </div>
+      </main>
+
+    </div>
+  </div>
 @stop
 
-
 @section('customScripts')
-    <script src="{{ asset('js/wallRound.js') }}"></script>
-    <script>
-        var wallRefreshTimer = "{{ config('ptt.wallRefreshTimer') }}";
-        var color = "{{ request()->input('colorSet') }}";
-        var factor = "{{ request()->input('divideFactor') }}";
+  <script src="{{ asset('js/wallRound.js') }}"></script>
+  <script>
+    window.wallRefreshTimer = @json(config('ptt.wallRefreshTimer'));
+    window.colorSet  = @json(request()->input('colorSet'));
+    window.divideFactor = @json(request()->input('divideFactor'));
 
-        @if($rounds[0] != null)
-            var roundName = "{{ $roundDescriptions[0] }}, {{ $danceNames[0] }}";
-        @endif
-    </script>
+    @if(!empty($rounds) && !empty($roundDescriptions[0]) && !empty($danceNames[0]))
+      window.roundName = @json(($roundDescriptions[0] ?? '').', '.($danceNames[0] ?? ''));
+    @endif
+  </script>
 @stop

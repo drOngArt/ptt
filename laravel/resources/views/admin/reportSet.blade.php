@@ -32,7 +32,7 @@
                           <thead>
                             <tr><th>
                               @if($i == 0)
-                                Para (Miejsce)
+                                Numer (Miejsce)
                               @else
                                 {!! html()->hidden('coupleNumber[]', 'position'.$i) !!}
                                 Miejsce {{ $i }}

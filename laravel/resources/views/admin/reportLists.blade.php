@@ -5,29 +5,35 @@
 @stop
 
 @section('content')
-    <div id="page-wrapper">
+    <div id="page-wrapper" class="container-fluid">
         {!! html()->form('GET', url('admin/report'))->open() !!}
         <div class="row">
             <div class="col-lg-12">
-                <div class="page-header-break">ZESTAW PAR<br/></div>
-                <h1 class="page-header">
-                    Listy startowe
-                    <div class="pull-right">
-                        {!! html()->submit('Powrót')->id('submitButton1')->class('btn btn-primary button-menu') !!}
-                    </div>
+                <div class="page-header-break">ZESTAW UCZESTNIKÓW</div>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h1 class="page-header mb-0">Listy startowe</h1>
+                    {{ html()
+                        ->submit('Powrót')
+                        ->id('submitButton1')
+                        ->class('btn btn-primary button-menu') }}
+                </div>
                 </h1>
             </div>
         </div>
 
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="pull-right">
-                    {!! html()->button('Drukuj', 'button')
-                         ->class('btn button-menu btn-brown')
-                         ->attribute('onclick','window.print()') !!}
-                </div>
+    <div class="row mb-3">
+        <div class="col-lg-12">
+            <div class="d-flex justify-content-end">
+              <button type="button"
+                  class="btn btn-brown button-menu btn-icon-left my-2"
+                  onclick="window.print()">
+                <i class="fa fa-print"></i>
+                <span class="button-menu-sep"></span>
+                <span>Drukuj</span>
+              </button>
             </div>
         </div>
+    </div>
 
         <div class="row">
             <div class="col-lg-12">
@@ -39,13 +45,13 @@
                                 <tr>
                                     @if($couples[$index][0]->marker[0] == 'a')
                                         <th colspan="5" class="text-center">
-                                            <p class="alignleft font-print-18pt">&nbsp;&nbsp;Kategoria: {{$index}}</p>
-                                            <p class="alignright">[ Liczba par:<a class="font-print-24pt">&nbsp;&nbsp;{{$couples[$index][0]->NoCpl1}}</a>&nbsp;&nbsp;]</p>
+                                            <p class="alignleft font-print-18pt">&nbsp;Kategoria: {{$index}}</p>
+                                            <p class="alignright">[ Zgłoszonych:<a class="font-print-24pt">&nbsp;{{$couples[$index][0]->NoCpl1}}</a>&nbsp;]</p>
                                         </th>
                                     @else
                                         <th colspan="5" class="text-center">
-                                            <p class="alignleft font-print-18pt">&nbsp;&nbsp;Kategoria: {{$index}}</p>
-                                            <p class="alignright">[ Liczba par:<a class="font-print-24pt">&nbsp;&nbsp;{{$couples[$index][0]->NoCpl1}}&nbsp;/&nbsp;{{$couples[$index][0]->NoCpl2}}</a>&nbsp;&nbsp;]</p>
+                                            <p class="alignleft font-print-18pt">&nbsp;Kategoria: {{$index}}</p>
+                                            <p class="alignright">[ Zgłoszonych:<a class="font-print-24pt">&nbsp;{{$couples[$index][0]->NoCpl1}}&nbsp;/&nbsp;{{$couples[$index][0]->NoCpl2}}</a>&nbsp;]</p>
                                         </th>
                                     @endif
                                 </tr>
@@ -65,13 +71,13 @@
                                 @php $idx = 0; @endphp
                                 @foreach($couple as $position)
                                     <tr>
-                                        <td class="btn-circle">{{ $idx + 1 }}.</td>
+                                        <td class="btn-circle fs-5">{{ $idx + 1 }}.</td>
                                         @php $idx++; @endphp
-                                        <td class="text-left">
+                                        <td class="text-left py-1">
                                             {{ $position->lastNameA }}&nbsp;{{ $position->firstNameA }}<br/>
                                             {{ $position->lastNameB }}&nbsp;{{ $position->firstNameB }}
                                         </td>
-                                        <td class="text-center">
+                                        <td class="text-center py-1">
                                             {{ $position->club }}<br/>
                                             {{ $position->country }}
                                         </td>
