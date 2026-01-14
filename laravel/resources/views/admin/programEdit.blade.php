@@ -7,7 +7,6 @@
 @section('content')
 <div id="page-wrapper" class="container-fluid">
 
-    {{-- GŁÓWNY FORMULARZ --}}
     {{ html()->form('POST', action('Admin\DashboardController@postFinalProgram'))->open() }}
 
     <div class="row mb-3">
@@ -89,23 +88,26 @@
                                     {{ html()->hidden('isDance[]',   $programRound->isDance) }}
 
                                     <div class="d-flex justify-content-between">
-                                        <div class="alignleft">
-                                            <span class="description">{{ $programRound->description }}</span>
-                                            <div>
-                                                <span class="alternativeDescription">{{ $programRound->alternative_description }}</span>
-                                                {{ html()->hidden('roundAlternativeName[]', $programRound->alternative_description)
-                                                    ->class('alternativeInput') }}
-                                            </div>
+                                      <div class="alignleft">
+                                        <span class="description">{{ $programRound->description }}</span>
+                                        <div class="mt-1">
+                                          <span class="alternativeDescription" @if(empty($programRound->alternative_description)) hidden @endif>
+                                            {{ $programRound->alternative_description }}
+                                          </span>
+                                          {{ html()->text('roundAlternativeName[]', $programRound->alternative_description)
+                                              ->class('form-control form-control-sm alternativeInput')
+                                              ->attribute('hidden', true)   {{-- startowo ukryte --}}
+                                              ->attribute('maxlength', 40) }}
                                         </div>
+                                      </div>
 
-                                        <div class="alignright">
-                                            @if($programRound->couples)
-                                                [ {{ $programRound->couples }} ]
-                                            @endif
-                                        </div>
+                                      <div class="alignright">
+                                        @if($programRound->couples)
+                                          [ {{ $programRound->couples }} ]
+                                        @endif
+                                      </div>
                                     </div>
                                 </td>
-
                                 <td  class="p-1">
                                     {{ html()->input('number', 'groupId[]', $programRound->groups)
                                         ->class('groups btn-blue-gray text-center font-12pt form-control d-inline-block w-auto')
@@ -154,7 +156,7 @@
                         @if($additionalRounds)
                             @foreach($additionalRounds as $additionalRound)
                                 <tr>
-                                    <td class="btn-circle" class="p-1">{{ ++$index }}.</td>
+                                    <td class="btn-circle fs-5 p-1">{{ ++$index+1 }}.</td>
 
                                     @if($additionalRound->isDance)
                                         <td class="p-1">
@@ -168,10 +170,10 @@
                                         {{ html()->hidden('roundName[]', $additionalRound->description) }}
 
                                         <div>
-                                            <span class="description">{{ $additionalRound->description }}</span>
+                                            <span class="description text-primary">{{ $additionalRound->description }}</span>
                                         </div>
                                         <div>
-                                            <span class="alternativeDescription">{{ $additionalRound->alternative_description }}</span>
+                                            <span class="alternativeDescription text-primary fst-italic">{{ $additionalRound->alternative_description }}</span>
                                             {{ html()->hidden('roundAlternativeName[]', '')
                                                 ->class('alternativeInput') }}
                                         </div>
