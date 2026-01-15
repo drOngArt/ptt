@@ -1,28 +1,46 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\APICompetitionController;
+use App\Http\Controllers\API\APIJudgeLoginController;
+use App\Http\Controllers\API\APIJudgeController;
 
 /*
 |--------------------------------------------------------------------------
-| Application Routes
+| API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register all of the routes for an application.
-| It's a breeze. Simply tell Laravel the URIs it should respond to
-| and give it the controller to call when that API is required.
-|
 */
 
-// API Routes
-$apiPrefix = 'api/v1';
-Route::group(['prefix' => $apiPrefix], function () {
-    Route::get('/competition', 'API\APICompetitionController@getCompetition');
-    Route::get('/adjudicators', 'API\APICompetitionController@getAdjudicators');
-});
-Route::group(['prefix' => $apiPrefix, 'middleware' => 'APIAuth'], function () {
-    Route::post('/login', 'API\APIJudgeLoginController@postLogin');
-    Route::get('/dances', 'API\APIJudgeController@getDances');
-    Route::get('/votes', 'API\APIJudgeController@getVotes');
-    Route::post('/votes/{danceId}', 'API\APIJudgeController@postVotes');
-    Route::post('/status', 'API\APIJudgeController@postStatus');
+Route::prefix('api/v1')->group(function () {
+
+    /*
+     | Publiczne API
+     */
+    Route::get('/competition', [APICompetitionController::class, 'getCompetition'])
+        ->name('api.competition');
+
+    Route::get('/adjudicators', [APICompetitionController::class, 'getAdjudicators'])
+        ->name('api.adjudicators');
+
+    Route::post('/login', [APIJudgeLoginController::class, 'postLogin'])
+        ->name('api.login');
+
+    /*
+     | API wymagające autoryzacji
+     */
+    Route::middleware('APIAuth')->group(function () {
+
+        Route::get('/dances', [APIJudgeController::class, 'getDances'])
+            ->name('api.dances');
+
+        Route::get('/votes', [APIJudgeController::class, 'getVotes'])
+            ->name('api.votes.index');
+
+        Route::post('/votes/{danceId}', [APIJudgeController::class, 'postVotes'])
+            ->whereNumber('danceId')
+            ->name('api.votes.store');
+
+        Route::post('/status', [APIJudgeController::class, 'postStatus'])
+            ->name('api.status');
+    });
 });

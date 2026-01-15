@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-require_once 'pttcompetitionPTT.php';
-include 'pttcompetitionW.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'pttcompetitionPTT.php';
+require_once __DIR__ . DIRECTORY_SEPARATOR . 'pttcompetitionW.php';
 
 class Competition
 {

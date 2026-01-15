@@ -26,36 +26,9 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="page-header mb-0">Panel sędziowski&nbsp;&nbsp;{{ $parts }}</h1>
         <div class="d-flex gap-2">
+          <button id="selectAll" type="button" class="btn btn-deep-orange button-menu">Zaznacz</button>
           {{ html()->submit('Zapisz...')->name('save')->class('btn btn-cyan button-menu') }}
           {{ html()->submit('Powrót')->id('submitButton1')->class('btn btn-primary button-menu') }}
-          <div class="dropdown print-dropdown">
-            <button type="button"
-                    class="btn btn-brown button-menu dropdown-toggle"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false">
-              <i class="fa fa-print me-2"></i>
-              <span class="border-start border-1 border-light px-2 ms-1">Drukuj</span>
-            </button>
-
-            @php $basePrintUrl = url('admin/panelSet'); @endphp
-
-            <ul class="dropdown-menu dropdown-menu-end print-menu"
-              <li>
-                <a class="dropdown-item d-flex align-items-center gap-2"
-                  target="_blank" rel="noopener"
-                  href="{{ $basePrintUrl.'?'.http_build_query(['print'=>'V','autoprint'=>1]) }}">
-                  <i class="fa fa-file-text-o"></i> Pionowo
-                </a>
-              </li>
-              <li>
-                <a class="dropdown-item d-flex align-items-center gap-2"
-                  target="_blank" rel="noopener"
-                  href="{{ $basePrintUrl.'?'.http_build_query(['print'=>'H','autoprint'=>1]) }}">
-                  <i class="fa fa-file-o"></i> Poziomo
-                </a>
-              </li>
-            </ul>
-          </div>
         </div>
       </div>
     </div>
@@ -72,7 +45,6 @@
   <div class="col-12">
     <div class="d-flex align-items-center gap-3 ekran flex-wrap">
 
-      {{-- LABEL + SELECT W JEDNEJ LINII --}}
       <div class="d-flex align-items-center gap-2" style="min-width: 320px;">
         {{ html()->label('Sędzia główny:')
               ->class('form-label fw-semibold mb-0 text-nowrap') }}
@@ -81,8 +53,6 @@
               ->id('mainJudge')
               ->class('form-select') }}
       </div>
-
-      {{-- Nazwisko --}}
       <div style="width:160px;">
         {{ html()->text('main_judge_l')
               ->placeholder('Nazwisko')
@@ -90,7 +60,6 @@
               ->class('form-control my_main_judge') }}
       </div>
 
-      {{-- Imię --}}
       <div style="width:120px;">
         {{ html()->text('main_judge_f')
               ->placeholder('Imię')
@@ -98,12 +67,40 @@
               ->class('form-control my_main_judge') }}
       </div>
 
-      {{-- Miasto --}}
       <div style="width:140px;">
         {{ html()->text('main_judge_c')
               ->placeholder('Miasto')
               ->maxlength(15)
               ->class('form-control my_main_judge') }}
+      </div>
+
+      <div class="dropdown print-dropdown ms-auto">
+        <button type="button"
+                class="btn btn-brown button-menu dropdown-toggle"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+          <i class="fa fa-print me-2"></i>
+          <span class="border-start border-1 border-light px-2 ms-1">Drukuj</span>
+        </button>
+
+        @php $basePrintUrl = url('admin/panelSet'); @endphp
+
+        <ul class="dropdown-menu dropdown-menu-end print-menu"
+          <li>
+            <a class="dropdown-item d-flex align-items-center gap-2"
+              target="_blank" rel="noopener"
+              href="{{ $basePrintUrl.'?'.http_build_query(['print'=>'V','autoprint'=>1]) }}">
+              <i class="fa fa-file-text-o"></i> Pionowo
+            </a>
+          </li>
+          <li>
+            <a class="dropdown-item d-flex align-items-center gap-2"
+              target="_blank" rel="noopener"
+              href="{{ $basePrintUrl.'?'.http_build_query(['print'=>'H','autoprint'=>1]) }}">
+              <i class="fa fa-file-o"></i> Poziomo
+            </a>
+          </li>
+        </ul>
       </div>
 
     </div>

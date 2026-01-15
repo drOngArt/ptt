@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App;
+use Illuminate\Support\Arr;
 
 class DatabaseBlock
 {
@@ -1317,7 +1318,7 @@ class CompetitionPTT
 
         foreach ($this->judgesCSV as $judge) {
             if (is_numeric($judge->sign)) {
-                $aScr = array_add($aScr, $judge->plId, $judge);
+                $aScr = Arr::add($aScr, $judge->plId, $judge);
             }
         }
 
@@ -1330,7 +1331,7 @@ class CompetitionPTT
         $JudgesCSV = [];
         foreach ($this->judgesCSV as $judge) {
             if (! is_numeric($judge->sign)) {
-                $JudgesCSV = array_add($JudgesCSV, $judge->plId, $judge);
+                $JudgesCSV = Arr::add($JudgesCSV, $judge->plId, $judge);
             }
         }
 
@@ -2377,7 +2378,7 @@ class CompetitionPTT
                     if ($scrforR->plId == '' && $scrforR->plId2 == '') { // without plId - maybe manual write, not form base
                         $scrforR->plId2 = $scrforR->lastName.';'.$scrforR->firstName.';'.$scrforR->city.';'.$scrforR->country;
                     }
-                    $Scrutineers = array_add($Scrutineers, $scrforR->plId2, $scrforR);
+                    $Scrutineers = Arr::add($Scrutineers, $scrforR->plId2, $scrforR);
                 }
             }
         }
@@ -2677,7 +2678,7 @@ class CompetitionPTT
                     $judge->country = 'Polska';
                 }
                 $judge->category = trim($parts[6]);
-                $this->judgesCSV = array_add($this->judgesCSV, $judge->plId, $judge);
+                $this->judgesCSV = Arr::add($this->judgesCSV, $judge->plId, $judge);
             } elseif ($counter > 2 &&
                   ((count($parts) == 13 && ! is_numeric($parts[0]) && $parts[5] == '' && $parts[6] == '') ||
                   ((count($parts) == 15 && $parts[5] == '' && $parts[6] == '')))) {

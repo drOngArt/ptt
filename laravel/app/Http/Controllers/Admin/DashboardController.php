@@ -14,17 +14,19 @@ use App\Http\Controllers\Couple;
 use App\Http\Controllers\Dance;
 use App\Http\Controllers\Judge;
 use App\Http\Controllers\ManualResult;
-use Auth;
-use Cache;
 use Carbon\Carbon;
-use Config;
-use DB;
-use Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Response;
-use Session;
-use View;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\View;
+
 
 //if need some debug info
 //use Illuminate\Support\Facades\Log;
@@ -162,7 +164,7 @@ class DashboardController extends Controller
                     }
                 }
                 foreach ($scrutineersForRound as $judge) {
-                    $scrutineers = array_add($scrutineers, $judge->plId2, $judge);
+                    $scrutineers = Arr::add($scrutineers, $judge->plId2, $judge);
                 }
             }
         }
@@ -2479,7 +2481,7 @@ class DashboardController extends Controller
                 }
             } else {
                 $temp[] = $couple->number;
-                $Couples = array_add($Couples, $couple->number, $couple->description);
+                $Couples = Arr::add($Couples, $couple->number, $couple->description);
             }
         }
         if (count($Couples) == 0) { // no couples
@@ -2515,7 +2517,7 @@ class DashboardController extends Controller
                 $round->className = 'H';
             }
             $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
-            $Program = array_add($Program, $round->baseRoundId, $round);
+            $Program = Arr::add($Program, $round->baseRoundId, $round);
         }
 
         $scheduleParts = $this->tournamentHelper->getPartsCSV();
@@ -2605,7 +2607,7 @@ class DashboardController extends Controller
             if ($round->nDancesW > $range_end) {
                 $round->nDancesW = $range_end;
             }
-            $Program = array_add($Program, $round->baseRoundId, $round);
+            $Program = Arr::add($Program, $round->baseRoundId, $round);
         }
 
         $scheduleParts = $this->tournamentHelper->getPartsCSV();
@@ -3197,7 +3199,7 @@ public function panelSet()
         $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
         $round->judgesNo = $this->tournamentHelper->getJudgesNo($round->baseRoundId);
 
-        $Program = array_add($Program, $round->baseRoundId, $round);
+        $Program = Arr::add($Program, $round->baseRoundId, $round);
     }
 
     $Judges = [];
@@ -3210,12 +3212,12 @@ public function panelSet()
         if ($mainJudge) {
             $mainJudge->sign = '#';
             if (is_numeric($mainJudge->plId2)) {
-                $Judges = array_add($Judges, $mainJudge->plId2, $mainJudge);
+                $Judges = Arr::add($Judges, $mainJudge->plId2, $mainJudge);
             } elseif (is_numeric($mainJudge->plId)) {
-                $Judges = array_add($Judges, $mainJudge->plId, $mainJudge);
+                $Judges = Arr::add($Judges, $mainJudge->plId, $mainJudge);
             } else {
                 $mainJudge->plId2 = $mainJudge->lastName.';'.$mainJudge->firstName.';'.$mainJudge->city.';'.$mainJudge->country;
-                $Judges = array_add($Judges, $mainJudge->plId2, $mainJudge);
+                $Judges = Arr::add($Judges, $mainJudge->plId2, $mainJudge);
             }
         }
         Session::flash('status', 'error');
@@ -3247,7 +3249,7 @@ public function panelSet()
             if ($new_judge->plId == null || $new_judge->plId == '') {
                 $new_judge->plId = $new_judge->lastName.';'.$new_judge->firstName.';'.$new_judge->city.';'.$new_judge->country;
             }
-            $Judges = array_add($Judges, $new_judge->plId, $new_judge);
+            $Judges = Arr::add($Judges, $new_judge->plId, $new_judge);
         }
     }
 
@@ -3255,9 +3257,9 @@ public function panelSet()
     if (count($Judges) > 0) {
         reset($Judges);
         if (current($Judges)->sign != '#') {
-            $JudgesList = array_add($JudgesList, ' ', ' ');
+            $JudgesList = Arr::add($JudgesList, ' ', ' ');
         } else {
-            $JudgesList = array_add($JudgesList, current($Judges)->plId, current($Judges)->lastName.' '.current($Judges)->firstName);
+            $JudgesList = Arr::add($JudgesList, current($Judges)->plId, current($Judges)->lastName.' '.current($Judges)->firstName);
         }
     }
 
@@ -3265,7 +3267,7 @@ public function panelSet()
         $idx = 0;
 
         if (!is_numeric($judge->sign) && is_numeric($judge->plId)) {
-            $JudgesList = array_add($JudgesList, $judge->plId, $judge->lastName.' '.$judge->firstName);
+            $JudgesList = Arr::add($JudgesList, $judge->plId, $judge->lastName.' '.$judge->firstName);
         }
 
         foreach ($Program as $round) {
@@ -3278,7 +3280,7 @@ public function panelSet()
         }
     }
 
-    $JudgesList = array_add($JudgesList, '000000', 'Wprowadź: ');
+    $JudgesList = Arr::add($JudgesList, '000000', 'Wprowadź: ');
 
     $JudgesBaza = $this->tournamentHelper->getJudgesDB();
 
@@ -3347,7 +3349,7 @@ public function panelSet()
             }
             $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
             $round->judgesNo = $this->tournamentHelper->getJudgesNo($round->baseRoundId);
-            $Program = array_add($Program, $round->baseRoundId, $round);
+            $Program = Arr::add($Program, $round->baseRoundId, $round);
             // find part of torurnment
         }
         $Judges = [];
@@ -3358,12 +3360,12 @@ public function panelSet()
             if ($mainJudge) {
                 $mainJudge->sign = '#';
                 if (is_numeric($mainJudge->plId2)) {
-                    $Judges = array_add($Judges, $mainJudge->plId2, $mainJudge);
+                    $Judges = Arr::add($Judges, $mainJudge->plId2, $mainJudge);
                 } elseif (is_numeric($mainJudge->plId)) {
-                    $Judges = array_add($Judges, $mainJudge->plId, $mainJudge);
+                    $Judges = Arr::add($Judges, $mainJudge->plId, $mainJudge);
                 } else {
                     $mainJudge->plId2 = $mainJudge->lastName.';'.$mainJudge->firstName.';'.$mainJudge->city.';'.$mainJudge->country;
-                    $Judges = array_add($Judges, $mainJudge->plId2, $mainJudge);
+                    $Judges = Arr::add($Judges, $mainJudge->plId2, $mainJudge);
                 }
             }
             Session::flash('status', 'error');
@@ -3393,24 +3395,24 @@ public function panelSet()
                 if ($new_judge->plId == null || $new_judge->plId == '') {
                     $new_judge->plId = $new_judge->lastName.';'.$new_judge->firstName.';'.$new_judge->city.';'.$new_judge->country;
                 }
-                $Judges = array_add($Judges, $new_judge->plId, $new_judge);
+                $Judges = Arr::add($Judges, $new_judge->plId, $new_judge);
             }
         }
         $JudgesList = []; // first should be main judge
         if (count($Judges) > 0) {
             reset($Judges);
             if (current($Judges)->sign != '#') {
-                $JudgesList = array_add($JudgesList, ' ', ' ');
+                $JudgesList = Arr::add($JudgesList, ' ', ' ');
             } // first element empty if not main judge
             else {
-                $JudgesList = array_add($JudgesList, current($Judges)->plId, current($Judges)->lastName.' '.current($Judges)->firstName);
+                $JudgesList = Arr::add($JudgesList, current($Judges)->plId, current($Judges)->lastName.' '.current($Judges)->firstName);
             }
         }
 
         foreach ($Judges as $judge) {
             $idx = 0;
             if (! is_numeric($judge->sign) && is_numeric($judge->plId)) {// remove judges without plId (not in Baza.csv)
-                $JudgesList = array_add($JudgesList, $judge->plId, $judge->lastName.' '.$judge->firstName);
+                $JudgesList = Arr::add($JudgesList, $judge->plId, $judge->lastName.' '.$judge->firstName);
             }
 
             foreach ($Program as $round) {
@@ -3419,7 +3421,7 @@ public function panelSet()
             }
         }
 
-        $JudgesList = array_add($JudgesList, '000000', 'Wprowadź: ');
+        $JudgesList = Arr::add($JudgesList, '000000', 'Wprowadź: ');
         $JudgesBaza = [];
         $JudgesBaza = $this->tournamentHelper->getJudgesDB();
 
