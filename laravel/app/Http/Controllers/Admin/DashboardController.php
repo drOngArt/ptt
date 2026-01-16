@@ -187,15 +187,10 @@ class DashboardController extends Controller
                 return  $a->lastName > $b->lastName;
             }
         });
-
-        $judges->sort(function ($a, $b) {
-            if ($a->lastName == $b->lastName) {
-                return  $a->firstName > $b->firstName;
-            } else {
-                return  $a->lastName > $b->lastName;
-            }
+        $judges = $judges->sort(function ($a, $b) {
+            return [$a->lastName, $a->firstName]
+                <=> [$b->lastName, $b->firstName];
         });
-
         if (count($scrutineers) == 0) {
             $scrutineers = $this->tournamentHelper->getScrutineers(0);
         }
