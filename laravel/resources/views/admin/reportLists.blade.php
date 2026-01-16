@@ -6,34 +6,27 @@
 
 @section('content')
     <div id="page-wrapper" class="container-fluid">
-        {!! html()->form('GET', url('admin/report'))->open() !!}
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="page-header-break">ZESTAW UCZESTNIKÓW</div>
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h1 class="page-header mb-0">Listy startowe</h1>
-                    {{ html()
-                        ->submit('Powrót')
-                        ->id('submitButton1')
-                        ->class('btn btn-primary button-menu') }}
-                </div>
-                </h1>
-            </div>
+      {!! html()->form('GET', url('admin/report'))->open() !!}
+      <div class="row mb-3">
+        <div class="col-12 d-flex align-items-center">
+          <h1 class="page-header mb-0">Listy Startowe</h1>
+      
+          <div class="ms-auto d-flex gap-2">
+            {!! html()
+                ->submit('Powrót')
+                ->id('submitButton1')
+                ->class('btn btn-primary button-menu') !!}
+      
+            <button type="button"
+                    class="btn btn-brown button-menu btn-icon-left"
+                    onclick="window.print()">
+              <i class="fa fa-print"></i>
+              <span class="button-menu-sep"></span>
+              <span>Drukuj</span>
+            </button>
+          </div>
         </div>
-
-    <div class="row mb-3">
-        <div class="col-lg-12">
-            <div class="d-flex justify-content-end">
-              <button type="button"
-                  class="btn btn-brown button-menu btn-icon-left my-2"
-                  onclick="window.print()">
-                <i class="fa fa-print"></i>
-                <span class="button-menu-sep"></span>
-                <span>Drukuj</span>
-              </button>
-            </div>
-        </div>
-    </div>
+      </div>
 
         <div class="row">
             <div class="col-lg-12">

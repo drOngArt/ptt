@@ -1023,6 +1023,12 @@ class Round
     public $nGroupsW; // special W
 
     public $nDancesW; // special W
+
+    public string $description = '';
+
+    public $isDance;
+
+    public $bg_color;
 }
 
 class Couple
