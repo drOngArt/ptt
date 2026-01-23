@@ -121,6 +121,7 @@ Route::prefix('admin')->group(function () {
 
         Route::get('panel',     [AdminDashboardController::class, 'showPanel']);
         Route::get('panelSet',  [AdminDashboardController::class, 'panelSet']);
+        Route::post('panelSet', [AdminDashboardController::class, 'panelSet']);
         Route::get('panelSave', [AdminDashboardController::class, 'panelSave']);
 
         // inne

@@ -23,7 +23,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(GateContract $gate)
     {
-        $this->registerPolicies($gate);
+        //$this->registerPolicies($gate);
 
         $gate->define('admin-only', function ($user) {
             return $user->role === 'admin';  // albo inny warunek

@@ -88,7 +88,8 @@
 
          <div class="row">
             <div class="col-lg-12">
-               <table class="table table-striped table-bordered table-hover w-75 p-2 mx-3">
+              <div class="table-responsive base-rounds-wrapper w-75 mx-3">
+                <table class="table table-striped table-bordered table-hover p-2">
                   <tbody id="baseRounds">
                      @php $idx = 10; @endphp
                      @foreach($baseRounds as $index => $round)
@@ -138,53 +139,10 @@
                         </tr>
                      @endforeach
                   </tbody>
-               </table>
+                </table>
+              </div>
             </div>
          </div>
-
-         <div class="row">
-           <div class="col-lg-12 d-flex justify-content-between align-items-center mb-3">
-             <h1 class="page-header mb-0">Raporty / Wyniki</h1>
-             <div class="d-flex justify-content-end align-items-center gap-2">
-               <ul class="nav navbar-nav d-flex flex-row gap-2 mb-0">
-                 <li class="dropdown">
-                   {!! html()->button('LISTY', 'button')
-                       ->class('btn btn-tangerine button-menu dropdown-toggle')
-                       ->attribute('data-bs-toggle','dropdown') !!}
-                   <ul class="dropdown-menu">
-                     <li>{!! html()->submit('- przydział numerów')->name('ranges')->class('btn-lsalmon button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- startowe')->name('lists')->class('btn-lsalmon button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- klubów')->name('clubs')->class('btn-lsalmon button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- klubów aktualnych')->name('clubsOpen')->class('btn-lsalmon button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- par o różnych klas.', '')->name('couplesBr')->class('btn-lsalmon button-menu text-left') !!}</li>
-                   </ul>
-                 </li>
-                 <li class="dropdown">
-                   {!! html()->button('RAPORTY', 'button')
-                       ->class('btn btn-coral button-menu dropdown-toggle')
-                       ->attribute('data-bs-toggle','dropdown') !!}
-                   <ul class="dropdown-menu">
-                     <li>{!! html()->submit('- wykaz rund')->name('rounds')->class('btn-lsalmon button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- numery par')->name('couples')->class('btn-lsalmon button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- stażysta')->name('trainee')->class('btn-lsalmon button-menu text-left') !!}</li>
-                   </ul>
-                 </li>
-                 <li class="dropdown">
-                   {!! html()->button('WYNIKI', 'button')
-                       ->class('btn btn-lsalmon button-menu dropdown-toggle')
-                       ->attribute('data-bs-toggle','dropdown') !!}
-                   <ul class="dropdown-menu">
-                     <li>{!! html()->submit('- imienne')->name('results_f')->class('btn-lsalmon button-menu text-left') !!}</li>
-                     <li>{!! html()->submit('- skrócone')->name('results_s')->class('btn-lsalmon button-menu text-left') !!}</li>
-                   </ul>
-                 </li>
-                 <li>
-                   {!! html()->submit('IMPREZA')->name('impreza')->class('btn btn-dorange button-menu') !!}
-                 </li>
-               </ul>
-             </div>
-           </div>
-          </div>
 
       {!! html()->form()->close() !!}
    </div>

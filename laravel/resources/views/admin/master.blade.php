@@ -55,7 +55,7 @@
     </div>
 </nav>
 
-<div class="d-flex">
+<div class="admin-shell">
     <nav class="sidebar flex-shrink-0 rounded-3" role="navigation">
         <div class="sidebar-sticky">
             <ul class="nav flex-column pt-4">
@@ -64,7 +64,6 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link mx-3 my-2" href="{{ $baseURI }}/admin/program"><span class="icon-wrap"><i class="fa fa-calendar fa-fw"></i><span class="border-left fs-6">Program turnieju</span></a>
-                    <!--<a class="nav-link m-3 my-2" href="{{ $baseURI }}/admin/program"><i class="fa fa-calendar fa-fw"></i>Program turnieju</a> -->
                 </li>
                 <li class="nav-item">
                     <a class="nav-link mx-3 my-2" href="{{ $baseURI }}/admin/round"><span class="icon-wrap"><i class="fa fa-check fa-fw"></i><span class="border-left fs-6">Aktualna runda</span></a>
@@ -79,7 +78,7 @@
         </div>
     </nav>
 
-    <main class="flex-grow-1 p-3" id="page-wrapper">
+    <main class="flex-grow-1 p-3">
         @yield('content')
     </main>
 </div>
