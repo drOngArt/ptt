@@ -10,7 +10,7 @@
 
     <div class="row mb-3">
       <div class="page-header-break">ZESTAWIENIE RUND<br/></div>
-      <div class="col-12 d-flex align-items-center">
+      <div class="col-12 d-flex align-items-center mb-3">
           <h1 class="page-header mb-0">Zestaw rund (liczba startujących, grup)</h1>
           <div class="ms-auto d-flex gap-2">
             {{ html()

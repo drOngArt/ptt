@@ -12,100 +12,112 @@
 
 
 @section('content')
-<div class="d-print-none">
- <div id="page-wrapper" class="container-fluid">
+  <div class="d-print-none">
+  <div id="page-wrapper" class="container-fluid">
 
-  <div class="page-header-break text-center mb-3">
-    LISTA SĘDZIÓW&nbsp;{{ $parts }}<br>
-  </div>
-
-  {{ html()->form('POST', url('admin/postPanel'))->open() }}
-
-  <div class="row">
-    <div class="col-12">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="page-header mb-0">Panel sędziowski&nbsp;&nbsp;{{ $parts }}</h1>
-        <div class="d-flex gap-2">
-          <button id="selectAll" type="button" class="btn btn-deep-orange button-menu">Zaznacz</button>
-          {{ html()->submit('Zapisz...')->name('save')->class('btn btn-cyan button-menu') }}
-          {{ html()->submit('Powrót')->id('submitButton1')->class('btn btn-primary button-menu') }}
+    <div class="page-header-break text-center mb-3">
+      LISTA SĘDZIÓW&nbsp;{{ $parts }}<br>
+    </div>
+  
+    {{ html()->form('POST', url('admin/postPanel'))->open() }}
+    @csrf
+  
+    <div class="row">
+      <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h1 class="page-header mb-0">Panel sędziowski&nbsp;&nbsp;{{ $parts }}</h1>
+          <div class="d-flex gap-2">
+            <button id="selectAll" type="button" class="btn btn-deep-orange button-menu">Zaznacz</button>
+            {{ html()->submit('Zapisz...')->name('save')->class('btn btn-cyan button-menu') }}
+            {{ html()->submit('Powrót')->name('back')->id('submitButton1')->class('btn btn-primary button-menu') }}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-
-  @if(session('status') === 'error')
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-      Brak pliku 'Listy_{{ $eventId }}.csv' w katalogu turnieju lub nieprawidłowy format.
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
-    </div>
-  @endif
-
-<div class="row g-3">
-  <div class="col-12">
-    <div class="d-flex align-items-center gap-3 ekran flex-wrap">
-
-      <div class="d-flex align-items-center gap-2" style="min-width: 320px;">
-        {{ html()->label('Sędzia główny:')
-              ->class('form-label fw-semibold mb-0 text-nowrap') }}
-
-        {{ html()->select('MainJudge', $judgelist, null)
-              ->id('mainJudge')
-              ->class('form-select') }}
+  
+    @if(session('status') === 'error')
+      <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        Brak pliku 'Listy_{{ $eventId }}.csv' w katalogu turnieju lub nieprawidłowy format.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
       </div>
-      <div style="width:160px;">
-        {{ html()->text('main_judge_l')
-              ->placeholder('Nazwisko')
-              ->maxlength(25)
-              ->class('form-control my_main_judge') }}
-      </div>
-
-      <div style="width:120px;">
-        {{ html()->text('main_judge_f')
-              ->placeholder('Imię')
-              ->maxlength(15)
-              ->class('form-control my_main_judge') }}
-      </div>
-
-      <div style="width:140px;">
-        {{ html()->text('main_judge_c')
-              ->placeholder('Miasto')
-              ->maxlength(15)
-              ->class('form-control my_main_judge') }}
-      </div>
-
-      <div class="dropdown print-dropdown ms-auto">
-        <button type="button"
-                class="btn btn-brown button-menu dropdown-toggle"
-                data-bs-toggle="dropdown"
-                aria-expanded="false">
-          <i class="fa fa-print me-2"></i>
-          <span class="border-start border-1 border-light px-2 ms-1">Drukuj</span>
-        </button>
+    @endif
+  
+  <div class="row g-3">
+    <div class="col-12">
+      <div class="d-flex align-items-center gap-3 ekran flex-wrap">
+  
+        <div class="d-flex align-items-center gap-2" style="min-width: 320px;">
+          {{ html()->label('Sędzia główny:')
+                ->class('form-label fw-semibold mb-0 text-nowrap') }}
+  
+          {{ html()->select('MainJudge', $judgelist, null)
+                ->id('mainJudge')
+                ->class('form-select') }}
+        </div>
+        <div style="width:160px;">
+          {{ html()->text('main_judge_l')
+                ->placeholder('Nazwisko')
+                ->maxlength(25)
+                ->class('form-control my_main_judge') }}
+        </div>
+  
+        <div style="width:120px;">
+          {{ html()->text('main_judge_f')
+                ->placeholder('Imię')
+                ->maxlength(15)
+                ->class('form-control my_main_judge') }}
+        </div>
+  
+        <div style="width:140px;">
+          {{ html()->text('main_judge_c')
+                ->placeholder('Miasto')
+                ->maxlength(15)
+                ->class('form-control my_main_judge') }}
+        </div>
 
         @php $basePrintUrl = url('admin/panelSet'); @endphp
+        <div class="dropdown print-dropdown ms-auto">
+          <button type="button"
+                  class="btn btn-brown button-menu dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false">
+            <i class="fa fa-print me-2"></i>
+            <span class="border-start border-1 border-light px-2 ms-1">Drukuj</span>
+          </button>
 
-        <ul class="dropdown-menu dropdown-menu-end print-menu"
-          <li>
-            <a class="dropdown-item d-flex align-items-center gap-2"
-              target="_blank" rel="noopener"
-              href="{{ $basePrintUrl.'?'.http_build_query(['print'=>'V','autoprint'=>1]) }}">
-              <i class="fa fa-file-text-o"></i> Pionowo
-            </a>
-          </li>
-          <li>
-            <a class="dropdown-item d-flex align-items-center gap-2"
-              target="_blank" rel="noopener"
-              href="{{ $basePrintUrl.'?'.http_build_query(['print'=>'H','autoprint'=>1]) }}">
-              <i class="fa fa-file-o"></i> Poziomo
-            </a>
-          </li>
-        </ul>
+          <ul class="dropdown-menu dropdown-menu-end print-menu">
+            <li>
+              <button type="submit"
+                      class="dropdown-item d-flex align-items-center gap-2"
+                      formaction="{{ $basePrintUrl }}"
+                      formmethod="POST"
+                      formtarget="_blank"
+                      name="print"
+                      value="V">
+                <i class="fa fa-file-text-o"></i> Pionowo
+              </button>
+            </li>
+
+            <li>
+              <button type="submit"
+                      class="dropdown-item d-flex align-items-center gap-2"
+                      formaction="{{ $basePrintUrl }}"
+                      formmethod="POST"
+                      formtarget="_blank"
+                      name="print"
+                      value="H">
+                <i class="fa fa-file-o"></i> Poziomo
+              </button>
+            </li>
+          </ul>
+
+          {{-- to pole pójdzie do panelSet razem z POST --}}
+          <input type="hidden" name="autoprint" value="1">
+        </div>
+
       </div>
-
     </div>
   </div>
-</div>
 
 
   <div class="row mt-1">
@@ -154,7 +166,6 @@
                       {{ $category->styleName }}
                     </span>
                   </div>
-                </th>
                 </th>
                 <td class="sticky-col-2 text-center align-middle requirement-cell fs-6"
                     data-judge-no="{{ $category->judgesNo }}">
@@ -209,43 +220,29 @@
  </div>
 </div>
 @php
-  // tryb druku
   $pm = ($printMode ?? request('print') ?? 'V');     // 'V' albo 'H'
   $perPage = ($pm === 'H') ? 24 : 15;
 
-  // $judges to Twoja mapa pl_id => Judge
   $judgeChunks = array_chunk($judges, $perPage, true);
 @endphp
 
 <div class="d-none d-print-block">
   @foreach($judgeChunks as $chunkIndex => $judgesPage)
 
-    {{-- proste “łamanie strony” między porcjami --}}
-    @if($chunkIndex > 0)
-      <!--<div class="page-break"></div>-->
-    @endif
-
     <div class="print-page">
-
       <div class="mb-2 fw-bold print-title">
         Panel sędziowski — {{ $parts }}
         (strona {{ $chunkIndex+1 }} / {{ count($judgeChunks) }})
       </div>
-
       <table class="table table-bordered table-sm print-table">
         <thead class="font-12pt">
           <tr class="header-row">
-            {{-- 1. kolumna --}}
             <th class="headcol sticky-col-1 text-end align-bottom fs-4">
               Kategoria<br>Klasa<br>Styl
             </th>
-
-            {{-- 2. kolumna --}}
             <th class="sticky-col-2 align-bottom sum-header p-2 fs-2 text-center">
               &Sigma;
             </th>
-
-            {{-- sędziowie (tylko porcja na tę stronę) --}}
             @foreach($judgesPage as $pl_id => $judge)
               <th class="text-center fixed-col judge-vertical print-judge-col" data-judge="{{ $pl_id }}">
                 <div class="judge-rot-wrap">
@@ -264,6 +261,7 @@
         <tbody>
           @php $rowPos = 0; @endphp
           @foreach($program as $roundIndex => $category)
+            @php $pos = $loop->index; @endphp
             <tr data-round="{{ $roundIndex }}">
               <th class="headcol sticky-col-1 text-start align-middle category-cell">
                 <span class="cat-two-lines">
@@ -273,15 +271,11 @@
               </th>
               <td class="sticky-col-2 text-center align-middle requirement-cell print-sum"
                   data-judge-no="{{ $category->judgesNo }}">
-                {{-- w druku możesz zostawić puste albo wstawić samą liczbę --}}
                 <span class="judge-counter">{{ $category->judgesNo }}</span>
               </td>
-
               @foreach($judgesPage as $pl_id => $judge)
                 @php
-                  // UWAGA: tu używasz już “kolejnego idx”, a nie baseRoundId klucza.
-                  // Jeśli u Ciebie sign jest już wypełnione po idx = 0..N, to roundIndex w foreach($program as ...) OK.
-                  $checked = isset($judge->sign[$roundIndex]) && $judge->sign[$roundIndex] !== ' ';
+                  $checked = request()->has($roundIndex.'-'.$pl_id);
                 @endphp
                 <td class="print-check">
                   <div class="check-wrap">
@@ -306,6 +300,15 @@
   <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
   <script src="{{ asset('js/jquery.dragtable.min.js') }}"></script>
 
+  <script>
+  window.__VIEW_DATA__ = {
+    program: @json($program),
+    judges: @json($judges),
+    chunks: @json($judgeChunks)
+  };
+  </script>
+
+
   @parent
   @if(request()->boolean('autoprint'))
     <script>
@@ -320,6 +323,7 @@
       window.addEventListener('afterprint', function(){ window.close(); });
     </script>
   @endif
+
 
   <script>
   $(function() {

@@ -153,42 +153,6 @@
 
     <!-- schedeuler -->
     @include('admin.scheduleTable')
-
-    @if(count($program) > 0)
-      <div class="row mt-2">
-          <div class="col-lg-12">
-              <div class="d-flex justify-content-between align-items-center">
-                  <div class="dropdown print-dropdown ms-auto">
-                      <button type="button"
-                              class="btn btn-brown button-menu dropdown-toggle"
-                              data-bs-toggle="dropdown">
-                          <i class="fa fa-print me-2"></i>
-                          <span class="border-start border-1 border-light px-2 ms-1">
-                              Drukuj
-                          </span>
-                      </button>
-                      <ul class="dropdown-menu print-dropdown-menu dropdown-menu-end">
-                          <li>
-                              <a class="dropdown-item print-dd-item" href="#" id="withTimes">
-                                  <i class="fa fa-plus-square me-2"></i>
-                                  <span class="dd-sep"></span>
-                                  z czasami
-                              </a>
-                          </li>
-                          <li>
-                              <a class="dropdown-item print-dd-item" href="#" id="withoutTimes">
-                                  <i class="fa fa-minus-square me-2"></i>
-                                  <span class="dd-sep"></span>
-                                  bez czasów
-                              </a>
-                          </li>
-                      </ul>
-                  </div>
-      
-              </div>
-          </div>
-      </div>
-    @endif
   </div>  <!-- /#page-wrapper -->
 
   {{-- Modal “File input selector” --}}

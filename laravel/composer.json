@@ -8,23 +8,21 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "laravel/framework": "^9.0",
-        "laravelcollective/html": "^6.4",
+        "laravel/framework": "^11.0",
         "league/csv": "~7.0",
-        "doctrine/dbal": "~2.3",
+        "doctrine/dbal": "^3.0",
         "league/fractal": "0.19",
         "symfony/dom-crawler": "~6.0",
         "symfony/css-selector": "~6.0",
-        "php": "^8.0.2",
+        "php": "^8.2",
         "spatie/laravel-html": "^3.0",
-        "laravel/ui": "^3.0"
+        "laravel/ui": "^4.0"
     },
     "require-dev": {
         "codeception/codeception": "^5.0",
-        "filp/whoops": "~2.0",
         "barryvdh/laravel-debugbar": "~3.0",
-        "barryvdh/laravel-ide-helper": "~2.0",
-        "phpunit/phpunit": "^9.0",
+        "barryvdh/laravel-ide-helper": "^2.15|^3.0",
+        "phpunit/phpunit": "^10.0",
         "phpstan/phpstan": "^0.12"
     },
     "autoload": {
@@ -65,7 +63,11 @@
             "kylekatarnls/update-helper": true
         },
         "audit": {
-            "block-insecure": false
+            "block-insecure": false,
+            "ignore": [
+                "PKSA-8qx3-n5y5-vvnd",
+                "PKSA-w7xr-vk7n-rstm"
+            ]
         }
     }
 }

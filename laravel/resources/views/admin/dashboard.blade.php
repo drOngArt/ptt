@@ -50,36 +50,42 @@
         </div>
       </div>
 
-      <div class="table-responsive w-50 mx-3">
-        <table class="table ekran">
-            <tbody id="judgesTable">
-               @foreach($judges as $judge)
-                  <tr @if($judge->isInProgram || !$filterInProgram) class="present" @else class="d-none" @endif >
-                     <td>{{$judge->lastName}} {{$judge->firstName}}</td>
-                     <td><a href="{{$baseURI}}/admin/password/{{$judge->id}}/true" class="btn btn-primary" role="button">Ustaw hasło</a></td>
-                     <td>
-                        @if($judge->status)
-                           <i class="fa fa-mobile fa-lg"></i>
-                           ver: {{$judge->softwareVersion}}
-                           @if($judge->batteryLevel < 20)
-                              <i class="fa fa-battery-empty fa-rotate-270"></i> 
-                           @elseif($judge->batteryLevel < 40)
-                              <i class="fa fa-battery-quarter fa-rotate-270"></i> 
-                           @elseif($judge->batteryLevel < 60)
-                              <i class="fa fa-battery-half fa-rotate-270"></i> 
-                           @elseif($judge->batteryLevel < 80)
-                              <i class="fa fa-battery-three-quarters fa-rotate-270"></i> 
-                           @else
-                              <i class="fa fa-battery-full fa-rotate-270"></i>
-                           @endif 
-                            {{$judge->batteryLevel}}%
-                        @endif
-                     </td>
-                  </tr>
-               @endforeach
-            </tbody>
-         </table>
+      <div class="table-responsive w-50 mx-3 judges-table-wrapper">
+          <table class="table ekran">
+              <tbody id="judgesTable">
+                  @foreach($judges as $judge)
+                      <tr @if($judge->isInProgram || !$filterInProgram) class="present" @else class="d-none" @endif>
+                          <td>{{$judge->lastName}} {{$judge->firstName}}</td>
+                          <td>
+                              <a href="{{$baseURI}}/admin/password/{{$judge->id}}/true"
+                                class="btn btn-primary" role="button">
+                                Ustaw hasło
+                              </a>
+                          </td>
+                          <td>
+                              @if($judge->status)
+                                  <i class="fa fa-mobile fa-lg"></i>
+                                  ver: {{$judge->softwareVersion}}
+                                  @if($judge->batteryLevel < 20)
+                                      <i class="fa fa-battery-empty fa-rotate-270"></i>
+                                  @elseif($judge->batteryLevel < 40)
+                                      <i class="fa fa-battery-quarter fa-rotate-270"></i>
+                                  @elseif($judge->batteryLevel < 60)
+                                      <i class="fa fa-battery-half fa-rotate-270"></i>
+                                  @elseif($judge->batteryLevel < 80)
+                                      <i class="fa fa-battery-three-quarters fa-rotate-270"></i>
+                                  @else
+                                      <i class="fa fa-battery-full fa-rotate-270"></i>
+                                  @endif
+                                  {{$judge->batteryLevel}}%
+                              @endif
+                          </td>
+                      </tr>
+                  @endforeach
+              </tbody>
+          </table>
       </div>
+
       <!-- for print only -->
       <div class="table-responsive">
          <table class="table table-striped drukarka">

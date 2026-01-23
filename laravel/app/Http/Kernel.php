@@ -43,7 +43,7 @@ class Kernel extends HttpKernel
      *
      * @var array
      */
-    protected $routeMiddleware = [
+    protected $middlewareAliases = [
         'auth' => \Illuminate\Auth\Middleware\Authenticate::class,
         'adminAuth' => \App\Http\Middleware\AdminMiddleware::class,
         'judgeAuth' => \App\Http\Middleware\JudgeMiddleware::class,
