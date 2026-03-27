@@ -131,7 +131,13 @@
                     <tr>
                         <td>
                             <div id="status{{ $judge->sign }}" class="d-flex align-items-center gap-3 p-1">
-                                <button class="btn-circle">{{ $judge->sign }}</button>
+                            <button class="btn btn-primary d-inline-flex align-items-center">
+                                <i class="fa fa-user me-1" aria-hidden="true"></i>
+                                <span class="badge rounded-pill bg-light text-dark ms-1 fs-7">
+                                  {{ $judge->sign }}
+                                </span>
+                            </button>
+
                                 @if($judge->without_pass == true)
                                     <a href="{{ $baseURI }}/admin/password/{{ $judge->id }}/false"
                                        class="btn btn-dorange"
@@ -147,7 +153,7 @@
                         <td class="text-end">
                             <button id="completed{{ $judge->sign }}"
                                     type="button"
-                                    class="btn btn-outline-secondary hidden fa fa-check-square-o fa-lg judgeResultsButton"
+                                    class="btn-outline-primary d-none fa fa-check-square-o fa-2x judgeResultsButton"
                                     data-bs-toggle="modal"
                                     data-bs-target=".judgeResults"
                                     data-judge-sign="{{ $judge->sign }}"
@@ -412,7 +418,7 @@
     <script src="{{ asset('js/adminRound.js') }}"></script>
     <script>
         var adminRefreshTimer = "{{ Config::get('ptt.adminRefreshTimer') }}";
-        var roundIdFromDB     = {{ $roundIdFromDB }};
+        var roundIdFromDB     = "{{ $roundIdFromDB }}";
         var baseURI           = "{{ $baseURI }}";
 
         @if($danceName != null || $roundDescription != null)

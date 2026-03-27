@@ -17,7 +17,7 @@
     <link href="{{ asset('css/font-awesome.min.css') }}" rel="stylesheet">
 
     <script src="{{ asset('js/jquery-3.7.1.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
     <script src="{{ asset('js/metisMenu.min.js') }}"></script>
     <script src="{{ asset('js/sb-admin-2.js') }}"></script>
 

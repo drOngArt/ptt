@@ -1,6 +1,6 @@
 function checkResults (){
     var urlName = baseURI + "/admin/round/roundResults/" + roundIdFromDB;
-    console.log(urlName);
+    //console.log(urlName);
     $.ajax({
         url: urlName,
         type: "GET",
@@ -14,7 +14,7 @@ function checkResults (){
             location.reload();
         }
         else{
-            //console.log("refresh judges");
+            console.log("refresh judges");
             for(var i = 0; i < result['judges'].length; i++){
                 var judgeSign = result['judges'][i]['sign'];
                 var completedDiv = $("#completed"+judgeSign);
@@ -66,7 +66,11 @@ function checkResults (){
                     completedTextDiv.html("");
                 }
                 var statusDiv = $("#status"+judgeSign);
-                var judgeSignIcon = '<button class="btn-circle">'+judgeSign+'</button> ';
+                //console.log(statusDiv);
+                //var judgeSignIcon = '<button class="btn-circle">'+judgeSign+'</button> ';
+                var judgeSignIcon = '<button class="btn btn-primary d-inline-flex align-items-center"> \
+                                     <i class="fa fa-user me-1" aria-hidden="true"></i> \
+                                     <span class="badge rounded-pill bg-light text-dark ms-1 fs-7">'+judgeSign+'</span></button>';
                 var judgePass = '<span class="font-14pt"> ';
                 if(result['judges'][i]['without_pass'] == true)
                    judgePass = '<a class="btn btn-dorange" role="button" href="password/' + result['judges'][i]['id'] + '/false"> USTAW HASŁO </a><span class="font-14pt"> ';

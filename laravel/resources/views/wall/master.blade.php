@@ -19,7 +19,7 @@
     <script src="{{ asset('js/bootbox.min.js') }}"></script>
     <script src="{{ asset('js/jquery-ui.min.js') }}"></script>
     
-    <script src="{{ asset('js/underscore-min.js') }}"></script>
+    <!-- <script src="{{ asset('js/underscore-min.js') }}"></script> -->
     <script src="{{ asset('js/wallCss.js') }}"></script>
     
 </head>

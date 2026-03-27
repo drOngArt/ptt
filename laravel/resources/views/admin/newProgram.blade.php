@@ -21,14 +21,13 @@
 
         <div class="row">
             <div class="col-12">
-                <div class="table-responsive">
+                <div class="table-responsive table-scroll base-rounds-wrapper w-75">
                     <table class="table table-striped table-bordered table-hover align-middle mb-3">
                         <tbody>
                         @php $idx = null; @endphp
 
                         @foreach($baseRounds as $round)
                             @if($round->isClosed == 0)
-
                                 @if($idx !== $round->positionW)
                                     @php $idx = $round->positionW; @endphp
                                     <tr class="table-secondary">
@@ -48,16 +47,16 @@
                                 <tr>
                                   <td class="check-cell">
                                     <div class="check-wrapper">
-                                        <input
-                                            class="form-check-input roundCheckbox_{{ $round->positionW }}"
+                                        <input class="form-check-input roundCheckbox_{{ $round->positionW }}"
                                             name="selected[]"
                                             type="checkbox"
-                                            value="{{ $round->roundId }}"
-                                        >
+                                            value="{{ $round->roundId }}">
                                     </div>
                                   </td>
-
                                   <td>
+                                    <span class="text-primary font-weight-bold"> &nbsp;
+                                      [ {{ $round->baseNumberOfCouples }} ]
+                                    </span>
                                     <span class="description">
                                           {{ $round->roundName }}
                                           {{ $round->categoryName }}
@@ -79,14 +78,6 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-12 text-end">
-                {{ html()->submit('Zatwierdź')
-                    ->id('submitButtonBottom')
-                    ->class('btn btn-primary button-menu') }}
             </div>
         </div>
         {{ html()->form()->close() }}

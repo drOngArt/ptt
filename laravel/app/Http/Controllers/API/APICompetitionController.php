@@ -47,12 +47,6 @@ class APICompetitionController extends Controller
 
     public function getAdjudicators()
     {
-        //old
-        //$judgeRole = Role::where('name', 'judge')->first();
-        //$judges = Role::find($judgeRole->id)->users()->get()->sortBy('lastName');
-        //$judgesResponse = $this->response->collection($judges, new AdjudicatorTransformer(), 'adjudicators');
-        //return Response::json($judgesResponse['adjudicators']);
-
         $judgeRole = \App\Role::where('name', 'judge')->first();
         $judges = \App\Role::find($judgeRole->id)->users()->get()->sortBy('lastName');
 

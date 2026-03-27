@@ -13,12 +13,25 @@
             <!-- /.col-lg-12 -->
         </div>
         <!-- /.row -->
+        <?php function getLocalIp() {
+                $output = shell_exec('ipconfig');
+                preg_match_all('/IPv4 Address[^\:]*:\s*([0-9\.]+)/', $output, $matches);
+
+                if (!empty($matches[1])) {
+                  foreach ($matches[1] as $ip) {
+                      // pomijamy localhost i dziwne zakresy
+                    if( $ip !== '127.0.0.1' && !str_starts_with($ip, '169.254') )
+                      return $ip;
+                  }
+                }
+                return '127.0.0.1'; 
+        } ?>
         <div class="row">
             <div class="col-lg-12">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                     Użytkownik: {{$user->username}} / adres IP:
-                    <b><?php echo getHostByName(getHostName()); ?></b>
+                    <b> {{ getLocalIp() }}</b>
                     </div>
                     <div class="panel-heading">
                     Wersja: {{$version->version}} ({{$version->date}})

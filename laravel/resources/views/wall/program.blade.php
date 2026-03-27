@@ -18,24 +18,22 @@
 @section('content')
   @php
   $cs = (string) request()->input('colorSet', '3');
-  $df = (string) request()->input('divideFactor', '36');
+  $df = (string) request()->input('divideFactor', '40');
 @endphp
 
     <div class="theme-{{ $cs }}" style="--wall-left: {{ is_numeric($df) ? $df.'%' : '36%' }};">
       <div class="wall-layout">
         <aside class="wall-left">
           <h1 class="mb-2">PROGRAM TURNIEJU</h1>
-    
-          <h3 class="mb-3">
+            <h3 class="mb-3">
             @if(!empty($times[0]))
-              Aktualny czas: {{ $times[0] }}
+              <i class="fa fa-clock-o me-1"></i> {{ $times[0] }}
             @endif
             @if(!empty($compressedProgram))
-              <br>Koniec: ~ {{ $times[count($compressedProgram)+1] ?? '' }}
+              <i class="fa fa-share-square"></i>  Koniec: ~ {{ $times[count($compressedProgram)+1] ?? '' }}
             @endif
           </h3>
-
-          @include('wall.scheduleTable')
+            @include('wall.scheduleTable')
         </aside>
 
         <main class="wall-right">
@@ -63,7 +61,7 @@
               @endif
 
               @if(!empty($danceNames[$pos]))
-                <h4 class="w_page-header-dance mb-1">&nbsp;{{ $danceNames[$pos] }}&nbsp;</h4>
+                <h4 class="w_page-header-dance mb-1 pe-5">&nbsp;{{ $danceNames[$pos] }}&nbsp;</h4>
               @endif
 
               @if(!empty($round))

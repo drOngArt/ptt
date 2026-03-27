@@ -30,7 +30,8 @@
     </div>
 
     <div class="row">
-        <div class="col-lg-12">
+      <div class="col-lg-12">
+        <div class="base-rounds-wrapper screen-w-75 mx-3">
         @foreach($couples as $index => $couple)
           <div class="div-no-break text-center">
             WYNIKI<br/>
@@ -58,6 +59,7 @@
           </div>
         @endforeach
         </div>
+      </div>
     </div>
     {!! html()->form()->close() !!}
   </div>

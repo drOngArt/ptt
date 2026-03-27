@@ -87,7 +87,7 @@
   --headcol-w: 200px;/* szerokość pierwszej kolumny (etykiety) */
   --thead-r1-h: 100px;
   --r1h: 40px; 
-
+  --admin-top: 66px;
 }
 
 /* fresh blue
@@ -214,8 +214,22 @@ body {
 #page-wrapper {
   flex: 1 1 auto;
   background: #F9F6EE;
-  min-height: 568px;
+  min-height: 0; /*568px;*/
   padding: 0 1rem;
+  overflow-y: hidden;
+}
+
+/* cała strona */
+html, body{
+  height: 100%;
+  margin: 0;
+}
+
+/* wrapper pod navbar */
+.admin-shell{
+  height: calc(100vh - var(--admin-top));
+  min-height: 0;           /* 🔴 KLUCZ dla flex */
+  display: flex;
 }
 
 hr {
@@ -512,11 +526,11 @@ h1, h2, h3, h4, h5, h6,
 }
 
 h1, .h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
 }
 
 h2, .h2 {
-  font-size: 2rem;
+  font-size: 1.8rem;
 }
 
 h3, .h3 {
@@ -1630,7 +1644,7 @@ pre code {
 .table {
   width: 100%;
   margin-bottom: 1rem;
-  color: #858796;
+  /*color: #858796;*/
 }
 
 .table th,
@@ -1666,6 +1680,11 @@ pre code {
 .table-bordered thead th,
 .table-bordered thead td {
   border-bottom-width: 2px;
+}
+
+.table-bordered th:empty,
+.table-bordered td:empty {
+  border: none;
 }
 
 .table-borderless th,
@@ -9854,84 +9873,6 @@ a.text-dark:hover, a.text-dark:focus {
   visibility: hidden !important;
 }
 
-@media print {
-  *,
-  *::before,
-  *::after {
-    text-shadow: none !important;
-    box-shadow: none !important;
-  }
-  a:not(.btn) {
-    text-decoration: underline;
-  }
-  abbr[title]::after {
-    content: " (" attr(title) ")";
-  }
-  pre {
-    white-space: pre-wrap !important;
-  }
-  pre,
-  blockquote {
-    border: 1px solid #b7b9cc;
-    page-break-inside: avoid;
-  }
-  thead {
-    display: table-header-group;
-  }
-  tr,
-  img {
-    page-break-inside: avoid;
-  }
-  p,
-  h2,
-  h3 {
-    orphans: 3;
-    widows: 3;
-  }
-  h2,
-  h3 {
-    page-break-after: avoid;
-  }
-  @page {
-    size: a3;
-  }
-  body {
-    min-width: 992px !important;
-  }
-  .container {
-    min-width: 992px !important;
-  }
-  .navbar {
-    display: none;
-  }
-  .badge {
-    border: 1px solid #000;
-  }
-  .table {
-    border-collapse: collapse !important;
-  }
-  .table td,
-  .table th {
-    background-color: #fff !important;
-  }
-  .table-bordered th,
-  .table-bordered td {
-    border: 1px solid #dddfeb !important;
-  }
-  .table-dark {
-    color: inherit;
-  }
-  .table-dark th,
-  .table-dark td,
-  .table-dark thead th,
-  .table-dark tbody + tbody {
-    border-color: #e3e6f0;
-  }
-  .table .thead-dark th {
-    color: inherit;
-    border-color: #e3e6f0;
-  }
-}
 
 html {
   position: relative;
@@ -10473,9 +10414,18 @@ a:focus {
   color: #858796;
 }
 
-.sidebar {
+.sidebar{
   width: 6.5rem;
-  min-height: 100vh;
+  height: 100%;
+  min-height: 0;
+  overflow: visible;
+  z-index: 2000;
+  position: relative;
+}
+
+.sidebar-sticky{
+  height: 100%;
+  overflow: visible !important;
 }
 
 .sidebar .nav-item {
@@ -12080,13 +12030,56 @@ input[type=checkbox]
    float: right;
 }
 
+/* ----------------------- moje ------------------------ */
+
+/* Sidebar jako "ramka" – pozwala wystawać w prawo */
+.admin-shell .sidebar{
+  position: relative;
+  overflow: visible !important;   /* kluczowe: nic nie obcina */
+  z-index: 1000;
+}
+
+/* To ma scrollować pionowo, ale NIGDY poziomo */
+.admin-shell .sidebar .sidebar-sticky{
+  max-height: 100vh;              /* albo calc(100vh - ...), jeśli masz header */
+/*  overflow-y: auto !important;
+  overflow-x: hidden !important;  /* kluczowe: brak X scrolla */
+  position: relative;
+}
+
+/* 2) Link ma być zawsze szerszy niż sidebar i wystawać */
+.admin-shell .sidebar .nav-link{
+  position: relative;
+  display: block;
+  width: calc(100% + 4px);  /* ile ma wystawać */
+  margin-right: -4px;       /* wypchnięcie w prawo */
+  z-index: 2;
+}
+
+.judges-table-wrapper{
+  max-height: 70vh;
+  overflow-y: auto;
+  overflow-x: hidden;   /* brak poziomego scrolla */
+}
+
+.base-rounds-wrapper{
+  max-height: 80vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: block;
+  border: 1px solid #dee2e6;
+}
+
+.screen-w-75 { 
+  width: 75%; 
+}
+
 .table-scroll {
-  height: 70vh;
+  max-height: 70vh;
   max-width: 100%;
   position: relative;
   overflow-y: auto;
   overflow-x: auto;
-  /*display: block;*/
 }
 
 .table-panel {
@@ -12096,6 +12089,7 @@ input[type=checkbox]
   border-collapse: separate !important;
   border-spacing: 0 !important;
   background-color: #fff;
+  margin-bottom: 0;
 }
 
 .table-panel th,
@@ -12602,6 +12596,14 @@ td.check-cell .form-check-input {
     cursor: pointer;
 }
 
+/* w tabeli rund checkbox ma być normalny */
+#baseRounds .form-check-input{
+  position: static !important;
+  margin: 0 !important;
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
 .category-cell{
   height: 56px;
   padding: 4px 6px;
@@ -12636,6 +12638,8 @@ td.check-cell .form-check-input {
   max-width: 100% !important;
   box-sizing: border-box;
 }
+
+
 
 } /* end of screen */
 /* -- print -------------------------------------------------------------------- */
@@ -12777,7 +12781,54 @@ td.check-cell .form-check-input {
   .table-bordered td {
     border: 1px solid #ddd !important;
   }
-  
+
+  a:not(.btn) {
+    text-decoration: underline;
+  }
+  abbr[title]::after {
+    content: " (" attr(title) ")";
+  }
+  pre {
+    white-space: pre-wrap !important;
+  }
+  pre,
+  blockquote {
+    border: 1px solid #b7b9cc;
+    page-break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
+  tr,
+  img {
+    page-break-inside: avoid;
+  }
+  p,
+  h2,
+  h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+  body {
+    min-width: 992px !important;
+  }
+  .container {
+    min-width: 992px !important;
+  }
+  .navbar {
+    display: none;
+  }
+  .badge {
+    border: 1px solid #000;
+  }
+  .table {
+    border-collapse: collapse !important;
+  }
+
   .table-pad-2px > tbody > tr > td
   {
     padding: 2px 8px;
@@ -12786,7 +12837,7 @@ td.check-cell .form-check-input {
   .table-striped>tbody>tr:nth-of-type(odd) {
      font-size: 11pt;
      color: #000 !important;
-     background-color: #eee!important;
+     background-color: #ffe !important;
   }
   
   .table-striped>tbody>tr:nth-of-type(even) {
@@ -13096,7 +13147,7 @@ td.check-cell .form-check-input {
 
   table.print-table .judge-two-lines .fname{
     display: block;
-    margin-left: 8px;                /* STAŁE wcięcie */
+    margin-left: 8px;
     font-size: 8.5pt;
     white-space: nowrap;
     overflow: hidden;
@@ -13126,25 +13177,16 @@ td.check-cell .form-check-input {
     break-inside: avoid;
   }
 
-  /* ewentualne dodatkowe nagłówki / sekcje nad/pod tabelą */
   .page-header-break,
   .page-header-print {
     page-break-after: avoid;
     page-break-inside: avoid;
   }
 
-  /* RĘCZNE łamanie strony:
-     dodaj w HTML np. <tr class="page-break"> albo <div class="page-break"></div> */
   .page-break {
     break-after: page;
     page-break-after: always;
   }
-
-/*  .category-cell,
-  .category-cell *{
-    font-family: Arial, Helvetica, sans-serif !important;
-  }*/
-
 
   .category-cell{
     height: 10mm; 
@@ -13158,7 +13200,7 @@ td.check-cell .form-check-input {
     overflow: hidden;
   
     line-height: 1.0;
-    max-height: calc(2 * 1.0em);  /* żeby było równo */
+    max-height: calc(2 * 1.0em);
   }
 
   .category-cell .cat-title{
@@ -13168,8 +13210,8 @@ td.check-cell .form-check-input {
   .category-cell .cat-style{
     font-weight: 400;
     opacity: .9;
-    margin-left: .35em;      /* lekkie odsunięcie od tytułu */
-    white-space: nowrap;     /* styl NIE zawija się sam – ma się przykleić */
+    margin-left: .35em;
+    white-space: nowrap;
   }
 
   .category-cell .cat-style{

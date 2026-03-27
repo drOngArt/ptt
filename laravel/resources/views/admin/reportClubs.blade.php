@@ -51,8 +51,8 @@
                                 <td class="btn-circle">{{ $idx + 1 }}.</td>
                                 @php $idx++; @endphp
 
-                                <td class="text-start font-12pt">{{ $club->club }}</td>
-                                <td class="text-start font-12pt">{{ $club->country }}</td>
+                                <td class="text-start font-12pt">{!! $club->club ?: '&nbsp;' !!}</td>
+                                <td class="text-start font-12pt">{!! $club->country ?: '&nbsp;' !!}</td>
                             </tr>
                         @endforeach
 

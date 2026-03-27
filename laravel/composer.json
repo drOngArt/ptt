@@ -8,22 +8,21 @@
     "license": "MIT",
     "type": "project",
     "require": {
-        "laravel/framework": "^11.0",
+        "laravel/framework": "^12.0",
         "league/csv": "~7.0",
         "doctrine/dbal": "^3.0",
         "league/fractal": "0.19",
-        "symfony/dom-crawler": "~6.0",
-        "symfony/css-selector": "~6.0",
         "php": "^8.2",
         "spatie/laravel-html": "^3.0",
         "laravel/ui": "^4.0"
     },
     "require-dev": {
         "codeception/codeception": "^5.0",
-        "barryvdh/laravel-debugbar": "~3.0",
-        "barryvdh/laravel-ide-helper": "^2.15|^3.0",
-        "phpunit/phpunit": "^10.0",
-        "phpstan/phpstan": "^0.12"
+        "barryvdh/laravel-debugbar": "^3.13",
+        "barryvdh/laravel-ide-helper": "^3.0",
+        "phpunit/phpunit": "^11.0",
+        "larastan/larastan": "^3.0",
+        "laravel/tinker": "^2.11"
     },
     "autoload": {
         "classmap": [
@@ -42,9 +41,6 @@
         }
     },
     "scripts": {
-        "post-install-cmd": [
-            "php artisan clear-compiled"
-        ],
         "post-update-cmd": [
             "php artisan clear-compiled"
         ],
@@ -61,13 +57,6 @@
         "preferred-install": "dist",
         "allow-plugins": {
             "kylekatarnls/update-helper": true
-        },
-        "audit": {
-            "block-insecure": false,
-            "ignore": [
-                "PKSA-8qx3-n5y5-vvnd",
-                "PKSA-w7xr-vk7n-rstm"
-            ]
         }
     }
 }

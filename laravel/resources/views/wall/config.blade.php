@@ -7,7 +7,7 @@
 @php
   // aktualny wybór (z URL)
   $cs = (string) request()->input('colorSet', '3');
-  $df = (string) request()->input('divideFactor', '36'); // % lewego panelu
+  $df = (string) request()->input('divideFactor', '40'); // % lewego panelu
 
   // Nazwy zestawów (bez cyferek w UI)
   $colorSetLabels = [

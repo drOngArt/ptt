@@ -78,7 +78,7 @@
         </div>
     </nav>
 
-    <main class="flex-grow-1 p-3">
+    <main class="flex-grow-1 p-1">
         @yield('content')
     </main>
 </div>

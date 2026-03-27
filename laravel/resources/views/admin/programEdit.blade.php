@@ -84,7 +84,7 @@
                                     <td class="text-muted p-1">
                                 @endif
                                     {{ html()->hidden('roundId[]',   $programRound->id) }}
-                                    {{ html()->hidden('roundName[]', $programRound->description) }}
+                                      {{ html()->hidden('roundName[]', $programRound->description) }}
                                     {{ html()->hidden('isDance[]',   $programRound->isDance) }}
 
                                     <div class="d-flex justify-content-between">
@@ -96,8 +96,8 @@
                                           </span>
                                           {{ html()->text('roundAlternativeName[]', $programRound->alternative_description)
                                               ->class('form-control form-control-sm alternativeInput')
-                                              ->attribute('hidden', true)   {{-- startowo ukryte --}}
-                                              ->attribute('maxlength', 40) }}
+                                              ->attribute('hidden', true)
+                                              ->attribute('maxlength', 50) }}
                                         </div>
                                       </div>
 
@@ -339,6 +339,11 @@
         lastMouse.y = e.pageY;
       });
     
+      document.querySelectorAll('td').forEach(td => {
+        td.style.userSelect = 'text';
+        td.onmousedown = null;
+        td.onselectstart = null;
+      });
       // helper, który zachowuje szerokości kolumn (bez clone + bez body)
       const fixHelper = function(e, ui) {
         ui.children().each(function() {
@@ -346,7 +351,71 @@
         });
         return ui;
       };
-    
+
+      $('.connectedSortable td').off('dblclick').on('dblclick', function(e) {
+          e.stopPropagation();
+
+          const descEl = $(this).find('.description');
+          const altEl  = $(this).find('.alternativeDescription');
+
+          if (descEl.length === 0) {
+              console.log('Brak .description');
+              return;
+          }
+
+          const text = descEl.text().trim();
+          if (!text) {
+              console.log('Pusty tekst');
+              return;
+          }
+
+          // 1. kopiuj do schowka
+          navigator.clipboard.writeText(text).catch(() => {
+              const el = document.createElement('textarea');
+              el.value = text;
+              document.body.appendChild(el);
+              el.select();
+              document.execCommand('copy');
+              document.body.removeChild(el);
+          });
+
+          // 2. wstaw do alternativeDescription
+          const input = $(this).find('.alternativeInput');
+          if (input.length) {
+              input.val(text).trigger('change'); // trigger ważny np. dla Laravel / JS
+          }
+      
+          // 🔁 aktualizacja widocznego spana
+          //const span = $(this).find('.alternativeDescription');
+          //if (span.length) {
+          //    span.text(text).removeAttr('hidden'); // pokaż jeśli był hidden
+          //}
+
+          // 3. wizualny feedback
+          $(this).css('background','#d4edda');
+          setTimeout(() => $(this).css('background',''), 300);
+
+          console.log('Skopiowano i wstawiono:', text);
+      });
+
+/*      $('.connectedSortable td').css('cursor','pointer').off('click').on('click', function() {
+          const text = $(this).text().trim(); // pobiera tekst z komórki
+          if (!text) 
+            return alert('Komórka jest pusta!');
+
+          // Tworzymy tymczasowy element textarea, kopiujemy do schowka
+          const el = document.createElement('textarea');
+          el.value = text;
+          document.body.appendChild(el);
+          el.select();
+          document.execCommand('copy');
+          document.body.removeChild(el);
+          // Informacja dla użytkownika
+          //console.log('Skopiowano do schowka: ' + text);
+          // Opcjonalnie alert:
+          // alert('Skopiowano do schowka: ' + text);
+      }); */
+
       $tbody.sortable({
         axis: "y",
         items: "> tr",
