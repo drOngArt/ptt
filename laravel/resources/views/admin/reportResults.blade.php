@@ -9,7 +9,7 @@
 
   {{ html()->form('GET', url('admin/report'))->open() }}
 
-  <div class="row mb-3">
+  <div class="row mb-1">
     <div class="col-12 d-flex align-items-center">
       <h1 class="page-header mb-0">Wyniki</h1>
   
@@ -32,6 +32,7 @@
 
   <div class="row">
       <div class="col-lg-12">
+        <div class="base-rounds-wrapper screen-w-75 mx-3">
           @foreach($couples as $index => $couple)
               <div class="page-header-break">WYNIKI<br/></div>
 
@@ -40,14 +41,14 @@
                   <br/>
               </div>
 
-              <div class="table-responsive mb-4">
+              <div class="table-responsive mb-2">
                   <table class="table table-striped table-bordered table-hover text-center table-pad-2px">
                       <thead>
                           <tr>
-                              <th class="text-center" style="width: 10%">Miejsce</th>
-                              <th class="text-center" style="width: 10%">Numer</th>
-                              <th style="width: 40%">Imię i nazwisko</th>
-                              <th class="text-center" style="width: 40%">Klub / Kraj</th>
+                              <th class="text-center" style="width: 15%">Miejsce</th>
+                              <th class="text-center" style="width: 15%">Numer</th>
+                              <th style="width: 35%">Imię i nazwisko</th>
+                              <th class="text-center" style="width: 35%">Klub / Kraj</th>
                           </tr>
                       </thead>
                       <tbody>
@@ -73,6 +74,7 @@
                   </table>
               </div>
           @endforeach
+        </div>
       </div>
   </div>
 

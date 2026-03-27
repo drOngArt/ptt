@@ -2,8 +2,8 @@
 
 :root{
   --wall-top: 60px;   /* wysokość navbara */
-  --wall-left: 36%;
-  --wall-gap: 6px;
+  --wall-left: 45%;
+  --wall-gap: 3px;
 }
 
 html, body{
@@ -14,18 +14,21 @@ html, body{
   padding-top: var(--wall-top);
 }
 
-/* main pod wrapperem niech ma już tylko "oddech" */
 .wall-content{
-  padding-top: 4px !important;
+  padding-top: 2px !important;
 }
 
-/* ✅ wall-layout już nie potrzebuje margin-top (bo padding robi wrapper) */
+.container-fluid {
+  padding-right: 0.1rem;
+  padding-left: 0.1rem;
+}
+
 .wall-layout{
   display: flex;
   gap: var(--wall-gap);
   padding: 0 var(--wall-gap) var(--wall-gap);
   box-sizing: border-box;
-  font-size: 20px;        /* ← punkt wyjścia (TV-friendly) */
+  font-size: 20px;
   line-height: 1.15;
 }
 
@@ -35,9 +38,8 @@ html, body{
   vertical-align: middle;
 }
 
-/* ✅ Podgląd na stronie konfiguracji: nie musi mieć pełnego height */
 .wall-layout-preview{
-  height: 360px;              /* możesz zmienić */
+  height: 360px;
 }
 
 /* body dla wall */
@@ -70,6 +72,16 @@ body.wall-body::-webkit-scrollbar{
   border-radius: 10px;
 }
 
+.wall-left h1 {
+  text-align: center;
+  width: 100%;
+}
+
+.wall-left h3 {
+  text-align: center;
+  width: 100%;
+}
+
 /* nagłówki/teksty (z Twoich klas) */
 .w_page-header{
   margin: 6px 0 8px;
@@ -83,6 +95,7 @@ body.wall-body::-webkit-scrollbar{
   padding: 4px 6px;
   border-radius: 8px;
   line-height: 1.15;
+  width: fit-content;
 }
 
 .table-couples-main{
@@ -119,7 +132,6 @@ body.wall-body::-webkit-scrollbar{
   margin-bottom: 4px;
 }
 
-/* 2️⃣ tańce – mniejsze */
 .wall-right .w_page-header-dance{
   font-size: 15px;
   font-weight: 600;
@@ -127,14 +139,12 @@ body.wall-body::-webkit-scrollbar{
   margin-bottom: 6px;
 }
 
-/* 3️⃣ numery par – największe */
 .wall-right .table-couples-main{
   font-size: 25px;
   font-weight: 700;
   line-height: 1.1;
 }
 
-/* poprawa czytelności tabel na wall */
 .wall-layout table{
   margin-bottom: 0;
 }
@@ -145,26 +155,32 @@ body.wall-body::-webkit-scrollbar{
   vertical-align: middle;
 }
 
-/* ✅ opis może się zawijać */
-.wall-schedule-desc{
-  white-space: normal;        /* pozwala łamać */
+.wall-schedule-desc {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.wall-schedule-desc .lp-ball {
+  flex: 0 0 auto;   /* NIE rośnie */
+}
+
+.wall-schedule-desc .desc-text {
+  flex: 1;          /* zajmuje resztę */
+  white-space: normal;
   word-break: break-word;
   line-height: 1.2;
 }
 
-
-/* ✅ tańce niech będą widoczne, zawsze w jednej linii */
 .wall-schedule-dances{
-  white-space: nowrap;        /* ❗ najważniejsze */
-  display: inline-flex;       /* w jednej linii */
+  white-space: nowrap;
+  display: inline-flex;
   gap: 6px;
   align-items: center;
   font-size: 22px;
   font-weight: 700;
 }
 
-
-/* ✅ pojedynczy “kafelek” tańca */
 .wall-pill{
   display: inline-flex;
   align-items: center;
@@ -176,7 +192,7 @@ body.wall-body::-webkit-scrollbar{
 }
 
 .wall-layout .table{
-  font-size: inherit;   /* ❗ nie pozwól Bootstrapowi zmniejszać */
+  font-size: inherit;
 }
 
 .wall-pill,
@@ -200,7 +216,6 @@ body.wall-body::-webkit-scrollbar{
     background-color: #FFF;    
 }
 
-/* button-menu żeby wyglądał równo także jako dropdown */
 .button-menu{
   color:#fff;
   font-size:14px;
@@ -215,7 +230,6 @@ body.wall-body::-webkit-scrollbar{
   gap:.35rem;
 }
 
-/* upewnij się, że dropdown-toggle nie psuje wysokości */
 .button-menu.dropdown-toggle{
   height:33px;
 }
@@ -228,7 +242,7 @@ body.wall-body::-webkit-scrollbar{
 
 .btn-deep-orange .badge {
     color: #FE5621;
-    background-color: #FFF;    
+    background-color: #FFF;
 }
 
 .btn-purple {
@@ -253,6 +267,132 @@ body.wall-body::-webkit-scrollbar{
   padding: 2px 6px;
   display: inline-block;
 }
+
+
+.btn-circle {
+    width: 24px;
+    height: 24px;
+    padding: 2px 0;
+    border-radius: 15px;
+    text-align: center;
+    font-size: 10px;
+    line-height: 1.2;
+}
+
+.btn-circle.btn-lg {
+    width: 50px;
+    height: 50px;
+    padding: 10px 16px;
+    border-radius: 25px;
+    font-size: 18px;
+    line-height: 1.33;
+}
+
+.btn-circle.btn-xl {
+    width: 70px;
+    height: 70px;
+    padding: 10px 16px;
+    border-radius: 35px;
+    font-size: 24px;
+    line-height: 1.33;
+}
+
+.btn-circle.btn-sm, .btn-group-sm > .btn-circle.btn {
+  height: 1.8rem;
+  width: 1.8rem;
+  font-size: 0.75rem;
+}
+
+.btn-circle.btn-lg, .btn-group-lg > .btn-circle.btn {
+  height: 3.5rem;
+  width: 3.5rem;
+  font-size: 1.35rem;
+}
+
+.lp-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: red;//#0d6efd;
+  color: white;
+  font-weight: bold;
+  border-radius: 6px;
+}
+
+/*.lp-diamond {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(145deg, #2a7bff, #0b5ed7);
+  transform: rotate(15deg);
+  box-shadow:
+    2px 2px 6px rgba(0,0,0,0.3),
+    -2px -2px 4px rgba(255,255,255,0.2);
+}
+
+.lp-diamond span {
+  transform: rotate(-15deg);
+  color: white;
+  font-weight: bold;
+} */
+
+.lp-ball {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+
+  /* background: radial-gradient(circle at 30% 30%, #6ea8fe, #0d6efd 60%, #084298); - niebieski */
+  background: radial-gradient(circle at 30% 30%, #ff6b6b, #b02a37 60%, #5a0f14);
+  /* background: radial-gradient(circle at 30% 30%, #d9a6ff, #6f42c1 55%, #4b1d3f 80%); - fiolet */
+  box-shadow:
+    inset -4px -6px 10px rgba(0,0,0,0.4),   /* cień wewnętrzny */
+    inset 3px 4px 8px rgba(255,255,255,0.3), /* światło */
+    3px 6px 10px rgba(0,0,0,0.35); /* cień zewnętrzny */
+}
+
+/* ✨ odblask */
+.lp-ball::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  width: 30%;
+  height: 20%;
+  background: rgba(255,255,255,0.6);
+  border-radius: 50%;
+  filter: blur(2px);
+}
+
+.lp-diamond {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #0d6efd;
+  transform: rotate(15deg);
+  box-shadow:
+    inset 2px 2px 4px rgba(255,255,255,0.3),
+    inset -2px -2px 4px rgba(0,0,0,0.3),
+    3px 3px 8px rgba(0,0,0,0.3);
+}
+
+.lp-diamond span {
+  transform: rotate(-15deg);
+  color: white;
+  font-weight: bold;
+} 
 
 
 /* === THEMES (colorSet) ================================================= */
@@ -289,7 +429,7 @@ body.wall-body::-webkit-scrollbar{
 .theme-3 .wall-left{
   background: darkblue;
   color: #FFFCa0;
-  text-shadow: 6px 8px 6px #ddd;
+  /*text-shadow: 3px 4px 4px #ddd;*/
   font-family: Verdana, Arial, sans-serif;
   font-weight: 700;
 }
@@ -335,9 +475,8 @@ body.wall-body::-webkit-scrollbar{
 .theme-5 .wall-left{
   background: darkblue;
   color: #FFFC00;
-  text-align: center;
   font-family: Arial, sans-serif;
-  font-weight: 800;
+  font-weight: 600;
   text-shadow: none;
 }
 .theme-5 .wall-right{

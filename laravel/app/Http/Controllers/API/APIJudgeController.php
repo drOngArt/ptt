@@ -8,6 +8,7 @@ use App\Http\Controllers\Competition;
 use App\Http\Controllers\Controller;
 use App\Layout;
 use App\Round;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Response;
@@ -27,7 +28,6 @@ class APIJudgeController extends Controller
         $this->tournamentHelper = Competition::create(Cache::get('tournamentDirectory'));
     }
 
-    // usuwamy wstrzykiwanie Larasponse
     public function __construct()
     {
         $this->loadTournamentData();
@@ -51,11 +51,11 @@ class APIJudgeController extends Controller
                 $definedTime = Carbon::now('Europe/Warsaw');
             } else {
                 $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)
-                    ->addMinutes($layoutData[0]->parameter1);
+                    ->addMinutes((int)$layoutData[0]->parameter1);
             }
         } else {
             $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)
-                ->addMinutes($layoutData[0]->parameter1);
+                ->addMinutes((int)$layoutData[0]->parameter1);
         }
 
         foreach ($dances as $programRound) {
@@ -68,13 +68,13 @@ class APIJudgeController extends Controller
                 $modify_dances[] = $programRound;
             } else {
                 if ($description === null) {
-                    $rounds = array_add($rounds, $definedTime->format('H:i'), $programRound->description);
+                    $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
                     $description = $programRound->description;
                     $programRound->description = '[ '.$definedTime->format('H:i').' ] - '.$programRound->description;
                     $modify_dances[] = $programRound;
                 } elseif ($description != $programRound->description) {
                     if (! in_array($programRound->description, $rounds)) {
-                        $rounds = array_add($rounds, $definedTime->format('H:i'), $programRound->description);
+                        $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
                         $description = $programRound->description;
                         $programRound->description = '[ '.$definedTime->format('H:i').' ] - '.$programRound->description;
                         $modify_dances[] = $programRound;
@@ -99,29 +99,24 @@ class APIJudgeController extends Controller
 
                 $counter = $programRound->groups > 0 ? $programRound->groups : 1;
                 if ($programRound->isFinal) {
-                    $definedTime = $definedTime->addSeconds($layoutData[0]->durationFinal * $counter);
+                  $seconds = (int)$layoutData[0]->durationFinal * (int)$counter;
+                  $definedTime = $definedTime->addSeconds($seconds);
                 } else {
-                    $definedTime = $definedTime->addSeconds($layoutData[0]->durationRound * $counter);
+                  $seconds = (int)$layoutData[0]->durationRound * (int)$counter;
+                  $definedTime = $definedTime->addSeconds($seconds);
                 }
             }
         }
 
         usort($modify_dances, function ($a, $b) {
-            if ($a->description[2] == '0' && $b->description[2] == '2') {
-                return true;
-            } elseif ($a->description[2] == '2' && $b->description[2] == '0') {
-                return false;
-            } elseif ($a->description[0] == '[' && $b->description[0] != '[') {
-                return true;
-            } elseif ($a->description[0] != '[' && $b->description[0] == '[') {
-                return false;
-            } elseif ($a->description[0] != '[' && $b->description[0] != '[') {
-                return $a->id > $b->id;
-            } elseif ($a->description == $b->description) {
-                return $a->id > $b->id;
-            } else {
-                return $a->description > $b->description;
-            }
+            if ($a->description[2] == '0' && $b->description[2] == '2') return -1;
+            if ($a->description[2] == '2' && $b->description[2] == '0') return 1;
+            if ($a->description[0] == '[' && $b->description[0] != '[') return -1;
+            if ($a->description[0] != '[' && $b->description[0] == '[') return 1;
+            // zamiast $a->id > $b->id
+            if ($a->description[0] != '[' && $b->description[0] != '[') return $a->id <=> $b->id;
+            if ($a->description == $b->description) return $a->id <=> $b->id;
+            return $a->description <=> $b->description;
         });
 
         $fractal = new Manager();
@@ -140,7 +135,6 @@ class APIJudgeController extends Controller
         if ($round->isFinal && count($groups->couples) > 0) {
             $votesRequired = count($groups->couples[0]);
         }
-
         return $votesRequired;
     }
 
@@ -211,20 +205,27 @@ class APIJudgeController extends Controller
                 return Response::json(['status' => 2]);
             }
         }
-
         return Response::json(['status' => 0]);
     }
 
     public function postVotes($danceId)
     {
-        $data = request()->json(); // zamiast \Input::json()
+        $data = request()->isJson() ? request()->json()->all() : request()->all();
 
-        $danceSignature  = $data->get('danceSignature');
-        $adjudicatorSign = $data->get('adjudicatorSign');
-        $votes           = $data->get('votes');
+        if (empty($data)) {
+          \Log::warning('postVotes empty data', [
+          'ct' => request()->header('content-type'),
+          'raw' => request()->getContent(),
+          ]);
+        }
 
-        \Log::debug($votes);
-
+        $danceSignature  = $data['danceSignature'] ?? null;
+        $adjudicatorSign = $data['adjudicatorSign'] ?? null;
+        $votes           = $data['votes'] ?? [];
+        if (isset($data['danceId']) && (int)$data['danceId'] !== (int)$danceId) {
+          \Log::warning('danceId mismatch', ['url' => $danceId, 'body' => $data['danceId']]);
+        }
+        //$votesObj = json_decode(json_encode($votes), false); // map -> stdClass
         $DBResult = $this->tournamentHelper->setVotes((int) $danceId, $danceSignature, $adjudicatorSign, $votes);
 
         return $DBResult
@@ -234,7 +235,7 @@ class APIJudgeController extends Controller
 
     public function postStatus()
     {
-        $data = request()->json(); // zamiast \Input::json()
+        $data = request()->json()->all();
         $adjudicator = Auth::user();
 
         $key = 'Status '.$adjudicator->firstName.' '.$adjudicator->lastName.','.$adjudicator->judgeId;
@@ -242,7 +243,7 @@ class APIJudgeController extends Controller
         foreach ($data as $datakey => $name) {
             $status[$datakey] = $name;
         }
-        Cache::put($key, $status, 20); // minutes
+        Cache::put($key, $status, 600); // 10 minutes
 
         return Response::json(['error' => 'false'], 200);
     }

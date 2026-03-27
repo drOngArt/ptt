@@ -10,6 +10,7 @@ use App\Round;
 use Cache;
 use Carbon\Carbon;
 use Config;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Response;
@@ -45,19 +46,19 @@ class DashboardController extends Controller
         $colorSet = [];
         $divideFactor = [];
 
-        $colorSet = array_add($colorSet, 0, 'Zmień kolory:');
-        $colorSet = array_add($colorSet, 1, 'White-Black');
-        $colorSet = array_add($colorSet, 2, 'Black-White');
-        $colorSet = array_add($colorSet, 3, 'Blue-Yellow ');
-        $colorSet = array_add($colorSet, 4, 'Violet-Gold');
-        $colorSet = array_add($colorSet, 5, 'ZW-Blue-Yellow');
-        $colorSet = array_add($colorSet, 10, 'User');
+        $colorSet = Arr::add($colorSet, 0, 'Zmień kolory:');
+        $colorSet = Arr::add($colorSet, 1, 'White-Black');
+        $colorSet = Arr::add($colorSet, 2, 'Black-White');
+        $colorSet = Arr::add($colorSet, 3, 'Blue-Yellow ');
+        $colorSet = Arr::add($colorSet, 4, 'Violet-Gold');
+        $colorSet = Arr::add($colorSet, 5, 'ZW-Blue-Yellow');
+        $colorSet = Arr::add($colorSet, 10, 'User');
 
-        $divideFactor = array_add($divideFactor, 0, 'Proporcja:');
-        $divideFactor = array_add($divideFactor, 50, '50%-50%');
-        $divideFactor = array_add($divideFactor, 45, '45%-55%');
-        $divideFactor = array_add($divideFactor, 40, '40%-60%');
-        $divideFactor = array_add($divideFactor, 35, '35%-65%');
+        $divideFactor = Arr::add($divideFactor, 0, 'Proporcja:');
+        $divideFactor = Arr::add($divideFactor, 50, '50%-50%');
+        $divideFactor = Arr::add($divideFactor, 45, '45%-55%');
+        $divideFactor = Arr::add($divideFactor, 40, '40%-60%');
+        $divideFactor = Arr::add($divideFactor, 35, '35%-65%');
 
         if ($type == 'color') {
             $color = request()->input('colorSet');
@@ -69,6 +70,39 @@ class DashboardController extends Controller
             ->with('colorSet', $colorSet)
             ->with('divideFactor', $divideFactor);
     }
+
+    private function getProgramNo()
+    {
+
+        $mainRounds = Round::orderBy('id')->get();
+
+        $compressedOrder = [];
+        $rounds = [];
+
+        $firstIndex = PHP_INT_MAX;
+        $lastIndex = 0;
+        foreach ($mainRounds as $programRound) {
+            if (in_array($programRound->description, $rounds)) {
+                continue;
+            }
+            foreach ($mainRounds as $index => $round) {
+                if ($programRound->description == $round->description) {
+                    if (! in_array($programRound->description, $rounds)) {
+                        $rounds[] = $programRound->description;
+                    }
+                    if ($index != count($compressedOrder)) {
+                        if ($index < $firstIndex) {
+                            $firstIndex = count($compressedOrder);
+                        }
+                        $lastIndex = count($compressedOrder);
+                    }
+                    $compressedOrder[] = $index;
+                }
+            }
+        }
+        return count($rounds);
+    }
+
 
     private function getCompressedProgram()
     {
@@ -103,6 +137,7 @@ class DashboardController extends Controller
                 }
             }
         }
+        $noPrg = $this->getProgramNo() - count($rounds)+1 ;
 
         $compressedProgram = [];
         foreach ($rounds as $roundDescription) {
@@ -124,6 +159,7 @@ class DashboardController extends Controller
             }
             if ($programRound !== false) {
                 $programRound->dances = $dances;
+                $programRound->noPrg = $noPrg++;
                 $compressedProgram[] = $programRound;
             }
         }
@@ -155,13 +191,13 @@ class DashboardController extends Controller
         $first = false;
         $different = true;
         $error = -1;
+        $progrNo = -1;
 
         // $wallColor = Config::get('ptt.wallColor');
         // $wallFactor = Config::get('ptt.wallFactor');
         // $fileName = Input::get('fileName');
         // $color = Input::get('colorSet');
         // $factor = Input::get('divideFactor');
-        // dd($color,$factor);
 
         // calculate times
         $times = [];
@@ -170,10 +206,10 @@ class DashboardController extends Controller
             if ($program[0]->closed == '1') {// first dance closed => probably program started, use current time
                 $definedTime = Carbon::now('Europe/Warsaw');
             } else {
-                $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes($layoutData[0]->parameter1);
+                $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes((int)$layoutData[0]->parameter1);
             }
         } else {
-            $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes($layoutData[0]->parameter1);
+            $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes((int)$layoutData[0]->parameter1);
         }
         $times[] = Carbon::now('Europe/Warsaw')->Format('H:i');
         $flag = 0;
@@ -207,18 +243,20 @@ class DashboardController extends Controller
                 }
                 $times[] = $definedTime->Format('H:i');
                 if ($bBreak) {
-                    $definedTime = $definedTime->addMinutes($counter);
+                    $definedTime = $definedTime->addMinutes((int)$counter);
                 } elseif ($programRound->isFinal) {
-                    $definedTime = $definedTime->addSeconds($layoutData[0]->durationFinal * $counter);
+                  $seconds = (int)$layoutData[0]->durationFinal * (int)$counter;
+                    $definedTime = $definedTime->addSeconds($seconds);
                 } else {
-                    $definedTime = $definedTime->addSeconds($layoutData[0]->durationRound * $counter);
+                  $seconds = (int)$layoutData[0]->durationRound * (int)$counter;
+                    $definedTime = $definedTime->addSeconds($seconds);
                 }
             } else {
                 $times[] = '';
             }
         }
         if (count((array)$compressedProgram) > 0) {// exist rounds
-            $times[] = $definedTime->addMinutes($layoutData[0]->parameter2)->Format('H:i');
+            $times[] = $definedTime->addMinutes((int)$layoutData[0]->parameter2)->Format('H:i');
         }
         //try {
         for ($screen_max = 1; $pos < $maxDance; $pos++) { // configured in Config/ptt.php
@@ -433,7 +471,7 @@ class DashboardController extends Controller
                 }
             }
         }
-        //dd('show -',$program, $mainRounds, $rounds, $couples, $couplesNo);
+        //dd('show -',$program, $compressedProgram, $rounds, $couples, $couplesNo);
         if ($display != false) {
             return view('wall.program')
                 ->with('program', $program)

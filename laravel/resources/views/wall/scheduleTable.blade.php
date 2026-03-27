@@ -2,10 +2,14 @@
   <div class="table-responsive">
     <table class="table table-striped mb-0">
       <tbody>
-       <?php $firstDanceShown = false; ?>
-
+       <?php 
+        $firstDanceShown = false;
+        if( !empty($compressedProgram) && count($compressedProgram) ) 
+          $maxDances = max(array_map(fn($r) => count($r->dances), $compressedProgram)); 
+        else
+          $maxDances = 3;
+      ?>
         @foreach($compressedProgram as $index => $programRound)
-
           @php
             $desc = $programRound->alternative_description != ""
               ? $programRound->alternative_description
@@ -14,18 +18,19 @@
 
           @if($programRound->isDance)
             <tr>
-              {{-- OPIS – zawijany --}}
               <td class="wall-schedule-desc">
-                {{ $programRound->alternative_description ?: $programRound->description }}
+                <span class="lp-ball">
+                  <span>{{ $programRound->noPrg }}</span>
+                </span>
+                <span class="desc-text">
+                  {{ $programRound->alternative_description ?: $programRound->description }}
+                </span>
               </td>
-            
-              {{-- TAŃCE – jedna linia --}}
               @foreach($programRound->dances as $dance)
                 <td class="wall-schedule-dance">
                   @php
-                    $isCurrent = (!$firstDanceShown); // tylko raz
+                    $isCurrent = (!$firstDanceShown);
                   @endphp
-              
                   @if($isCurrent)
                     <button class="btn-deep-orange badge" type="button">
                       {{ $dance['dance'] }}
@@ -36,7 +41,6 @@
                     </button>
                     @php $firstDanceShown = true; @endphp
                   @else
-                    {{-- reszta już bez spinnera --}}
                     @if(!empty($dance['order']))
                       <button class="btn btn-indigo badge" type="button">
                         {{ $dance['dance'] }}
@@ -48,6 +52,9 @@
                   @endif
                 </td>
               @endforeach
+              @for($i = count($programRound->dances); $i < $maxDances; $i++)
+                <td class="p-1">&nbsp;</td>
+              @endfor
             </tr>
           @else
             <tr>

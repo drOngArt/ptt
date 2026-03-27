@@ -42,7 +42,7 @@
                                 @if(isset($couples[$pos]) && $couples[$pos])
                                     @if(strpos($name, $round->roundName.$round->categoryName.$round->className.$round->styleName) === false)
                                         <tr>
-                                            <th class="row-name text-center" width="80">
+                                            <th class="row-name text-center" width="90">
                                                 @if(!$round->isFinal)
                                                     {{ $couplesNo[$pos] }} =&gt; {{ $round->votesRequired }}
                                                 @endif
@@ -57,9 +57,11 @@
                                     @endif
                                     @foreach($couples[$pos] as $index => $group)
                                         <tr>
-                                            <th class="row-name text-center" width="80">
-                                                @if(count($couples[$pos]) > 1)
-                                                    {{ $danceNames[$pos] }} - {{ $index + 1 }}
+                                            <th class="row-name text-center" width="90">
+                                                @if( $heats[$pos] == 1)
+                                                    {{ $danceNames[$pos] }} - {{ $index+1 }}
+                                                @elseif( $heats[$pos] == 2)
+                                                    {{ $danceNames[$pos] }} - {{ $index }}
                                                 @else
                                                     {{ $danceNames[$pos] }}
                                                 @endif

@@ -1101,14 +1101,14 @@ class ScheduledRound
     public function __construct()
     {
         $this->description = '';
+        $this->alt_description = '';
         $this->isDance = false;
         $this->dances = [];
     }
 
     public $description;
-
+    public $alt_description;
     public $isDance;
-
     public $dances = [];
 }
 
@@ -1700,6 +1700,12 @@ class CompetitionPTT
             return false;
         }
 
+        if ($votes instanceof \stdClass) {
+            $votes = (array) $votes; // klucze "32" itd. zostaną
+        }
+        if (!is_array($votes)) {
+            $votes = [];
+        }
         ksort($votes);
         $this->collectVotes($roundId, $danceSignature, $judgeSign, $votes);
 
@@ -3349,16 +3355,15 @@ class CompetitionPTT
                 } else {
                     $name = $name.$ch;
                 }
-
                 continue;
             }
             if ($state == 3) { // dances
-                if (ord($ch) <= 0x20 || $ch == ')' || $ch == ';') { // separator or end
+                if (ord($ch) <= 0x20 || $ch == ')' || $ch == ';' ) { // separator or end
                     if (strlen($name) > 0) { // there was a name of dance
                         $item->dances[] = $name;
                         $name = '';
                     }
-                    if ($ch == ')' || $ch == ';') { // end
+                    if ( $ch == ';' ) { // dance end or item
                         if (strlen($item->description) > 0) {
                             $schedule[] = $item;
                         }
@@ -3369,6 +3374,8 @@ class CompetitionPTT
                             $state = 0;
                         } // next line
                     }
+                    if ($ch == ')') //maybe alt name
+                      $state = 4;
                     $triple = 0;
                 } else {
                     $name = $name.$ch;
@@ -3382,8 +3389,27 @@ class CompetitionPTT
                     }
                 }
             }
+            if ($state == 4) { // alt description
+                if ($ch == ')' ) // end of dances
+                  continue;
+                if( $ch == '[' ) {//start alt name
+                  $name = '';
+                  continue;
+                }
+                if (ord($ch) < 0x20 || $ch == ']' || $ch == ';') { // separator, end alt or end line
+                    if (strlen($name) > 0) { // there was an alt name
+                        $item->alt_description = $this->convert($name);
+                        $name = '';
+                    }
+                    if (strlen($item->description) > 0) {
+                      $schedule[] = $item;
+                    }
+                    $state = 1;
+                } else {
+                    $name = $name.$ch;
+                }
+            }
         }
-
         return $schedule;
     }
 

@@ -1,4 +1,9 @@
 <div class="row">
+  <?php
+    if( !empty($compressedProgram) && count($compressedProgram) ) 
+      $maxDances = max(array_map(fn($r) => count($r->dances), $compressedProgram)); 
+    else
+      $maxDances = 4; ?>
    <div class="col-lg-12">
       <div class="table-responsive">
          <table class="table table-striped table-bordered table-hover">
@@ -9,11 +14,11 @@
                   </th>
                   <th>
                      <div class="alignleft">Runda </div>
-                     <div class="alignright">&nbsp&nbsp[ Tańczących ]</div>
+                     <div class="alignright">&nbsp&nbsp[ Prezentacje ]</div>
                   </th>
                   <th class="userTime ekran">Czas</th>
                   <th>Grup</th>
-                  <th colspan="10">Tańce</th>
+                  <th colspan="{{ $maxDances }}">Tańce</th>
                </tr>
             </thead>
             <tbody>
@@ -84,6 +89,10 @@
                                  </tc-dance>
                               </tablecell></td>
                            @endforeach
+                           {{-- 🔥 brakujące komórki --}}
+                            @for($i = count($programRound->dances); $i < $maxDances; $i++)
+                                <td class="p-1">&nbsp;</td>
+                           @endfor
                      </tr>
                   @else
                      <tr>

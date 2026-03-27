@@ -65,12 +65,12 @@
         <div class="table-responsive border border-warning rounded">
           <div class="px-2 py-1 fw-semibold">Dostępne</div>
   
-          <table class="table table-striped table-bordered table-hover mb-0 program-tables">
+          <table class="table table-bordered table-hover mb-0 program-tables">
             <thead>
               <tr>
-                <th style="width:60px">Lp.</th>
+                <th style="width:60px">Id.</th>
                 <th>Runda (Tańce)</th>
-                <th style="width:56px" class="text-center"></th>
+                <th style="width:56px" class="text-center">&nbsp</th>
               </tr>
             </thead>
   
@@ -115,11 +115,11 @@
         <div class="table-responsive border border-success rounded">
           <div class="px-2 py-1 fw-semibold">Wybrane</div>
   
-          <table class="table table-striped table-bordered table-hover mb-0 program-tables">
+          <table class="table table-bordered table-hover mb-0 program-tables">
             <thead>
               <tr>
-                <th style="width:56px"></th>
-                <th style="width:60px">Lp.</th>
+                <th style="width:56px">&nbsp</th>
+                <th style="width:60px">Id.</th>
                 <th>Runda (Tańce)</th>
               </tr>
             </thead>
@@ -207,12 +207,27 @@
     }
   
     function renumber() {
-      $('#sortable-left tr').each(function(i){
-        $(this).find('td.lp').text((i + 1) + '.');
+      sortByLp('#sortable-left');
+    }
+    
+    function sortByLp(tbodyId) {
+      const $tbody = $(tbodyId);
+      const rows = $tbody.children('tr').get();
+    
+      rows.sort(function(a, b) {
+        const A = parseInt($(a).find('td.lp').text().replace('.', '')) || 0;
+        const B = parseInt($(b).find('td.lp').text().replace('.', '')) || 0;
+    
+        return A - B; // rosnąco
       });
-      $('#sortable-right tr').each(function(i){
-        $(this).find('td.lp').text((i + 1) + '.');
+    
+      // ważne: odpinamy i wstawiamy ponownie
+      $.each(rows, function(_, row) {
+        $tbody.append(row);
       });
+    
+      // 🔥 odśwież sortable (kluczowe!)
+      $tbody.sortable('refresh');
     }
 
     function syncSubmitState() {
@@ -279,7 +294,7 @@
         ui.item.addClass('dragging');
         ui.item.css({'border-radius':'8px','border':'2px solid #428bca'});
       },
-      out: function(){ removeIntent = true; },
+      //out: function(){ removeIntent = true; },
       over: function(){ removeIntent = false; },
       beforeStop: function(_event, ui){
         if(removeIntent) ui.item.remove();

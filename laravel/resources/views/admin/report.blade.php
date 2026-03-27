@@ -88,7 +88,7 @@
 
          <div class="row">
             <div class="col-lg-12">
-              <div class="table-responsive base-rounds-wrapper w-75 mx-3">
+              <div class="table-responsive base-rounds-wrapper mx-3">
                 <table class="table table-striped table-bordered table-hover p-2">
                   <tbody id="baseRounds">
                      @php $idx = 10; @endphp
@@ -101,6 +101,7 @@
                               </td>
                               <td class="text-center">&nbsp;BLOK&nbsp;{{$round->positionW}}</td>
                               <td class="text-center">UCZESTNIKÓW</td>
+                              <td class="text-center">&nbsp;</td>
                            </tr>
                            <tr>
                               <td class="check-cell">
@@ -117,6 +118,8 @@
                                  <td class="text-center bg-body p-1" style="width: 20%">
                                     <a href="reportSet/{{$round->roundId}}" class="btn btn-dbisque" role="button">Ustal miejsca</a>
                                  </td>
+                              @else
+                                 <td class="text-center bg-body p-1" style="width: 20%">&nbsp;</td>
                               @endif
                            @else
                               <tr>
@@ -134,6 +137,8 @@
                                     <td class="text-center bg-body p-1" style="width: 20%">
                                        <a href="reportSet/{{$round->roundId}}" class="btn btn-dbisque" role="button">Ustal miejsca</a>
                                     </td>
+                                  @else
+                                    <td class="text-center bg-body p-1" style="width: 20%">&nbsp;</td>
                                  @endif
                            @endif
                         </tr>
