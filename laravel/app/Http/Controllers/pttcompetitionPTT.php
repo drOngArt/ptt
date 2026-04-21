@@ -1016,6 +1016,8 @@ class Round
 
     public $endNo;
 
+    public $closeRegistration;
+
     public $competitionDanceType;
 
     public $positionW; // special W
@@ -2681,10 +2683,10 @@ class CompetitionPTT
                 // judges
                 $judge = new JudgeDB;
                 $judge->plId = trim($parts[5]);
-                $judge->firstName = $this->convert(substr(trim($parts[2]), 0, 15));
-                $judge->lastName = $this->convert(substr(trim($parts[1]), 0, 25));
-                $judge->city = $this->convert(substr(trim($parts[3]), 0, 25));
-                $judge->country = $this->convert(substr(trim($parts[4]), 0, 12));
+                $judge->firstName = $this->convert(substr(trim($parts[2]," \""), 0, 15));
+                $judge->lastName = $this->convert(substr(trim($parts[1]," \""), 0, 25));
+                $judge->city = $this->convert(substr(trim($parts[3]," \""), 0, 25));
+                $judge->country = $this->convert(substr(trim($parts[4]," \""), 0, 12));
                 $judge->sign = ($this->convert($parts[0]) == 'Główny') ? '#' : trim($parts[0]);
                 if (strlen($judge->country) == 0) {
                     $judge->country = 'Polska';
@@ -2728,12 +2730,12 @@ class CompetitionPTT
                 $couple->roundId = $name;
                 $couple->plIdA = $parts[10];
                 $couple->plIdB = $parts[11];
-                $couple->firstNameA = $this->convert(trim($parts[2]));
-                $couple->lastNameA = $this->convert(trim($parts[1]));
-                $couple->firstNameB = $this->convert(trim($parts[4]));
-                $couple->lastNameB = $this->convert(trim($parts[3]));
-                $couple->club = $this->convert(trim($parts[5]));
-                $couple->country = $this->convert(trim($parts[6]));
+                $couple->firstNameA = $this->convert(trim($parts[2]," \""));
+                $couple->lastNameA = $this->convert(trim($parts[1]," \""));
+                $couple->firstNameB = $this->convert(trim($parts[4]," \""));
+                $couple->lastNameB = $this->convert(trim($parts[3]," \""));
+                $couple->club = $this->convert(trim($parts[5]," \""));
+                $couple->country = $this->convert(trim($parts[6]," \""));
                 $couple->resultPosition = $parts[7];
                 $couple->resultPoints = $parts[8];
                 // $couple->resultPodium =
@@ -2821,6 +2823,7 @@ class CompetitionPTT
             $round->dances = $this->splitDanceNames($danceOrder);
             $round->startNo = $db->readIntAt(self::FIELD_BASE_ROUNDS_START_NO);
             $round->endNo = $db->readIntAt(self::FIELD_BASE_ROUNDS_END_NO);
+            $round->closeRegistration = $db->readStringAt(self::FIELD_BASE_ROUNDS_CLOSE, self::FIELD_SIZE_BASE_ROUNDS_CLOSE);
             $this->baseRounds[] = $round;
         }
         $db->close();
@@ -2859,7 +2862,6 @@ class CompetitionPTT
         for ($i = 0; $i < $db->numberOfRecords(); $i++) {
             if (! $db->selectRecord($i)) {
                 $this->lastError = self::ERROR_RECORD;
-
                 return;
             }
             $round = new Round;
@@ -3557,6 +3559,8 @@ class CompetitionPTT
 
     const FIELD_BASE_ROUNDS_END_NO = 157;
 
+    const FIELD_BASE_ROUNDS_CLOSE = 159;
+
     const FIELD_BASE_ROUNDS_COMP_DANCE_TYPE = 160;
 
     const FIELD_ROUNDS_ID = 0;
@@ -3662,6 +3666,8 @@ class CompetitionPTT
     const FIELD_SIZE_BASE_ROUNDS_NAME = 20;
 
     const FIELD_SIZE_BASE_ROUNDS_DANCES = 45;
+
+    const FIELD_SIZE_BASE_ROUNDS_CLOSE = 1;
 
     const FIELD_SIZE_BASE_ROUNDS_COMP_DANCE_TYPE = 20;
 

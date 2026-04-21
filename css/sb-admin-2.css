@@ -83,10 +83,8 @@
 
 
   /* user defines */
-  --col-w: 130px;
-  /* szerokość zwykłej kolumny */
-  --headcol-w: 200px;
-  /* szerokość pierwszej kolumny (etykiety) */
+  --col-w: 130px;      /* szerokość zwykłej kolumny */
+  --headcol-w: 200px;  /* szerokość pierwszej kolumny (etykiety) */
   --thead-r1-h: 100px;
   --r1h: 40px;
   --admin-top: 66px;
@@ -225,8 +223,7 @@
   #page-wrapper {
     flex: 1 1 auto;
     background: #F9F6EE;
-    min-height: 0;
-    /*568px;*/
+    min-height: 0;    /*568px;*/
     padding: 0 1rem;
     overflow-y: hidden;
   }
@@ -241,8 +238,7 @@
   /* wrapper pod navbar */
   .admin-shell {
     height: calc(100vh - var(--admin-top));
-    min-height: 0;
-    /* 🔴 KLUCZ dla flex */
+    min-height: 0;    /* KLUCZ dla flex */
     display: flex;
   }
 
@@ -13243,7 +13239,7 @@
     white-space: nowrap;
   }
 
-  /* === Styl dla customowego checkboxa === */
+  /* Styl dla mojegou checkboxa */
   .custom-checkbox {
     width: 1.1rem;
     height: 1.1rem;
@@ -13256,44 +13252,35 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
   }
 
-  /* Hover — delikatny efekt */
   .custom-checkbox:hover {
     border-color: #4e73df;
     box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.15);
   }
 
-  /* Po zaznaczeniu */
   .custom-checkbox:checked {
     background-color: #4e73df;
     border-color: #4e73df;
     box-shadow: 0 0 0 2px rgba(78, 115, 223, 0.25);
   }
 
-  /* Fokus (po kliknięciu) */
   .custom-checkbox:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(78, 115, 223, 0.3);
   }
 
-  /* Dla ładnego wyrównania w pionie */
   .form-check-input.custom-checkbox {
     vertical-align: middle;
   }
 
   input[type=checkbox] {
     /* Double-sized Checkboxes */
-    -ms-transform: scale(1.1);
-    /* IE */
-    -moz-transform: scale(1.1);
-    /* FF */
-    -webkit-transform: scale(1.1);
-    /* Safari and Chrome */
-    -o-transform: scale(1.1);
-    /* Opera */
+    -ms-transform: scale(1.1);     /* IE */
+    -moz-transform: scale(1.1);    /* FF */
+    -webkit-transform: scale(1.1); /* Safari and Chrome */
+    -o-transform: scale(1.1);      /* Opera */
     padding: 4px 4px;
   }
 
-  /* workarounds */
   .ui-button {
     margin-left: -1px;
   }
@@ -13312,10 +13299,8 @@
     position: absolute;
     cursor: default;
     max-height: 350px;
-    overflow-y: auto;
-    /* prevent horizontal scrollbar */
-    overflow-x: hidden;
-    /* add padding to account for vertical scrollbar */
+    overflow-y: auto;      /* prevent horizontal scrollbar */
+    overflow-x: hidden;    /* add padding to account for vertical scrollbar */
     padding-right: 20px;
     /*z-index: 5000;*/
   }
@@ -13393,31 +13378,25 @@
 
   /* ----------------------- moje ------------------------ */
 
-  /* Sidebar jako "ramka" – pozwala wystawać w prawo */
   .admin-shell .sidebar {
     position: relative;
     overflow: visible !important;
-    /* kluczowe: nic nie obcina */
     z-index: 1000;
   }
 
-  /* To ma scrollować pionowo, ale NIGDY poziomo */
   .admin-shell .sidebar .sidebar-sticky {
     max-height: 100vh;
-    /* albo calc(100vh - ...), jeśli masz header */
-    /*  overflow-y: auto !important;
-  overflow-x: hidden !important;  /* kluczowe: brak X scrolla */
     position: relative;
+    /*  overflow-y: auto !important;
+        overflow-x: hidden !important;  /* kluczowe: brak X scrolla 
+    */
   }
 
-  /* 2) Link ma być zawsze szerszy niż sidebar i wystawać */
   .admin-shell .sidebar .nav-link {
     position: relative;
     display: block;
-    width: calc(100% + 4px);
-    /* ile ma wystawać */
-    margin-right: -4px;
-    /* wypchnięcie w prawo */
+    width: calc(100% + 4px);  /* ile ma wystawać */
+    margin-right: -4px;       /* wypchnięcie w prawo */
     z-index: 2;
   }
 
@@ -13425,7 +13404,6 @@
     max-height: 70vh;
     overflow-y: auto;
     overflow-x: hidden;
-    /* brak poziomego scrolla */
   }
 
   .base-rounds-wrapper {
@@ -13528,10 +13506,8 @@
   .table-panel td.sticky-col-1 {
     position: sticky;
     left: 0;
-    z-index: 50;
-    /* większy niż header sędziów */
-    background: #fff;
-    /* pełne tło, żeby nic nie prześwitywało */
+    z-index: 50;      /* większy niż header sędziów */
+    background: #fff; /* pełne tło, żeby nic nie prześwitywało */
   }
 
   .table-panel thead {
@@ -13593,22 +13569,12 @@
     height: 130px;
     vertical-align: bottom;
     overflow: hidden;
-  }
-
-  /* kolumna sędziego */
-  .judge-vertical {
-    width: 48px !important;
-    min-width: 48px !important;
-    max-width: 48px !important;
-    padding: 2px 0 !important;
-    vertical-align: bottom;
     position: relative;
   }
 
   th.judge-vertical .judge-vertical-text {
     position: absolute;
-    width: 120px;
-    /* kontrola łamania / widoczności */
+    width: 120px;    /* kontrola łamania / widoczności */
     left: 34px;
     transform-origin: left bottom;
     display: block;
@@ -13637,13 +13603,11 @@
     pointer-events: none;
   }
 
-  /* DWIE LINIE – kontrola */
   .judge-two-lines {
     display: block;
     line-height: 1.1;
   }
 
-  /* nazwisko */
   .judge-two-lines .lname {
     display: block;
     font-weight: 700;
@@ -13651,7 +13615,6 @@
     word-break: break-word;
   }
 
-  /* imię */
   .judge-two-lines .fname {
     display: block;
     margin-top: 2px;
@@ -13683,8 +13646,7 @@
   th.judge-vertical .judge-two-lines .fname {
     display: block;
     margin-top: 2px;
-    padding-left: 2px;
-    /* lekkie wcięcie */
+    padding-left: 2px;    /* lekkie wcięcie */
     font-size: .72rem;
     color: #666;
     white-space: nowrap;
@@ -13702,7 +13664,6 @@
     z-index: 2;
   }
 
-
   /* Komórki z checkboxami sędziów */
   .table-panel td.fixed-col {
     text-align: center;
@@ -13718,40 +13679,34 @@
     width: 18px;
     height: 18px;
     cursor: pointer;
-    accent-color: var(--bs-primary);
-    /* kolor zaznaczenia = primary */
+    accent-color: var(--bs-primary);    /* kolor zaznaczenia = primary */
   }
 
   /* kolory tła według statusu w kolumnie "Liczba sędziów" (druga kolumna) */
   .requirement-cell.table-ok {
-    background-color: #d1fae5 !important;
-    /* zielono */
+    background-color: #d1fae5 !important;    /* zielono */
     color: #065f46 !important;
   }
 
   .requirement-cell.table-low {
-    background-color: #fef3c7 !important;
-    /* żółto */
+    background-color: #fef3c7 !important;    /* żółto */
     color: #92400e !important;
   }
 
   .requirement-cell.table-high {
-    background-color: #fee2e2 !important;
-    /* czerwono */
+    background-color: #fee2e2 !important;    /* czerwono */
     color: #991b1b !important;
   }
 
   /* Hover dla komórek z checkboxem */
   .table-panel tbody td.fixed-col:hover {
-    background-color: rgba(78, 115, 223, 0.08);
-    /* lekko primary */
+    background-color: rgba(78, 115, 223, 0.08);    /* lekko primary */
   }
 
   /* Ikonka "rowToggle" przy nazwisku sędziego (w nagłówku kolumny) */
   .rowToggle {
     font-size: 0.9rem;
-    color: #4e73df;
-    /* primary */
+    color: #4e73df;    /* primary */
     transition: transform .2s ease, color .2s ease;
   }
 
@@ -13909,8 +13864,7 @@
   }
 
   .range-box {
-    max-width: 520px;
-    /* dopasuj wartość */
+    max-width: 520px;    /* dopasuj wartość */
   }
 
   .ui-state-highlight {
@@ -13925,8 +13879,7 @@
 
   /* tylko ta strona / blok */
   .program-tables table.table> :not(caption)>*>* {
-    padding: 0.10rem 0.10rem !important;
-    /* mocniej */
+    padding: 0.10rem 0.10rem !important;    /* mocniej */
     line-height: 1.15 !important;
     vertical-align: middle !important;
   }
@@ -13963,10 +13916,8 @@
 
   td.check-cell .check-wrapper {
     display: flex;
-    justify-content: center;
-    /* poziom */
-    align-items: center;
-    /* pion */
+    justify-content: center;  /* poziom */
+    align-items: center;      /* pion */
     height: 100%;
   }
 
@@ -13994,8 +13945,7 @@
   .category-two-lines {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    /* ← ZAWSZE 2 linie */
+    -webkit-line-clamp: 2;   /* ZAWSZE 2 linie */
     line-height: 1.25;
     overflow: hidden;
   }
@@ -14155,6 +14105,14 @@
     page-break-inside: avoid;
   }
 
+  .div-no-break:first-of-type {
+     break-inside: auto;
+  }
+
+  .div-no-break:first-child {
+     break-inside: auto;
+  }
+
   .table-cont {
     page-break-after: avoid;
   }
@@ -14162,11 +14120,13 @@
   .table td {
     /*background-color: #aaa !important;*/
     page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   .table th {
     /* display: none; */
     page-break-inside: avoid;
+    break-inside: avoid;
   }
 
   .table-bordered th,
@@ -14261,8 +14221,7 @@
 
   .page-header-print {
     font-size: 22px;
-    width: 100%;
-    /*height: 33px;*/
+    width: 100%;    /*height: 33px;*/
     padding: 6px 6px;
     margin: 6px 0 0 6px;
     text-align: center;
@@ -14372,14 +14331,10 @@
   }
 
   input[type=checkbox] {
-    -ms-transform: scale(1.4);
-    /* IE */
-    -moz-transform: scale(1.4);
-    /* FF */
-    -webkit-transform: scale(1.4);
-    /* Safari and Chrome */
-    -o-transform: scale(1.4);
-    /* Opera */
+    -ms-transform: scale(1.4);     /* IE */
+    -moz-transform: scale(1.4);    /* FF */
+    -webkit-transform: scale(1.4); /* Safari and Chrome */
+    -o-transform: scale(1.4);      /* Opera */
     padding: 4px 10px;
   }
 
@@ -14513,8 +14468,7 @@
   }
 
   .judgeCheckbox:checked {
-    accent-color: #000 !important;
-    /* czarny na wydruk */
+    accent-color: #000 !important;   /* czarny na wydruk */
   }
 
   input[type="checkbox"] {
@@ -14523,8 +14477,9 @@
 
   table.print-table {
     table-layout: fixed;
-    width: auto;
+    width: 100%;
     border-collapse: collapse;
+    outline: 1px solid red;
   }
 
   table.print-table td,
@@ -14592,20 +14547,17 @@
   }
 
   .requirement-cell.table-ok {
-    background-color: #d9ead3 !important;
-    /* jasna zieleń */
+    background-color: #d9ead3 !important;   /* jasna zieleń */
     color: #065f46 !important;
   }
 
   .requirement-cell.table-low {
-    background-color: #fff2cc !important;
-    /* jasny żółty */
+    background-color: #fff2cc !important;   /* jasny żółty */
     color: #92400e !important;
   }
 
   .requirement-cell.table-high {
-    background-color: #f4cccc !important;
-    /* jasny czerwony */
+    background-color: #f4cccc !important;   /* jasny czerwony */
     color: #991b1b !important;
   }
 
@@ -14634,8 +14586,7 @@
   .category-cell .cat-two-lines {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-    /* dokładnie 2 linie */
+    -webkit-line-clamp: 2;    /* dokładnie 2 linie */
     overflow: hidden;
 
     line-height: 1.0;
@@ -14665,10 +14616,8 @@
   }
 
   .print-dropdown>.dropdown-menu.print-menu {
-    --bs-dropdown-min-width: 0;
-    /* zbija bootstrapowe 10rem */
+    --bs-dropdown-min-width: 0;    /* zbija bootstrapowe 10rem */
     min-width: 100% !important;
-    /* twarde zwycięstwo */
     width: 100% !important;
     max-width: 100% !important;
     box-sizing: border-box;
@@ -14741,24 +14690,20 @@
     width: 12mm;
     padding: 0;
     text-align: center;
-    vertical-align: middle;
-    /* ⬅️ wyrównanie do wiersza */
+    vertical-align: middle;   /* ⬅️ wyrównanie do wiersza */
   }
 
   /* wrapper robi centrowanie */
   table.print-table td.print-check .check-wrap {
     display: flex;
-    align-items: center;
-    /* pion */
-    justify-content: center;
-    /* poziom */
-    height: 100%;
-    /* ⬅️ WAŻNE */
+    align-items: center;      /* pion */
+    justify-content: center;  /* poziom */
+    height: 100%;             /* ⬅️ WAŻNE */
   }
 
   table.print-table td.print-check .tick {
-    font-size: 12pt;
-    line-height: 1;
+    font-size: 16pt;
+    line-height: 1.4;
   }
 
   /* jeżeli masz gdzieś sticky/position dla ekranu – w druku często przeszkadza */
@@ -14769,5 +14714,72 @@
     left: auto !important;
     z-index: auto !important;
   }
+
+  /* stała szerokość kolumn podstawowych */
+  .col-lp {
+      width: 50px;
+  }
+  .col-name {
+      width: 320px;
+      line-height: 1.2em;
+  }
+
+  .name-line {
+    display: block;
+    white-space: nowrap;        /* ❌ brak zawijania */
+    overflow: hidden;           /* ukryj nadmiar */
+    text-overflow: ellipsis;    /* ... */
+  }
+
+  .col-club {
+      width: 320px;
+      /*overflow-wrap: break-word;*/
+  }
+
+  .cell {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;   /* max 2 linie */
+    overflow: hidden;
+  }
+
+  .club {
+    display: block;
+    overflow-wrap: break-word;
+  }
+
+  .country {
+    display: block; /* 🔥 zawsze druga linia */
+    white-space: nowrap;
+  }
+
+  .table-wide {
+    width: 100%;
+    table-layout: fixed;
+    /*font-size: 9pt;*/
+  }
+
+   /* wszystkie komórki w kolumnach stylów */
+    .table-wide th.style-col,
+    .table-wide td.style-col {
+        width: 80px;          /* stała szerokość dla stylów */
+        max-width: 80px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        /*white-space: nowrap;  /* nie łamiemy nazwy */
+        /*word-break: break-all;*/
+        overflow-wrap: break-word;
+    }
+
+  @page.landscape {
+      size: landscape;   /* orientacja pozioma dla szerokich tabel */
+      margin: 0.8cm;       /* dopasowane marginesy do druku */
+  }
+
+  /* każda tabela zaczyna się na nowej stronie */
+  .table-wide {
+      page-break-after: always;
+  }
+
 
 }

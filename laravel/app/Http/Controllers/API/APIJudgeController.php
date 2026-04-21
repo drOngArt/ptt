@@ -57,7 +57,7 @@ class APIJudgeController extends Controller
             $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)
                 ->addMinutes((int)$layoutData[0]->parameter1);
         }
-
+        $orderNo = 1;
         foreach ($dances as $programRound) {
             $programRound->isFinal = false;
             if ($programRound->description[0] == 'F' || $programRound->description[0] == 'P') {
@@ -65,24 +65,23 @@ class APIJudgeController extends Controller
             }
 
             if ($programRound->closed == '1') {
-                $modify_dances[] = $programRound;
-            } else {
                 if ($description === null) {
                     $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
                     $description = $programRound->description;
-                    $programRound->description = '[ '.$definedTime->format('H:i').' ] - '.$programRound->description;
+                    $programRound->description = $orderNo.'. '.$programRound->description;
                     $modify_dances[] = $programRound;
                 } elseif ($description != $programRound->description) {
+                    $orderNo++;
                     if (! in_array($programRound->description, $rounds)) {
                         $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
                         $description = $programRound->description;
-                        $programRound->description = '[ '.$definedTime->format('H:i').' ] - '.$programRound->description;
+                        $programRound->description = $orderNo.'. '.$programRound->description;
                         $modify_dances[] = $programRound;
                     } else {
                         $key = array_search($programRound->description, $rounds, true);
                         if ($key !== false) {
                             $description = $programRound->description;
-                            $programRound->description = '[ '.$key.' ] - '.$programRound->description;
+                            $programRound->description = $orderNo.'. '.$programRound->description;
                             $modify_dances[] = $programRound;
                         }
                     }
@@ -90,15 +89,54 @@ class APIJudgeController extends Controller
                     $key = array_search($programRound->description, $rounds, true);
                     if ($key !== false) {
                         $description = $programRound->description;
-                        $programRound->description = '[ '.$key.' ] - '.$programRound->description;
+                        $programRound->description = $orderNo.'. '.$programRound->description;
                         $modify_dances[] = $programRound;
                     } else {
+                        $programRound->description = $orderNo.'. '.$programRound->description;
+                        $modify_dances[] = $programRound;
+                    }
+                }
+            } else {
+                if ($description === null) {
+                    $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
+                    $description = $programRound->description;
+                    $programRound->description = $orderNo.'. '.'[ '.$definedTime->format('H:i').' ] - '.$programRound->description;
+                    $modify_dances[] = $programRound;
+                } elseif ($description != $programRound->description) {
+                    $orderNo++;
+                    if (! in_array($programRound->description, $rounds)) {
+                        $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
+                        $description = $programRound->description;
+                        $programRound->description = $orderNo.'. '.'[ '.$definedTime->format('H:i').' ] - '.$programRound->description;
+                        if( mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'PRZERWA') !== false )
+                          $programRound->dance = $programRound->dance.' min ---------------';
+                        $modify_dances[] = $programRound;
+                    } else {
+                        $key = array_search($programRound->description, $rounds, true);
+                        if ($key !== false) {
+                            $description = $programRound->description;
+                            $programRound->description = $orderNo.'. '.'[ '.$key.' ] - '.$programRound->description;
+                            $modify_dances[] = $programRound;
+                        }
+                    }
+                } else {
+                    $key = array_search($programRound->description, $rounds, true);
+                    if ($key !== false) {
+                        $description = $programRound->description;
+                        $programRound->description = $orderNo.'. '.'[ '.$key.' ] - '.$programRound->description;
+                        $modify_dances[] = $programRound;
+                    } else {
+                        $programRound->description = $orderNo.'. '.$programRound->description;
                         $modify_dances[] = $programRound;
                     }
                 }
 
                 $counter = $programRound->groups > 0 ? $programRound->groups : 1;
-                if ($programRound->isFinal) {
+                if( mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'PRZERWA') !== false ){
+                  $seconds = 60 * ($programRound->dance ? (int)$programRound->dance : 5);
+                  $definedTime = $definedTime->addSeconds($seconds);
+                }
+                else if ($programRound->isFinal) {
                   $seconds = (int)$layoutData[0]->durationFinal * (int)$counter;
                   $definedTime = $definedTime->addSeconds($seconds);
                 } else {
@@ -108,7 +146,7 @@ class APIJudgeController extends Controller
             }
         }
 
-        usort($modify_dances, function ($a, $b) {
+        /*usort($modify_dances, function ($a, $b) {
             if ($a->description[2] == '0' && $b->description[2] == '2') return -1;
             if ($a->description[2] == '2' && $b->description[2] == '0') return 1;
             if ($a->description[0] == '[' && $b->description[0] != '[') return -1;
@@ -117,7 +155,7 @@ class APIJudgeController extends Controller
             if ($a->description[0] != '[' && $b->description[0] != '[') return $a->id <=> $b->id;
             if ($a->description == $b->description) return $a->id <=> $b->id;
             return $a->description <=> $b->description;
-        });
+        });*/
 
         $fractal = new Manager();
         $fractal->setSerializer(new ArraySerializer()); // bez wrappera "data"

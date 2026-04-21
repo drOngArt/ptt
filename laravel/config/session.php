@@ -29,7 +29,7 @@ return [
     |
     */
 
-    'lifetime' => 1800,
+    'lifetime' => 360,
 
     'expire_on_close' => false,
 
@@ -96,7 +96,7 @@ return [
     |
     */
 
-    'lottery' => [2, 100],
+    'lottery' => [1, 100],
 
     /*
     |--------------------------------------------------------------------------
@@ -148,6 +148,5 @@ return [
     |
     */
 
-    'secure' => env('SESSION_SECURE_COOKIE'),
-
+    'secure' => env('SESSION_SECURE_COOKIE', null),
 ];

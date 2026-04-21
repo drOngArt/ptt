@@ -115,9 +115,9 @@
               <!-- LEWA STRONA -->
               <div class="font-14pt userTime ekran">
                   Czas rozpoczęcia:
-                  <button class="btn-light-blue font-14pt">{{ $layout->startTime }}</button>
+                  <button class="btn-light-blue font-print-18pt">{{ $layout->startTime }}</button>
                   &nbsp;zakończenia:
-                  <button class="btn-light-blue font-14pt">{{ $times[count($compressedProgram)] }}</button>
+                  <button class="btn-light-blue font-print-18pt">{{ $times[count($compressedProgram)] }}</button>
               </div>
               <!-- PRAWA STRONA -->
               <div class="dropdown print-dropdown ms-auto">

@@ -9,8 +9,8 @@
         {{ html()->form('GET', url('admin/report'))->open() }}
 
     <div class="row mb-3">
-      <div class="page-header-break">ZESTAWIENIE RUND<br/></div>
-      <div class="col-12 d-flex align-items-center mb-3">
+      <div class="page-header-break fs-5">ZESTAWIENIE RUND<br/></div>
+      <div class="col-12 d-flex align-items-center mb-2">
           <h1 class="page-header mb-0">Zestaw rund (liczba startujących, grup)</h1>
           <div class="ms-auto d-flex gap-2">
             {{ html()
@@ -31,7 +31,7 @@
     <div class="row">
       <div class="col-lg-12">
         <div class="table-responsive">
-          <table class="table table-striped table-bordered table-hover text-center">
+          <table class="table table-striped table-bordered table-hover text-center table-pad-6px font-print-18pt align-middle">
             <thead>
               <tr>
                 <th class="text-center" style="width: 5%">Lp.</th>
@@ -45,14 +45,14 @@
               @php $idx = 0; @endphp
               @foreach($program as $programRound)
                 <tr>
-                    <td class="btn-circle">
+                    <td class="btn-circle font-print-18pt">
                       @if($programRound->baseNumberOfCouples > 0)
                         {{ $idx + 1 }}.
                         @php $idx++; @endphp
                       @endif
                     </td>
 
-                    <td class="text-start font-14pt">
+                    <td class="text-start font-print-18pt">
                         {{ $programRound->description }}
                     </td>
 

@@ -207,7 +207,6 @@ class DashboardController extends Controller
         if ($isInProgram && $isntInProgram) {
             $filterInProgram = true;
         }
-
         return view('admin.dashboard')
             ->with('judges', $judges)
             ->with('judgestoPrint', $JudgesAll)
@@ -435,7 +434,6 @@ class DashboardController extends Controller
 
     public function saveProgram($fileName, $Program, $type)
     {
-       //dd('saveProgram-',$fileName, $Program, $type );
         $tournamentDirectory = Cache::get('tournamentDirectory');
         $reportFile = @fopen($tournamentDirectory.'/'.trim($fileName).'.csv', 'w');
         if ($reportFile === false) {
@@ -494,7 +492,7 @@ class DashboardController extends Controller
     {
         $program = Round::all();
 
-        $mainRounds = Round::orderBy('id')->groupBy('description')->get();
+        //$mainRounds = Round::orderBy('id')->groupBy('description')->get();
         $allAdditionalRounds = $this->tournamentHelper->getAdditionalRounds();
         $additionalRounds = [];
         $times = [];
@@ -510,6 +508,7 @@ class DashboardController extends Controller
         } else {
             $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes((int)$layoutData[0]->parameter1);
         }
+
 
         $flag = 0;
         foreach ($compressedProgram as $index => $programRound) {
@@ -527,14 +526,41 @@ class DashboardController extends Controller
             }
             $couples = 0;
 
-            if ($round) {
+            if( $round ) {
                 $couples = $round->NumberOfCouples;
                 if ($couples) {
                     $compressedProgram[$index]->couples = $couples;
                 } else {
                     $compressedProgram[$index]->couples = false;
                 }
-            } else {
+            } 
+            else { //check, maybe not closed yet, so display number of registered
+              $baseRounds = $this->tournamentHelper->getBaseRounds();
+              if( $baseRounds ) {
+                foreach ($baseRounds as $round) {
+                  $desc = $round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
+                  if( ($pos = mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'POKAZOWA')) !== false)
+                    $src = 'Wstępna'.substr($programRound->description, $pos + 8, strlen($programRound->description) - $pos - 8);
+                  else
+                    $src = $programRound->description;
+                  if( mb_strpos(mb_strtoupper($src, 'UTF-8'), mb_strtoupper($desc, 'UTF-8')) !== false) {
+                    if( $round->closeRegistration != "T" ){ //not close structure
+                      $couples = -$round->baseNumberOfCouples;
+                    }
+                    else {
+                      $couples = false;
+                    }
+                    break;
+                  }
+                }
+                if( $couples ) {
+                  $compressedProgram[$index]->couples = $couples;
+                } 
+                else {
+                  $compressedProgram[$index]->couples = false;
+                }
+              }
+              else
                 $compressedProgram[$index]->couples = false;
             }
 
@@ -729,7 +755,7 @@ class DashboardController extends Controller
         }
         if (empty($type)) {
             $roundSelect = request()->input('selected');
-            if (count($roundSelect) == 0) { // empty
+            if (count((array)$roundSelect) == 0) { // empty
                 return redirect('admin/program');
             }
             $Program = [];
@@ -1086,7 +1112,32 @@ class DashboardController extends Controller
                     } else {
                         $program[$index]->couples = false;
                     }
-                } else {
+                } 
+                else { //check, maybe not closed yet, so display number of registered
+                  $baseRounds = $this->tournamentHelper->getBaseRounds();
+                  if( $baseRounds ) {
+                    foreach ($baseRounds as $round) {
+                      $desc = $round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
+                      if( ($pos = mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'POKAZOWA')) !== false)
+                        $src = 'Wstępna'.substr($programRound->description, $pos + 8, strlen($programRound->description) - $pos - 8);
+                      else
+                        $src = $programRound->description;
+                      if( mb_strpos(mb_strtoupper($src, 'UTF-8'), mb_strtoupper($desc, 'UTF-8')) !== false) {
+                        if( $round->closeRegistration != "T" ){ //not close structure
+                          $couples = $round->baseNumberOfCouples;
+                        }
+                        else {
+                          $couples = false;
+                        }
+                        break;
+                      }
+                    }
+                    if( $couples )
+                      $program[$index]->couples = $couples;
+                    else
+                      $program[$index]->couples = false;
+                  }
+                  else
                     $program[$index]->couples = false;
                 }
             }
@@ -1620,7 +1671,6 @@ class DashboardController extends Controller
                     }
                 }
             }
-         //dd('round NOT false', $round, $roundDescription, $roundAlternativeDescription );
             return view('admin.round')
                 ->with('round', $round)
                 ->with('roundDescription', $roundDescription)
@@ -1639,7 +1689,6 @@ class DashboardController extends Controller
                 ->with('dance', $dance)
                 ->with('names', $coupleNames);
         } else {
-          //dd('round false', $round, $roundDescription, $roundAlternativeDescription );
             return view('admin.round')
                 ->with('round', null)
                 ->with('roundDescription', $roundDescription)
@@ -1697,12 +1746,10 @@ class DashboardController extends Controller
                 }
             }
         }
-        //dd('getRoundResult', $roundIdFromDB, $roundFromDB );
         if( $roundFromDB == null )
           return Response::json(['error' => 'false', 'newRound' => 'false', 'judges' => []]);
 
         $round = $this->tournamentHelper->getRoundWithType($roundFromDB->description, $roundFromDB->type);
-        //dd('round -', $roundFromDB->description, $roundFromDB->type, $round);
         $judgesVotedNumber = 0;
         $judgesForRound = [];
         if( $round != false ) {
@@ -1869,7 +1916,6 @@ class DashboardController extends Controller
     {
         $round = $this->tournamentHelper->getBaseRound(intval($roundId));
         $couples = $this->tournamentHelper->getCouples($round->roundId);
-//dd('couples -', $couples);
         usort($couples, [$this, 'comparePosition']);
         $positionsRange3 = Config::get('ptt.PositionRange_3');
         $positionsRange4 = Config::get('ptt.PositionRange_4');
@@ -2203,6 +2249,125 @@ class DashboardController extends Controller
         $rounds = [];
         $baseRounds = request()->old('roundId');
         if ($baseRounds != null) {
+          foreach ($baseRounds as $round) {
+            if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
+              $rounds[] = $round;
+            }
+          }
+        }
+        if (count($rounds) == 0) {
+          return redirect('admin/report');
+        }
+
+        $scheduleParts = $this->tournamentHelper->getPartsCSV();
+        $partsMap = [];
+        foreach ($scheduleParts as $item) {
+          $partsMap[$item->name] = $item->part;
+        }
+        //dd('parts->', $partsMap);
+        $groups = [];
+        foreach( $rounds as $index) {
+          $round = $this->tournamentHelper->getBaseRound(intval($index));
+          $key = $round->categoryName . ' ' . $round->className;
+          $groups[$key]['category'] = $round->categoryName;
+          if( mb_strpos(mb_strtoupper($round->className, 'UTF-8'), 'H.') !== false )
+            $groups[$key]['class'] = 'H';
+          else
+            $groups[$key]['class'] = $round->className;
+          if( mb_strpos(mb_strtoupper($round->styleName, 'UTF-8'), 'KOMB') !== false ){
+            $groups[$key]['styles'][] = 'Komb';
+            $groups[$key]['styleCounts']['Komb'] = $round->baseNumberOfCouples;
+          }
+          else {
+            $groups[$key]['styles'][] = $round->styleName;
+            $groups[$key]['styleCounts'][$round->styleName] = $round->baseNumberOfCouples;
+          }
+          $groups[$key]['rounds'][] = $round;
+        }
+
+        $tables = [];
+        foreach ($groups as $key => $group) {
+          $styles = array_values(array_unique($group['styles']));
+          $players = [];
+          foreach ($group['rounds'] as $round) {
+            $couples = $this->tournamentHelper->getCouples($round->baseRoundId);
+            foreach( $couples as $couple) {
+              $playerKey = $couple->plIdA.' '.$couple->plIdB;
+              if( !isset($players[$playerKey]) ) {
+                $players[$playerKey] = [
+                  'couple_names' => [
+                    $couple->lastNameA.' '.$couple->firstNameA,
+                    $couple->lastNameB.' '.$couple->firstNameB ],
+                  'club' => $couple->club,
+                  'country' => $couple->country,
+                  'start_no' => $couple->number,
+                  'styles' => []
+                ];
+              }
+              if( mb_strpos(mb_strtoupper($round->styleName, 'UTF-8'), 'KOMB') !== false )
+                $players[$playerKey]['styles']['Komb'] = true;
+              else
+                $players[$playerKey]['styles'][$round->styleName] = true;
+            }
+          }
+
+          $players = array_values($players);
+          usort($players, function ($a, $b) {
+            return $a['start_no'] <=> $b['start_no'];
+          });
+
+          $styles = $group['styles']; // np. ["Standard", "Latin", "Kombinacja"]
+          $displayStyles = [];
+          foreach ($styles as $style) {
+              $display = $style;
+              // jeśli dł. > 8 znaków, skracamy
+              //if (mb_strlen($style) > 7) {
+              //    $display = mb_substr($style, 0, 4) . mb_substr($style, -2);
+              // }
+              $displayStyles[$style] = $display;
+          }
+
+          $styleParts = [];
+          foreach ($styles as $style) {
+              $fullName = $group['category'] . ' ' . $group['class'] . ' ' . $style;
+              $styleParts[$style] = $partsMap[$fullName] ?? '';
+          }
+          $rows = [];
+          $lp = 1;
+
+          foreach ($players as $p) {
+              $row = [
+                  'lp' => $lp++,
+                  'couple_names' => $p['couple_names'],
+                  'club' => $p['club'],
+                  'country' => $p['country']
+              ];
+            foreach ($styles as $style) {
+              $row[$style] = isset($p['styles'][$style]) ? $p['start_no'] : '';
+            }
+            $rows[] = $row;
+          }
+          $tables[$key] = [
+              'category' => $group['category'],
+              'class' => $group['class'],
+              'styleParts' => $styleParts,
+              'displayStyles' => $displayStyles,
+              'headers' => array_merge(['lp', 'couple_names', 'club'], $styles),
+              'styleCounts' => $group['styleCounts'],
+              'rows' => $rows
+          ];
+        }
+        //dd('lista par->', $tables);
+        return view('admin.reportLists')
+            ->with('tables', $tables);
+    }
+
+/* copy of original version for two styles only
+    public function reportLists()
+    {
+        $rounds = [];
+        $baseRounds = request()->old('roundId');
+        if ($baseRounds != null) {
             foreach ($baseRounds as $round) {
                 if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
                     $rounds[] = $round;
@@ -2231,7 +2396,6 @@ class DashboardController extends Controller
         $tempArr = [];
         $cpl_1 = [];
         $cpl_2 = [];
-        $pages = 0;
         foreach ($lists as $index => $add_style) {
             $round = $this->tournamentHelper->getBaseRound(intval($index));
             $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
@@ -2373,11 +2537,11 @@ class DashboardController extends Controller
                 $Couples[$name][] = $cpl_new;
             }
         }
-        //dd('Listy - ', $Couples);
+        //dd('lista par->', $Couples);
         return view('admin.reportLists')
-            ->with('couples', $Couples)
-            ->with('pages', $pages);
+            ->with('couples', $Couples);
     }
+*/
 
     public function reportCouplesConflict()
     {
@@ -3125,8 +3289,6 @@ class DashboardController extends Controller
                                   $heatsFl[$pos] = 1;
                             }
                             $print = true;
-                            //dd( 'couples - ', $pos, $couplesNo[$pos], $heats[$pos], $couples[$pos]);
-                            
                         }
                     }
                 }
@@ -3457,14 +3619,13 @@ class DashboardController extends Controller
              }
        }
        if (count($judge_set) > 1) {
-             // part – opcjonalny, więc ostrożnie iteruj
              $part = '';
              if (!empty($scheduleParts)) {
                 foreach ($scheduleParts as $category) {
                    // upewnij się, że $category->name istnieje
                    $catName = isset($category->name) ? $category->name : '';
                    if ($catName !== '' &&
-                         mb_strpos(mb_strtoupper($catName, 'UTF-8'), mb_strtoupper($roundNames[$i] ?? '', 'UTF-8')) !== false) {
+                         mb_strpos(mb_strtoupper($roundNames[$i] ?? '', 'UTF-8'), mb_strtoupper($catName, 'UTF-8') ) !== false) {
                          $part = $category->part ?? '';
                    }
                 }

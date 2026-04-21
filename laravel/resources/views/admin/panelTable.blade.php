@@ -235,6 +235,14 @@
         (strona {{ $chunkIndex+1 }} / {{ count($judgeChunks) }})
       </div>
       <table class="table table-bordered table-sm print-table">
+        <colgroup>
+          <col style="width: 38mm;">
+          <col style="width: 8mm;">
+          @foreach($judgesPage as $pl_id => $judge)
+            <col style="width: 13mm;">
+          @endforeach
+        </colgroup>
+
         <thead class="font-12pt">
           <tr class="header-row">
             <th class="headcol sticky-col-1 text-end align-bottom fs-4">
@@ -251,7 +259,7 @@
                     <span class="lname">{{ $judge->lastName }}</span>
                     <span class="fname">{{ $judge->firstName }}</span>
                   </span>
-                </div>
+                </div> 
                 </div>
               </th>
             @endforeach
@@ -280,7 +288,7 @@
                 <td class="print-check">
                   <div class="check-wrap">
                     <span class="tick">
-                      {!! $checked ? '&#10003;' : '&nbsp;' !!}
+                      {!! $checked ? '&#9989;' : '&nbsp;' !!}
                     </span>
                   </div>
                 </td>

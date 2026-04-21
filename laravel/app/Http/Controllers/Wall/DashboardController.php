@@ -19,6 +19,13 @@ use View;
 class DashboardController extends Controller
 {
     private $tournamentHelper;
+ 
+    private function checkToken($token)
+    { 
+      if ($token !== env('WALL_TOKEN')) {
+          abort(403);
+      }
+    }
 
     private function loadTournamentData()
     {
@@ -40,8 +47,12 @@ class DashboardController extends Controller
         return strtr($shortName, $replaceDance);
     }
 
-    public function showConfig($type = 0)
+    public function showConfig( $token, $type = 0)
     {
+        // Weryfikacja tokena
+        if( $token !== env('WALL_TOKEN') ) {
+          abort(403, 'Unauthorized access 1111`');
+        }
 
         $colorSet = [];
         $divideFactor = [];
@@ -54,7 +65,7 @@ class DashboardController extends Controller
         $colorSet = Arr::add($colorSet, 5, 'ZW-Blue-Yellow');
         $colorSet = Arr::add($colorSet, 10, 'User');
 
-        $divideFactor = Arr::add($divideFactor, 0, 'Proporcja:');
+        $divideFactor = Arr::add($divideFactor, 0, 'Proporcje:');
         $divideFactor = Arr::add($divideFactor, 50, '50%-50%');
         $divideFactor = Arr::add($divideFactor, 45, '45%-55%');
         $divideFactor = Arr::add($divideFactor, 40, '40%-60%');
@@ -68,7 +79,8 @@ class DashboardController extends Controller
 
         return view('wall.config')
             ->with('colorSet', $colorSet)
-            ->with('divideFactor', $divideFactor);
+            ->with('divideFactor', $divideFactor)
+            ->with('token', $token);
     }
 
     private function getProgramNo()
@@ -465,10 +477,12 @@ class DashboardController extends Controller
 
         if (count($roundDescriptions) > 0) {
             foreach ($roundDescriptions as $index => $desc) {
-                if (($pos = mb_strpos(mb_strtoupper($desc, 'UTF-8'), 'KOMBINACJA')) !== false) {
-                    $len = strlen($desc);
-                    $roundDescriptions[$index] = substr($desc, 0, $pos).' Komb.'.substr($desc, $pos + 11, $len - $pos - 10);
-                }
+              if( empty($desc) )
+                continue;
+              if (($pos = mb_strpos(mb_strtoupper($desc, 'UTF-8'), 'KOMBINACJA')) !== false) {
+                $len = strlen($desc);
+                $roundDescriptions[$index] = substr($desc, 0, $pos).' Komb.'.substr($desc, $pos + 11, $len - $pos - 10);
+              }
             }
         }
         //dd('show -',$program, $compressedProgram, $rounds, $couples, $couplesNo);

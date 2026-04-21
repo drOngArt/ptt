@@ -25,68 +25,82 @@
         </div>
       </div>
     </div>
+
     <div class="row">
       <div class="col-lg-12">
-        <div class="base-rounds-wrapper screen-w-100 mx-3">
-          @foreach($couples as $index => $couple)
-            <div class="page-header-break">LISTA STARTOWA {{$couples[$index][0]->section}}</div>
-            <table class="table table-striped table-bordered table-hover text-center table-pad-2px">
-              <thead>
-                <tr>
-                  @if($couples[$index][0]->marker[0] == 'a')
-                      <th colspan="5" class="text-center">
-                          <p class="alignleft font-print-18pt">&nbsp;Kategoria: {{$index}}</p>
-                          <p class="alignright">[ Zgłoszonych:<a class="font-print-24pt">&nbsp;{{$couples[$index][0]->NoCpl1}}</a>&nbsp;]</p>
+        <div class="table-responsive base-rounds-wrapper mx-3">
+          @foreach($tables as $table)
+            @php
+              $isWide = count(array_slice($table['headers'], 3)) > 4;
+              $blocks = array_unique(array_values($table['styleParts']));
+              sort($blocks);
+            @endphp
+            <div class="table-wide {{ $isWide ? 'landscape' : '' }}">
+            <div class=" page-header-break fs-4">LISTA STARTOWA [ BLOK {{ implode(', ', $blocks) }} ]</div>
+              <table class="table table-striped table-bordered table-hover text-center table-pad-2px align-middle">
+                <colgroup>
+                  <col style="width: 13mm;">
+                  <col style="width: 47mm;">
+                  <col style="width: 60mm;">
+                    @foreach(array_slice($table['headers'], 3) as $style)
+                      <col style="width: 22mm;">
+                    @endforeach
+                </colgroup>
+                 <thead>
+                  <tr>
+                    <th colspan="3" style="width: 120mm">
+                      <p class="alignleft font-print-18pt">
+                        &nbsp;Kategoria:&nbsp;{{ $table['category'] }} {{ $table['class'] }}
+                      </p>
+                    </th>
+                    @foreach(array_slice($table['headers'], 3) as $style)
+                      <th class="style-col text-center align-middle fs-6" style="padding: 0">
+                       {{ $table['displayStyles'][$style] ?? $style }}
                       </th>
-                  @else
-                      <th colspan="5" class="text-center">
-                          <p class="alignleft font-print-18pt">&nbsp;Kategoria: {{$index}}</p>
-                          <p class="alignright">[ Zgłoszonych:<a class="font-print-24pt">&nbsp;{{$couples[$index][0]->NoCpl1}}&nbsp;/&nbsp;{{$couples[$index][0]->NoCpl2}}</a>&nbsp;]</p>
+                    @endforeach
+                  </tr>
+                  <tr>
+                    <th class="text-center col-lp">Lp</th>
+                      <th class="text-start col-name">Nazwisko i imię</th>
+                      <th class="col-club">
+                        <div style="display:flex; justify-content:space-between;">
+                          <span class="text-start">Klub</span>
+                          <span class="alignright">Zgłoszeń</span>
+                          </div>
                       </th>
-                  @endif
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                    <th class="text-center">Lp.</th>
-                    <th>Imię i nazwisko</th>
-                    <th class="text-center">Klub / Kraj</th>
-                    @if($couples[$index][0]->marker[0] == 'a')
-                        <th class="text-center">Numer</br></th>
-                    @else
-                        <th class="text-center">Standard</th>
-                        <th class="text-center">Latin</th>
-                    @endif
-                </tr>
-                @php $idx = 0; @endphp
-                @foreach($couple as $position)
-                    <tr>
-                        <td class="btn-circle fs-5">{{ $idx + 1 }}.</td>
-                        @php $idx++; @endphp
-                        <td class="text-left py-1">
-                            {{ $position->lastNameA }}&nbsp;{{ $position->firstNameA }}<br/>
-                            {{ $position->lastNameB }}&nbsp;{{ $position->firstNameB }}
-                        </td>
-                        <td class="text-center py-1">
-                            {{ $position->club }}<br/>
-                            {{ $position->country }}
-                        </td>
-                        @if($position->marker[0] == 'a')
-                            <td class="h3 media-middle">{{ $position->number }}</td>
-                        @else
-                            @if($position->marker[0] == '1')
-                                <td class="h3 media-middle">{{ $position->number }}</td><td></td>
-                            @elseif($position->marker[0] == '2')
-                                <td></td><td class="h3 media-middle">{{ $position->number }}</td>
-                            @else
-                                <td class="h3 media-middle">{{ $position->number }}</td>
-                                <td class="h3 media-middle">{{ $position->number2 }}</td>
-                            @endif
-                        @endif
-                    </tr>
-                @endforeach
-              </tbody>
-            </table>
+                      @foreach(array_slice($table['headers'], 3) as $style)
+                        <th class="text-center font-print-24pt">
+                        {{ $table['styleCounts'][$style] ?? 0 }}
+                        </th>
+                      @endforeach
+                  </tr>
+                </thead>
+ 
+                <tbody>
+                  @foreach($table['rows'] as $row)
+                      <tr class="fs-5">
+                          <td class="btn-circle  col-lp font-print-18pt">{{ $row['lp'] }}</td>
+                          <td class="text-start col-name py-1">
+                            @foreach($row['couple_names'] as $name)
+                              <div class="name-line">{{ $name }}</div>
+                            @endforeach
+                          </td>
+                          <td class="text-center col-club py-1">
+                            <div class="cell">
+                              <span class="club">{{ $row['club'] }}</span>
+                              <span class="country"> {{ $row['country'] }}</span>
+                            </div>
+                          </td>
+                          @foreach(array_slice($table['headers'], 3) as $style)
+                              <td class="h3 col-style media-middle">
+                                  {{ $row[$style] ?? '' }}
+                              </td>
+                          @endforeach
+                      </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
           @endforeach
         </div>
       </div>

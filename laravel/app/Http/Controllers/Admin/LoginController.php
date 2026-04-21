@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -23,6 +24,10 @@ class LoginController extends Controller
         ];
 
         if (Auth::attempt($userdata, true)) {
+            Log::info('SESSION DEBUG', [
+                'id' => session()->getId(),
+                'user' => auth()->id(),
+            ]);
             if (Gate::allows('admin-only')) {
                 if (Cache::has('tournamentDirectory')) {
                     return redirect('admin');

@@ -35,41 +35,45 @@
 </head>
 
 
-<body>
+<body class="d-flex align-items-center justify-content-center vh-100">
 
     <div class="container">
-        <div class="row">
-            <div class="col-md-4 col-md-offset-4">
-                <div class="login-panel panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">PTT Admin Login</h3>
+        <div class="row justify-content-center">
+            <div class="col-md-4">
+                <div class="card shadow">
+                    <div class="card-header text-center">
+                        <h3 class="mb-0">PTT Admin Login</h3>
                     </div>
-                    <div class="panel-body">
+                    <div class="card-body">
+
                         {{ html()->form('POST', url('admin/login'))->open() }}
-                        <p class="bg-danger">{{ $errors->first('message') }}</p>
+
+                        <p class="text-danger">{{ $errors->first('message') }}</p>
 
                         @if (Session::has('flash_message'))
-                            <p id="message" class="bg-success">{{ Session::get('flash_message') }}</p>
+                            <p class="text-success">{{ Session::get('flash_message') }}</p>
                         @endif
 
-                        <div class="form-group">
-                            {{ html()->label('username', 'Login')->class('sr-only') }}
+                        <div class="mb-3">
                             {{ html()->text('username')
-                            ->value(old('username'))
-                            ->class('form-control')
-                            ->placeholder('Login')
-                            ->required()
-                            ->autofocus() }}
+                                ->value(old('username'))
+                                ->class('form-control')
+                                ->placeholder('Login')
+                                ->required()
+                                ->autofocus() }}
                         </div>
-                        <div class="form-group">
-                            {{ html()->label('password', 'Hasło')->class('sr-only') }}
+
+                        <div class="mb-3">
                             {{ html()->password('password')
                                 ->class('form-control')
                                 ->placeholder('Hasło')
                                 ->required() }}
                         </div>
-                        {{ html()->submit('Login')->class('btn btn-lg btn-success btn-block') }}
+
+                        {{ html()->submit('Login')->class('btn btn-success w-100') }}
+
                         {{ html()->form()->close() }}
+
                     </div>
                 </div>
             </div>

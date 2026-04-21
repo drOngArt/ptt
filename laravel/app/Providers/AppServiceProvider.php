@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -11,7 +13,25 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot() {}
+    public function boot() {
+      /*if (app()->runningInConsole()) {
+        return;
+      } 
+
+      try {
+          Log::info('SESSION TRACE', [
+              'time' => now()->toDateTimeString(),
+              'session_id' => session()->getId(),
+              'user' => Auth::id(),
+              'auth' => Auth::check(),
+              'ip' => request()->ip(),
+              'cookie' => request()->cookie('laravel_session'),
+              'url' => request()->fullUrl(),
+          ]);
+      } catch (\Throwable $e) {
+          Log::error('SESSION DEBUG ERROR: '.$e->getMessage());
+      }*/
+    }
 
     /**
      * Register any application services.
