@@ -1689,6 +1689,7 @@ class DashboardController extends Controller
                 ->with('dance', $dance)
                 ->with('names', $coupleNames);
         } else {
+          //dd('round false', $round, $roundDescription, $roundAlternativeDescription );
             return view('admin.round')
                 ->with('round', null)
                 ->with('roundDescription', $roundDescription)
@@ -1750,6 +1751,7 @@ class DashboardController extends Controller
           return Response::json(['error' => 'false', 'newRound' => 'false', 'judges' => []]);
 
         $round = $this->tournamentHelper->getRoundWithType($roundFromDB->description, $roundFromDB->type);
+        //dd('round -', $roundFromDB->description, $roundFromDB->type, $round);
         $judgesVotedNumber = 0;
         $judgesForRound = [];
         if( $round != false ) {
@@ -3344,6 +3346,8 @@ class DashboardController extends Controller
                                   $heatsFl[$pos] = 1;
                             }
                             $print = true;
+                            //dd( 'couples - ', $pos, $couplesNo[$pos], $heats[$pos], $couples[$pos]);
+                            
                         }
                     }
                 }
