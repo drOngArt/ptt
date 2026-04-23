@@ -135,18 +135,28 @@ Route::prefix('admin')->group(function () {
 | WALL
 |--------------------------------------------------------------------------
 */
+
+// user short
+Route::get('/wall', function () {
+    return redirect('/wall/' . env('WALL_TOKEN'));
+});
+
 Route::prefix('wall')->group(function () {
 
     // logowanie (bez middleware)
-    Route::get('login',  [WallLoginController::class, 'showLogin']);
-    Route::post('login', [WallLoginController::class, 'postLogin']);
+    //Route::get('login',  [WallLoginController::class, 'showLogin']);
+    //Route::post('login', [WallLoginController::class, 'postLogin']);
 
     // wylogowanie: POST
-    Route::post('logout', [WallDashboardController::class, 'logout'])->name('wall.logout');
+    //Route::post('logout', [WallDashboardController::class, 'logout'])->name('wall.logout');
 
-    // chronione
+    // PUBLIC + TOKEN 
+    Route::get('{token}', [WallDashboardController::class, 'showConfig']);
+    Route::get('{token}/board', [WallDashboardController::class, 'showDashboard'])->name('wall.board');
+
+    /* chronione
     Route::middleware('wallAuth')->group(function () {
         Route::get('/',     [WallDashboardController::class, 'showConfig']);
-        Route::get('board', [WallDashboardController::class, 'showDashboard']);
-    });
+        Route::get('board', [WallDashboardController::class, 'showDashboard']); 
+    });*/
 });

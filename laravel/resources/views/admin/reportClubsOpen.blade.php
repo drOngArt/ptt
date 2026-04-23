@@ -9,8 +9,8 @@
 
     {{ html()->form('GET', url('admin/report'))->open() }}
 
-    <div class="row mb-3">
-        <div class="page-header-break">
+    <div class="row mb-2">
+        <div class="page-header-break fs-5">
           ZESTAWIENIE AKTUALNYCH KLUBÓW<br/>
         </div>
         <div class="col-12 d-flex align-items-center">
@@ -35,9 +35,9 @@
         <div class="col-lg-12">
 
             <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover text-center table-pad-2px">
+                <table class="table table-striped table-bordered table-hover text-center align-middle table-pad-6px font-print-18pt">
                     <thead>
-                        <tr>
+                        <tr class="font-print-18pt">
                             <th class="text-center" style="width:10%">Lp.</th>
                             <th style="width:60%">Klub - Miasto</th>
                             <th style="width:30%">Kraj / Okręg</th>
@@ -48,11 +48,11 @@
 
                         @foreach($clubs as $club)
                             <tr>
-                                <td class="btn-circle">{{ $idx + 1 }}.</td>
+                                <td class="btn-circle font-print-18pt">{{ $idx + 1 }}.</td>
                                 @php $idx++; @endphp
 
-                                <td class="text-start font-12pt">{!! $club->club ?: '&nbsp;' !!}</td>
-                                <td class="text-start font-12pt">{!! $club->country ?: '&nbsp;' !!}</td>
+                                <td class="text-start font-print-18pt">{!! $club->club ?: '&nbsp;' !!}</td>
+                                <td class="text-start font-print-18pt">{!! $club->country ?: '&nbsp;' !!}</td>
                             </tr>
                         @endforeach
 

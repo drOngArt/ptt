@@ -10,7 +10,7 @@
 
     <div class="row mb-3">
       <div class="col-12 d-flex align-items-center">
-        <h1 class="page-header mb-0">Wyniki</h1>
+        <h1 class="page-header mb-1">Wyniki</h1>
   
         <div class="ms-auto d-flex gap-2">
           {!! html()
@@ -31,32 +31,33 @@
 
     <div class="row">
       <div class="col-lg-12">
-        <div class="base-rounds-wrapper screen-w-75 mx-3">
+        <div class="text-center fs-4">
+            WYNIKI SKRÓCONE<br/>
+        </div>
+
+        <div class="base-rounds-wrapper mx-2">
         @foreach($couples as $index => $couple)
-          <div class="div-no-break text-center">
-            WYNIKI<br/>
-            <div class="text-center h3">
-              Kategoria: {{ $index }} ( prezentacji: {{ $Numbers[$index] }} )<br/>
+          <div class="table-responsive div-no-break mb-3">
+            <table class="table table-striped table-bordered table-hover text-center table-pad-4px align-middle">
+              <thead>
+                <tr>
+                  <th class="text-center fs-4" colspan="5">Kategoria: {{ $index }} ( Uczestników: {{ $Numbers[$index] }} )</th>
+                </tr>
+                <tr>
+                    <th class="text-center font-print-18pt">Miejsce</th>
+                    <th class="text-center font-print-18pt">Numery</th>
+                </tr>
+              </thead>
+              <tbody>
+                @foreach($couple as $position => $numbers)
+                  <tr>
+                    <td class="text-center font-print-18pt">{{ $position }}</td>
+                    <td class="text-start font-print-18pt px-3">{{ $numbers }}</td>
+                  </tr>
+                @endforeach
+              </tbody>
+            </table>
             </div>
-              <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover text-center table-pad-2px font-print-18pt">
-                    <thead>
-                      <tr>
-                          <th class="text-center font-14pt">Miejsce</th>
-                          <th class="text-center font-14pt">Numery</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($couple as $position => $numbers)
-                      <tr>
-                          <td class="text-center font-print-18pt" style="height:42px">{{ $position }}</td>
-                          <td class="text-left font-print-18pt" style="height:42px">{{ $numbers }}</td>
-                      </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-          </div>
         @endforeach
         </div>
       </div>

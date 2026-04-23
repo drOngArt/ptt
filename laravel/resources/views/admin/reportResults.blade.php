@@ -32,39 +32,39 @@
 
   <div class="row">
       <div class="col-lg-12">
-        <div class="base-rounds-wrapper screen-w-75 mx-3">
+        <div class="text-center fs-4">
+          WYNIKI<br/>
+        </div>
+
+        <div class="base-rounds-wrapper mx-2">
           @foreach($couples as $index => $couple)
-              <div class="page-header-break">WYNIKI<br/></div>
-
-              <div class="text-center h3 mb-3">
-                  Kategoria: {{ $index }} ( prezentacji: {{ $Numbers[$index] }} )
-                  <br/>
-              </div>
-
-              <div class="table-responsive mb-2">
-                  <table class="table table-striped table-bordered table-hover text-center table-pad-2px">
+              <div class="table-responsive div-no-break mb-3">
+                  <table class="table table-striped table-bordered table-hover text-center table-pad-4px align-middle">
                       <thead>
+                          <tr>
+                              <th class="text-center fs-4" colspan="5">Kategoria: {{ $index }} ( Uczestników: {{ $Numbers[$index] }} )</th>
+                          </tr>
                           <tr>
                               <th class="text-center" style="width: 15%">Miejsce</th>
                               <th class="text-center" style="width: 15%">Numer</th>
                               <th style="width: 35%">Imię i nazwisko</th>
-                              <th class="text-center" style="width: 35%">Klub / Kraj</th>
+                              <th class="text-center" style="width: 35%">Klub</th>
                           </tr>
                       </thead>
                       <tbody>
                           @foreach($couple as $position)
                               <tr>
-                                  <td class="text-center font-14pt">
+                                  <td class="text-center font-print-18pt">
                                       {{ $position->manualPosition }}
                                   </td>
                                   <td class="text-center font-print-18pt">
                                       {{ $position->number }}
                                   </td>
-                                  <td class="text-start font-12pt">
+                                  <td class="text-start font-print-18pt px-3">
                                       {{ $position->lastNameA }}&nbsp;{{ $position->firstNameA }}<br/>
                                       {{ $position->lastNameB }}&nbsp;{{ $position->firstNameB }}
                                   </td>
-                                  <td class="text-center font-12pt">
+                                  <td class="text-center font-14pt">
                                       {{ $position->club }}<br/>
                                       {{ $position->country }}
                                   </td>

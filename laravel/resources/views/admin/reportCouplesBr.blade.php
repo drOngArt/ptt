@@ -10,11 +10,11 @@
     {{ html()->form('GET', url('admin/report'))->open() }}
 
     <div class="row mb-3">
-        <div class="page-header-break">
-           RAPORT TAŃCZĄCYCH W RÓŻNYCH KLASACH<br/>
+        <div class="page-header-break fs-5">
+           RAPORT TAŃCZĄCYCH W RÓŻNYCH KATEGORIACH / KLASACH<br/>
         </div>
         <div class="col-12 d-flex align-items-center">
-          <h1 class="page-header mb-0">Startujący w różnych klasach.</h1>
+          <h1 class="page-header mb-1">Startujący w różnych klasach.</h1>
           <div class="ms-auto d-flex gap-2">
             {{ html()
               ->submit('Powrót')
@@ -35,32 +35,34 @@
         <div class="col-lg-12">
 
             <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover text-center table-pad-2px">
+                <table class="table table-striped table-bordered table-hover text-center table-pad-6px font-print-18pt align-middle">
                     <thead>
-                        <tr>
-                            <th class="text-center" style="width:10%">Lp.</th>
-                            <th class="text-center" style="width:15%">Para</th>
-                            <th style="width:75%">Style</th>
+                        <tr class="font-print-18pt">
+                            <th class="text-center" style="width:6%">Lp.</th>
+                            <th class="text-center" style="width:34%">Uczestnik</th>
+                            <th style="width:60%">Style</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @php $idx = 0; @endphp
-
-                        @foreach($couples as $number => $description)
-                            <tr>
-                                <td class="btn-circle">{{ $idx + 1 }}.</td>
-                                @php $idx++; @endphp
-
-                                <td class="text-center font-12pt">{{ $number }}</td>
-                                <td class="text-start font-12pt">{{ $description }}</td>
-                            </tr>
-                        @endforeach
+                      <?php $idx = 1; ?>
+                      @foreach($couples as $person)
+                      <tr>
+                          <td class="btn-circlet">{{$idx}}.</td>
+                          <?php $idx++; ?>
+                          <td class="text-start">{{ $person['lastName'] }} {{ $person['firstName'] }} {{ $person['club'] }}</td>
+                          <td class="text-start">
+                              @foreach($person['entries'] as $entry)
+                                  <div>
+                                    [{{ $entry['number'] }}] -> {{ $entry['description'] }} 
+                                  </div>
+                              @endforeach
+                          </td>
+                      </tr>
+                      @endforeach
                     </tbody>
-
                 </table>
             </div>
-
         </div>
     </div>
 

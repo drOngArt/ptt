@@ -10,7 +10,7 @@
     {{ html()->form('GET', url('admin/report'))->open() }}
 
     <div class="row mb-3">
-      <div class="page-header-break">ZESTAW NUMERÓW STARTOWYCH<br/></div>
+      <div class="page-header-break fs-5">ZESTAW NUMERÓW STARTOWYCH<br/></div>
         <div class="col-12 d-flex align-items-center">
           <h1 class="page-header mb-0">Numery startowe w kategoriach</h1>
           <div class="ms-auto d-flex gap-2">
@@ -33,7 +33,7 @@
         <div class="col-lg-12">
 
             <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover text-center">
+                <table class="table table-striped table-bordered table-hover text-center table-pad-6px font-print-18pt align-middle">
 
                     <thead>
                         <tr>
@@ -50,8 +50,8 @@
                         @foreach($program as $index => $programRound)
                             @if($programRound->baseNumberOfCouples > 0)
                                 <tr>
-                                    <td class="btn-circle fs-6">{{ ++$idx }}.</td>
-                                    <td class="text-start font-14pt">
+                                    <td class="btn-circle font-print-18pt">{{ ++$idx }}.</td>
+                                    <td class="text-start font-print-18pt">
                                         {{ $programRound->description }}
                                     </td>
                                     <td class="font-print-24pt">

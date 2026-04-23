@@ -7,7 +7,7 @@
 @section('content')
    <div id="page-wrapper">
       <div class="row">
-        <div class="page-header-break">LISTA SĘDZIÓW</div>
+        <div class="page-header-break fs-5">LISTA SĘDZIÓW</div>
         <div class="col-lg-12">
           <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="page-header text-start">Sędziowie</h1>
@@ -88,9 +88,9 @@
 
       <!-- for print only -->
       <div class="table-responsive">
-         <table class="table table-striped drukarka">
+         <table class="table table-striped drukarka allign-middle font-print-18pt">
             <thead>
-               <tr class="present">
+               <tr>
                   <th>Lp.</th>
                   <th>Imię i Nazwisko</th>
                   <th>Miasto</th>
@@ -99,11 +99,11 @@
             </thead>
             <tbody id="judgesTablePrint">
                <tr class="present">
-                  <td class="font-14pt">Główny</td>
+                  <td class="font-print-18pt">Główny</td>
                   @if( $mainJudge )
-                     <td class="font-14pt">{{$mainJudge->firstName}}&nbsp{{$mainJudge->lastName}}</td>
-                     <td class="font-14pt">{{$mainJudge->city}}</td>
-                     <td class="font-14pt">{{$mainJudge->country}}</td>
+                     <td class="font-print-18pt">{{$mainJudge->firstName}}&nbsp{{$mainJudge->lastName}}</td>
+                     <td class="font-print-18pt">{{$mainJudge->city}}</td>
+                     <td class="font-print-18pt">{{$mainJudge->country}}</td>
                   @else
                      <td></td>
                      <td></td>
@@ -112,28 +112,28 @@
                </tr>
                <?php $idx = 1; ?>
                @foreach($judgestoPrint as $judge)
-                  <tr @if($judge->isInProgram || !$filterInProgram ) class="present" @endif>
-                     <td class="btn-circle">{{$idx}}.</td>
+                  <tr @if($judge->isInProgram || !$filterInProgram ) class="present" @else class="d-none" @endif>
+                     <td class="btn-circle font-print-18pt">{{$idx}}.</td>
                      @if($judge->isInProgram || !$filterInProgram )
                         <?php $idx++; ?>
                      @endif
-                     <td class="font-14pt">{{$judge->firstName}}&nbsp{{$judge->lastName}}</td>
-                     <td class="font-14pt">{{$judge->city}}</td>
-                     <td class="font-14pt">{{$judge->country}}</td>
+                     <td class="font-print-18pt">{{$judge->firstName}}&nbsp{{$judge->lastName}}</td>
+                     <td class="font-print-18pt">{{$judge->city}}</td>
+                     <td class="font-print-18pt">{{$judge->country}}</td>
                   </tr>
                @endforeach
-                  <tr class="present">
+                  <tr class="present fs-5">
                      <td></td>
-                     <td colspan=5><h2>SKRUTINERZY</h2></td>
+                     <td class="ps-5" colspan=5>SKRUTINERZY</td>
                   </tr>
                <?php $idx = 1; ?>
                @foreach($scrutineers as $judge)
-                  <tr class="present">
-                     <td class="btn-circle">{{$idx}}.</td>
+                  <tr class="present font-print-18pt">
+                     <td class="btn-circle font-print-18pt">{{$idx}}.</td>
                      <?php $idx++; ?>
-                     <td class="font-14pt">{{$judge->firstName}}&nbsp{{$judge->lastName}}</td>
-                     <td class="font-14pt">{{$judge->city}}</td>
-                     <td class="font-14pt">{{$judge->country}}</td>
+                     <td class="font-print-18pt">{{$judge->firstName}}&nbsp{{$judge->lastName}}</td>
+                     <td class="font-print-18pt">{{$judge->city}}</td>
+                     <td class="font-print-18pt">{{$judge->country}}</td>
                   </tr>
                @endforeach
             </tbody>

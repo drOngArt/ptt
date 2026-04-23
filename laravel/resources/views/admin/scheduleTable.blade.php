@@ -6,7 +6,7 @@
       $maxDances = 4; ?>
    <div class="col-lg-12">
       <div class="table-responsive">
-         <table class="table table-striped table-bordered table-hover">
+         <table class="table table-striped table-bordered table-hover align-middle">
             <thead>
                <tr class="font-14pt px-2">
                   <th >
@@ -17,7 +17,7 @@
                      <div class="alignright">&nbsp&nbsp[ Prezentacje ]</div>
                   </th>
                   <th class="userTime ekran">Czas</th>
-                  <th>Grup</th>
+                  <th>Gr.</th>
                   <th colspan="{{ $maxDances }}">Tańce</th>
                </tr>
             </thead>
@@ -26,28 +26,32 @@
                @foreach($compressedProgram as $index => $programRound)
                   @if($programRound->isDance)
                      <tr>
-                        <td class="btn-circle fs-6 py-2">
+                        <td class="btn-circle fs-5">
                            {{$index+1}}.
                         </td>
-                        <td class="p-1">
+                        <td class="py-2">
                            <div class="ekran alignleft" media="only screen">
                               {{$programRound->description}} <description class="alternativeDescription"> {{$programRound->alternative_description}} </description>
                            </div>
                            <div class="ekran alignright" media="only screen">
-                           @if( $programRound->couples )
-                              &nbsp[ {{$programRound->couples}} ]
-                           @endif
+                            @if( $programRound->couples > 0 )
+                              <span class="badge badge-secondary p-2">&nbsp{{$programRound->couples}}&nbsp</span>
+                            @elseif( $programRound->couples < 0 ) 
+                              <span class="p-1">[&nbsp{{-$programRound->couples}}&nbsp]</span>
+                            @endif
                            </div>
-                           <div class="drukarka alignleft" media="only print">
+                           <div class="drukarka font-print-18pt alignleft" media="only print">
                            @if( $programRound->alternative_description )
                               {{$programRound->alternative_description}} 
                            @else
                               {{$programRound->description}}
                            @endif
                            </div>
-                           <div class="drukarka alignright" media="only print">
-                           @if( $programRound->couples )
+                           <div class="drukarka font-print-18pt alignright" media="only print">
+                           @if( $programRound->couples > 0 )
                               &nbsp[ {{$programRound->couples}} ]
+                           @elseif( $programRound->couples < 0 )
+                              &nbsp[ {{-$programRound->couples}} ]
                            @endif
                            </div>
                         </td>
@@ -71,7 +75,7 @@
                         @endif
                         </td>
                            @foreach($programRound->dances as $dance)
-                              <td class="p-1"><tablecell>
+                              <td class="fs-5"><tablecell>
                                  <tc-order>
                                     {{$dance['order']}}&nbsp
                                  </tc-order>

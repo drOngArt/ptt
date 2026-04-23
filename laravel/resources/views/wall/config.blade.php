@@ -52,7 +52,7 @@
     </div>
 
     {{-- FORM: wysyłamy dopiero po kliknięciu Zatwierdź --}}
-    {!! html()->form('GET', action('Wall\DashboardController@showDashboard'))
+    {!! html()->form('GET', route('wall.board', ['token' => $token]))
           ->id('wallConfigForm')
           ->class('d-flex flex-wrap align-items-end gap-2')
           ->open() !!}

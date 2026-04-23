@@ -370,14 +370,14 @@
           }
 
           // 1. kopiuj do schowka
-          navigator.clipboard.writeText(text).catch(() => {
+          /*navigator.clipboard.writeText(text).catch(() => {
               const el = document.createElement('textarea');
               el.value = text;
               document.body.appendChild(el);
               el.select();
               document.execCommand('copy');
               document.body.removeChild(el);
-          });
+          });*/
 
           // 2. wstaw do alternativeDescription
           const input = $(this).find('.alternativeInput');
