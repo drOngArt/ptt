@@ -29,7 +29,7 @@ use Illuminate\Support\Facades\View;
 
 
 //if need some debug info
-//use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Log;
 
 //Log::info('Start module');
 //Log::debug('variable X = ', ['x' => $x]);
@@ -2357,192 +2357,231 @@ class DashboardController extends Controller
               'rows' => $rows
           ];
         }
-        //dd('lista par->', $tables);
         return view('admin.reportLists')
             ->with('tables', $tables);
     }
 
-/* copy of original version for two styles only
-    public function reportLists()
+    public function reportCouplesConflict()
     {
-        $rounds = [];
-        $baseRounds = request()->old('roundId');
-        if ($baseRounds != null) {
-            foreach ($baseRounds as $round) {
-                if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN) == 1) {
-                    $rounds[] = $round;
-                }
-            }
-        }
-        if (count($rounds) == 0) {
-            return redirect('admin/report');
-        }
+      $rounds = [];
+      $baseRounds = request()->old('roundId');
+    
+      if ($baseRounds != null) {
+          foreach ($baseRounds as $round) {
+              if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN)) {
+                  $rounds[] = $round;
+              }
+          }
+      }
+    
+      if (count($rounds) == 0) {
+          return redirect('admin/report');
+      }
+    
+      // =========================
+      // POBRANIE PAR
+      // =========================
+      $allCpls = [];
+      $isEmptyPerson = function ($fn, $ln) {
+        $fn = trim($fn ?? '');
+        $ln = trim($ln ?? '');
 
-        $scheduleParts = $this->tournamentHelper->getPartsCSV();
-        $categories = [];
-        $lists = [];
-        $Couples = [];
-        foreach ($rounds as $index) {
-            $round = $this->tournamentHelper->getBaseRound(intval($index));
-            $key = array_search($round->categoryName.' '.$round->className, $categories, true);
-            if ($key == false) {// not found
-                $description = $round->categoryName.' '.$round->className;
-                $categories[$index] = $description;
-                $lists[$index] = 0;
-            } else {
-                $lists[$key] = intval($index);
+        return ($fn === '' && $ln === '');
+      };
+
+      foreach ($rounds as $index) {
+    
+          $round = $this->tournamentHelper->getBaseRound((int)$index);
+          $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
+    
+          $couples = $this->tournamentHelper->getCouples($round->baseRoundId);
+    
+          foreach ($couples as $c) {
+            // ❌ pomiń totalnie puste rekordy (tylko numer)
+            if (
+                $isEmptyPerson($c->firstNameA, $c->lastNameA) &&
+                $isEmptyPerson($c->firstNameB, $c->lastNameB)
+            ) {
+                continue;
             }
+
+            $c->description  = $round->description;
+            $c->categoryName = $round->categoryName;
+            $c->className    = $round->className;
+            $allCpls[] = $c;
+          }
+      }
+
+      $personKey = function ($firstName, $lastName, $club = '') {
+          return mb_strtoupper(trim($lastName.'_'.$firstName.'_'.$club));
+      };
+    
+      // =========================
+      // MAPA OSÓB → STARTY
+      // =========================
+      $personsMap = [];
+    
+      $isFakeOrDuplicatePerson = function ($fnA, $lnA, $fnB, $lnB) {
+    
+        $fnA = trim($fnA ?? '');
+        $lnA = trim($lnA ?? '');
+        $fnB = trim($fnB ?? '');
+        $lnB = trim($lnB ?? '');
+      
+        // ❌ brak danych, tylko numer
+        if (empty($fnB) || empty($lnB)) {
+            return true;
         }
-        $tempArr = [];
-        $cpl_1 = [];
-        $cpl_2 = [];
-        foreach ($lists as $index => $add_style) {
-            $round = $this->tournamentHelper->getBaseRound(intval($index));
-            $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
-            //simplify category style
-            if( mb_strpos(mb_strtoupper($round->styleName, 'UTF-8'), 'KOMB') !== false )
-              $round->styleName = 'Komb.';
-            if( mb_strpos(mb_strtoupper($round->styleName, 'UTF-8'), 'STA') !== false )
-              $round->styleName = 'Standard';
-            if( mb_strpos(mb_strtoupper($round->styleName, 'UTF-8'), 'LAT') !== false )
-              $round->styleName = 'Latin';
-            if ($add_style != 0) {
-                $order = false;
-                $round1 = $this->tournamentHelper->getBaseRound(intval($add_style));
-                $round1->description = $round1->categoryName.' '.$round1->className.' '.$round1->styleName;
-                if( mb_strpos(mb_strtoupper($round1->styleName, 'UTF-8'), 'KOMB') !== false )
-                  $round1->styleName = 'Komb.';
-                if( mb_strpos(mb_strtoupper($round1->styleName, 'UTF-8'), 'STA') !== false )
-                  $round1->styleName = 'Standard';
-                if( mb_strpos(mb_strtoupper($round1->styleName, 'UTF-8'), 'LAT') !== false )
-                  $round1->styleName = 'Latin';
-                // try set standard as first
-                if (mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'ST') !== false) {
-                    $cpl_1 = $this->tournamentHelper->getCouples($round->baseRoundId);
-                    $cpl_2 = $this->tournamentHelper->getCouples($round1->baseRoundId);
-                    $name = $round->categoryName.' '.$round->className.' '.$round->styleName.' / '.$round1->styleName;
-                } else {
-                    $order = true;
-                    $cpl_1 = $this->tournamentHelper->getCouples($round1->baseRoundId);
-                    $cpl_2 = $this->tournamentHelper->getCouples($round->baseRoundId);
-                    $name = $round->categoryName.' '.$round->className.' '.$round1->styleName.' / '.$round->styleName;
-                }
-                if (count($cpl_1) == 0 && count($cpl_2) == 0) {
-                    continue;
-                }
-                // set standard as '1'
-                foreach ($cpl_1 as $style) {
-                    $style->marker = '1';
-                }
-                // set latin as '2'
-                foreach ($cpl_2 as $style) {
-                    $style->marker = '2';
-                }
-                $PartsStr = ' [ BLOK ';
-                $both = '';
-                if ($order == false) {
-                    foreach ($scheduleParts as $category) {
-                        if (mb_strpos(mb_strtoupper($round->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8')) !== false) {
-                            $PartsStr .= $category->part;
-                            $both = $category->part;
-                        }
-                    }
-                    foreach ($scheduleParts as $category) {
-                        if (mb_strpos(mb_strtoupper($round1->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8')) !== false) {
-                            if ($both != $category->part) {
-                                $PartsStr .= ','.$category->part.' ]';
-                            } else {
-                                $PartsStr .= ' ]';
-                            }
-                        }
-                    }
-                } else {
-                    foreach ($scheduleParts as $category) {
-                        if (mb_strpos(mb_strtoupper($round1->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8')) !== false) {
-                            $PartsStr .= $category->part;
-                            $both = $category->part;
-                        }
-                    }
-                    foreach ($scheduleParts as $category) {
-                        if (mb_strpos(mb_strtoupper($round->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8')) !== false) {
-                            if ($both != $category->part) {
-                                $PartsStr .= ','.$category->part.' ]';
-                            } else {
-                                $PartsStr .= ' ]';
-                            }
-                        }
-                    }
-                }
-                $Couples[$name] = array_merge($cpl_1, $cpl_2);
-                usort($Couples[$name], function ($a, $b) {
-                    return  intval($a->number) > intval($b->number);
-                });
-                unset($tempArr);
-                $tempArr = [];
-                foreach ($Couples[$name] as $index => $couple) {
-                    if (! in_array($couple->plIdA.$couple->plIdB, $tempArr)) {
-                        $tempArr[] = $couple->plIdA.$couple->plIdB;
-                    } else {// found the same Id + Id, mark as both styles and remove second
-                        foreach ($Couples[$name] as $cpl) {
-                            if ($cpl->plIdA == $couple->plIdA && $cpl->plIdB == $couple->plIdB) {
-                                if ($cpl->marker == '1') {
-                                    $cpl->number2 = $couple->number;
-                                } else {
-                                    $cpl->number2 = $cpl->number;
-                                    $cpl->number = $couple->number;
-                                }
-                                $cpl->marker = '3';
-                                if ($cpl->lastNameA == $couple->lastNameA && $cpl->lastNameB == $couple->lastNameB && $cpl->club != $couple->club) {
-                                    $cpl->country = $couple->club;
-                                }
-                            }
-                        }
-                        unset($Couples[$name][$index]); // delete repeated couple
-                    }
-                }
-                $Couples[$name] = array_values($Couples[$name]);
-                $Couples[$name][0]->NoCpl1 = count($cpl_1);
-                $Couples[$name][0]->NoCpl2 = count($cpl_2);
-                $Couples[$name][0]->section = $PartsStr;
-                $cpl_new = new Couple;
-                $cpl_new->lastNameA = $cpl_new->firstNameA = '';
-                $cpl_new->lastNameB = $cpl_new->firstNameB = '';
-                $cpl_new->club = $cpl_new->country = $cpl_new->number = '';
-                $cpl_new->marker = $Couples[$name][0]->marker;
-                // add two empty raws
-                $Couples[$name][] = $cpl_new;
-                $Couples[$name][] = $cpl_new;
-            } else {
-                $name = $round->categoryName.' '.$round->className.' '.$round->styleName;
-                $cpl_1 = $this->tournamentHelper->getCouples($round->baseRoundId);
-                if (count($cpl_1) == 0) {
-                    continue;
-                }
-                $PartsStr = ' [ BLOK ';
-                foreach ($scheduleParts as $category) {
-                    if (mb_strpos(mb_strtoupper($round->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8')) !== false) {
-                        $PartsStr .= $category->part;
-                    }
-                }
-                $Couples[$name] = $cpl_1;
-                $cpl_new = new Couple;
-                $cpl_new->lastNameA = $cpl_new->firstNameA = '';
-                $cpl_new->lastNameB = $cpl_new->firstNameB = '';
-                $cpl_new->club = $cpl_new->country = $cpl_new->number = '';
-                $cpl_new->marker = $Couples[$name][0]->marker;
-                // add two empty raws
-                $Couples[$name][0]->NoCpl1 = count($cpl_1);
-                $Couples[$name][0]->section = $PartsStr.' ]';
-                $Couples[$name][] = $cpl_new;
-                $Couples[$name][] = $cpl_new;
+      
+        // ❌ "* *"
+        if ($fnB === '*' || $lnB === '*' || ($fnB.' '.$lnB === '* *')) {
+            return true;
+        }
+      
+        // ❌ ta sama osoba (solo wpisane jako para)
+        if (
+            mb_strtoupper($fnA) === mb_strtoupper($fnB) &&
+            mb_strtoupper($lnA) === mb_strtoupper($lnB)
+        ) {
+            return true;
+        }
+        return false;
+      };
+
+      foreach ($allCpls as $couple) {    
+        // partner A
+        $keyA = $personKey($couple->firstNameA, $couple->lastNameA, $couple->club);
+        $personsMap[$keyA][] = $couple;
+    
+        if (
+          !$isFakeOrDuplicatePerson(
+              $couple->firstNameA,
+              $couple->lastNameA,
+              $couple->firstNameB,
+              $couple->lastNameB
+          )
+        ) { // partner B
+          $keyB = $personKey(
+              $couple->firstNameB,
+              $couple->lastNameB,
+              $couple->club
+          );
+          $personsMap[$keyB][] = $couple;
+        }
+      }
+    
+      // =========================
+      // KLUCZ GRUPY (bez stylu)
+      // =========================
+      $groupKey = function ($entry) {
+          return mb_strtoupper(trim($entry->categoryName.' '.$entry->className));
+      };
+    
+      // =========================
+      // WYKRYWANIE KONFLIKTÓW
+      $conflicts = [];
+      $isSolo = function ($c) {
+        $fnA = trim($c->firstNameA ?? '');
+        $lnA = trim($c->lastNameA ?? '');
+        $fnB = trim($c->firstNameB ?? '');
+        $lnB = trim($c->lastNameB ?? '');
+      
+        // solo jeśli:
+        if (
+          empty($fnB) ||
+          empty($lnB) ||
+          $fnB === '*' ||
+          $lnB === '*' ||
+          ($fnB.' '.$lnB === '* *') ||
+          (
+            mb_strtoupper($fnA) === mb_strtoupper($fnB) &&
+            mb_strtoupper($lnA) === mb_strtoupper($lnB)
+          )
+        ) {
+          return true;
+        }
+        return false;
+      };
+
+      foreach ($personsMap as $personKeyStr => $entries) {
+          $groups = [];
+          foreach ($entries as $entry) {
+              $groups[] = mb_strtoupper(trim($entry->categoryName.' '.$entry->className));
+          }
+          $groups = array_unique($groups);
+      
+          // tylko konflikty (różne klasy/kategorie)
+          if (count($groups) <= 1) {
+              continue;
+          }
+      
+          // dane osoby (z pierwszego wpisu)
+          $first = $entries[0];
+      
+          // spróbuj rozpoznać czy to A czy B
+          $firstName = $first->firstNameA;
+          $lastName  = $first->lastNameA;
+          $club      = $first->club;
+      
+          // entries (style + numery)
+          $items = [];
+          $seenItems = [];
+          
+          foreach ($entries as $e) {
+            $desc = $e->description;
+            $num  = $e->number ?? null;
+          
+            $key = mb_strtoupper(trim($desc)) . '|' . ($num ?? 'X');
+            if (isset($seenItems[$key])) {
+              continue; // ❌ duplikat
             }
-        }
-        //dd('lista par->', $Couples);
-        return view('admin.reportLists')
-            ->with('couples', $Couples);
+            $seenItems[$key] = true;
+            $items[] = [
+                'description' => $desc,
+                'number'      => $num,
+                'type'        => $isSolo($e) ? 'SOLO' : 'PARA',
+            ];
+          }
+
+          $unique = [];
+          foreach ($items as $item) {
+              $key = $item['description'].'_'.$item['number'];
+              $unique[$key] = $item;
+          }
+
+          $conflicts[$personKeyStr] = [
+              'firstName' => $firstName,
+              'lastName'  => $lastName,
+              'club'      => $club,
+              'entries'   => array_values($unique),
+          ];
+      }
+
+      // =========================
+      // USUŃ PARTNERKI
+      $merged = [];
+      foreach ($conflicts as $person) {
+          $key = mb_strtoupper(
+              trim($person['lastName'].'|'.$person['firstName'])
+          );
+      
+          if (!isset($merged[$key])) {
+              $merged[$key] = $person;
+          }
+      }
+
+      if (count(array($merged)) == 0) {
+          return redirect('admin/report')
+              ->with('conflict', 'Brak konfliktów (różne klasy/kategorie) ✔');
+      }
+
+      return view('admin.reportCouplesBr')
+        ->with('couples', $merged);
     }
-*/
 
+
+
+/* stara funkcja, szuka tylko par
     public function reportCouplesConflict()
     {
         $rounds = [];
@@ -2697,7 +2736,7 @@ class DashboardController extends Controller
         return view('admin.reportCouplesBr')
             ->with('couples', $Couples);
     }
-
+*/
     public function reportListsRange()
     {
         $rounds = [];
@@ -2777,220 +2816,236 @@ class DashboardController extends Controller
 
     public function postRanges()
     {
-        $range_start = request()->input('main_start_no'); // start number
-        $range_end = request()->input('main_end_no'); // end number
-        $lack = request()->input('lack_no'); // list of lack numbers
-        $blocks = request()->input('blockId'); // list of parts
-        $block_no = request()->input('block_no'); // list of parts
-        $categories = request()->input('roundName'); // rounds name list
-        $roundIds = request()->input('roundId'); // rounds Id list
-        $start_no = request()->input('start_no'); // list of starts numbers
-        $number_same = request()->input('agree');
-        $free_places = request()->input('free_places');
-
-        if (! is_numeric($range_start)) {
-            $range_start = 1;
-        } // default
-        if (! is_numeric($range_end)) {
-            $range_end = 200;
-        } // default
-
-        $Program = [];
-        foreach ($roundIds as $index => $roundId) {
-            $round = $this->tournamentHelper->getBaseRound(intval($roundId));
-            if (mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'KOMB') !== false) {
-                $round->styleName = 'Komb';
-            }
-            if (mb_strpos(mb_strtoupper($round->className, 'UTF-8'), 'H.') !== false) {
-                $round->className = 'H';
-            }
-            $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
-            $round->nGroupsW = 1000;
-            $round->nDancesW = $round->endNo;
-            if (is_numeric($start_no[$index])) { // setting up start value
-                $round->nGroupsW = $start_no[$index];
-            }
-            if ($round->nDancesW > $range_end) {
-                $round->nDancesW = $range_end;
-            }
-            $Program = Arr::add($Program, $round->baseRoundId, $round);
+      $range_start = is_numeric(request()->input('main_start_no')) ? (int)request()->input('main_start_no') : 1;
+      $range_end   = is_numeric(request()->input('main_end_no')) ? (int)request()->input('main_end_no') : 200;
+    
+      $lack        = request()->input('lack_no');
+      $blocks      = request()->input('blockId');
+      $block_no    = request()->input('block_no');
+      $roundIds    = request()->input('roundId');
+      $start_no    = request()->input('start_no');
+      $number_same = request()->input('agree');
+      $free_places = is_numeric(request()->input('free_places')) ? (int)request()->input('free_places') : 0;
+    
+      $isGlobal = filter_var($number_same, FILTER_VALIDATE_BOOLEAN);
+    
+      // =========================
+      // brakujące numery
+      // =========================
+      $notAllowed = [];
+      if (!empty($lack)) {
+        $notAllowed = array_map('intval', array_filter(array_map('trim', explode(',', $lack))));
+      }
+    
+      // =========================
+      // startowy numer kategorii
+      // =========================
+      $startNoMap = [];
+      foreach ($roundIds as $i => $rid) {
+        if (isset($start_no[$i]) && is_numeric($start_no[$i])) {
+          $startNoMap[$rid] = (int)$start_no[$i];
         }
-
-        $scheduleParts = $this->tournamentHelper->getPartsCSV();
+      }
+    
+      // =========================
+      // lista kategorii
+      // =========================
+      $Program = [];
+      foreach ($roundIds as $roundId) {
+        $round = $this->tournamentHelper->getBaseRound((int)$roundId);
+        if( mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'KOMB') !== false ) {
+          $round->styleName = 'Komb';
+        }
+        $round->description = $round->categoryName . ' ' . $round->className . ' ' . $round->styleName;
+        $round->startFrom   = $startNoMap[$roundId] ?? null;
+        $round->nDancesW    = min($round->endNo, $range_end);
+        $Program[] = $round;
+      }
+    
+      // =========================
+      // przypisanie bloku do kategorii
+      // =========================
+      $scheduleParts = $this->tournamentHelper->getPartsCSV();
+      foreach ($Program as $round) {
+        $round->positionW = '0';
+        foreach ($scheduleParts as $category) {
+          if( mb_strpos(mb_strtoupper($round->description), mb_strtoupper($category->name)) !== false ) {
+            $round->positionW = $category->part;
+            break;
+          }
+        }
+      }
+    
+      // =========================
+      // lista par
+      // =========================
+      $lists = $this->tournamentHelper->getCouplesCSV();
+      if (!$lists) {
+        Session::flash('status', 'error');
+        return;
+      }
+      $couplesByRound = [];
+      foreach ($lists as $couple) {
+        $key = mb_strtoupper($couple->roundId);
+        $couplesByRound[$key][] = $couple;
+      }
+    
+      // =========================
+      // MAPY NUMERÓW
+      // =========================
+      $globalAssigned = [];
+      $blockAssigned  = [];
+    
+      $pairKey = function ($c) {
+        $a = (int)$c->plIdA;
+        $b = (int)$c->plIdB;
+        return $a < $b ? $a . '_' . $b : $b . '_' . $a;
+      };
+    
+      // =========================
+      // STREAM GENERATOR
+      // =========================
+      $cursor = $range_start;
+    
+      $nextNumber = function () use (&$cursor, $range_end, $notAllowed) {
+        while ($cursor <= $range_end) {
+          if (!in_array($cursor, $notAllowed)) {
+            return $cursor++;
+          }
+          $cursor++;
+        }
+        return null;
+      };
+    
+      // =========================
+      // DEBUG
+      // =========================
+      $debugLog = [];
+    
+      // =========================
+      // GŁÓWNA PĘTLA
+      // =========================
+      foreach ($blocks as $blockIndex => $block) {
+        // ręczny start bloku ??
+        if (isset($block_no[$blockIndex]) && is_numeric($block_no[$blockIndex])) {
+            $cursor = max((int)$block_no[$blockIndex], $range_start);
+        }
+    
         foreach ($Program as $round) {
-            $round->idx = 0;
-            foreach ($scheduleParts as $index => $category) {
-                if (mb_strpos(mb_strtoupper($round->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8')) !== false) {
-                    $round->positionW = $category->part;
-                    $round->idx = $index;
-                }
+          if ($round->positionW != $block) {
+            continue;
+          }
+    
+          $roundKey = mb_strtoupper($round->description);
+          $roundCouples = $couplesByRound[$roundKey] ?? [];
+    
+          // 🔥 start kategorii
+          if (!empty($round->startFrom)) {
+              $cursor = max($cursor, $round->startFrom);
+          }
+    
+          $categories = [];
+    
+          foreach ($roundCouples as $couple) {
+            $key = $pairKey($couple);
+    
+            // DEBUG ENTRY
+            $debugLog[] = [
+              'STEP' => 'ENTRY',
+              'pair' => $key,
+              'round' => $round->description,
+              'block' => $block,
+              'cursor' => $cursor,
+            ];
+    
+            // =========================
+            // GLOBAL
+            // =========================
+            if ($isGlobal && isset($globalAssigned[$key])) {
+              $couple->number = $globalAssigned[$key];
+              $categories[] = $couple;
+              // DEBUG ENTRY
+              $debugLog[] = [
+                'STEP' => 'GLOBAL_USE_AGAIN',
+                'pair' => $key,
+                'number' => $couple->number,
+                'block' => $block,
+                'cursor' => $cursor,
+              ];
+              continue;
             }
-            if (! $round->positionW) {
-                $round->positionW = '0';
+    
+            // =========================
+            // BLOCK
+            // =========================
+            if (!$isGlobal && isset($blockAssigned[$block][$key])) {
+              $couple->number = $blockAssigned[$block][$key];
+              $categories[] = $couple;
+              // DEBUG ENTRY
+              $debugLog[] = [
+                'STEP' => 'BLOCK_USE_AGAIN',
+                'pair' => $key,
+                'number' => $couple->number,
+                'block' => $block,
+                'cursor' => $cursor,
+              ];
+              continue;
             }
+    
+            // =========================
+            // NOWY NUMER
+            // =========================
+            $number = $nextNumber();
+    
+            while ($number !== null && $number > $round->nDancesW) {
+              $number = $nextNumber();
+            }
+    
+            if ($number === null) {
+              $debugLog[] = [
+                'ERROR' => 'NO_NUMBER',
+                'pair' => $key,
+                'round' => $round->description,
+              ];
+              continue;
+            }
+    
+            $couple->number = $number;
+    
+            if ($isGlobal) {
+              $globalAssigned[$key] = $number;
+            } else {
+              $blockAssigned[$block][$key] = $number;
+            }
+    
+            $categories[] = $couple;
+    
+            $debugLog[] = [
+              'STEP' => 'ASSIGN',
+              'pair' => $key,
+              'number' => $number,
+              'block' => $block,
+            ];
+          }
+    
+          // =========================
+          // dołóż wolne miejsce na pary
+          // =========================
+          for ($i = 0; $i < $free_places; $i++) {
+            $nextNumber();
+          }
+    
+          if (!empty($categories)) {
+            $this->tournamentHelper->SaveCouples2CSV($categories, $round);
+          }
         }
+      }
+      // DEBUG LOG
+      Log::info('STREAM_ALLOCATOR_DEBUG', $debugLog);
 
-        if ($scheduleParts) {
-            usort($Program, function ($a, $b) {
-                if ($a->positionW == $b->positionW) {
-                    if ($a->nGroupsW == $b->nGroupsW && $a->nGroupsW != null && $b->nGroupsW != null) {
-                        return  $a->idx > $b->idx;
-                    } else {
-                        return  $a->nGroupsW > $b->nGroupsW;
-                    }
-                } else {
-                    return  $a->positionW > $b->positionW;
-                }
-            });
-        }
-
-        foreach ($Program as $round) {
-            if ($round->nGroupsW == 1000) {
-                $round->nGroupsW = $range_start;
-            }
-            // maybe should change start according to block start
-            if (($key = array_search($round->positionW, $blocks)) !== false) {
-                if (is_numeric($block_no[$key])) {
-                    if ($block_no[$key] > $round->nGroupsW) {
-                        $round->nGroupsW = $block_no[$key];
-                    }
-                }
-            }
-        }
-
-        $lists = $this->tournamentHelper->getCouplesCSV();
-        if (! $lists) {
-            Session::flash('status', 'error');
-        }
-
-        $start = false;
-        $end = false;
-        $parts = explode(',', $lack);
-        $table_no = [];
-        $not_allowed = [];
-        foreach ($parts as $part) {
-            $not_allowed[] = trim($part);
-        }
-        foreach ($blocks as $index => $block) {
-            $create_table = false;
-            if ($index == 0) { // for first block always create
-                $create_table = true;
-            }
-            $start = $range_start;
-            $end = $range_end;
-            if (is_numeric($block_no[$index])) {// if set up new range, create new table
-                $start = intval($block_no[$index]) > $range_start ? intval($block_no[$index]) : $range_start;
-                $create_table = true;
-            }
-
-            if ($create_table) {// build new table with allowed number
-                unset($table_no);
-                $table_no = [];
-                for ($idx = $start; $idx <= $end; $idx++) {
-                    if (in_array($idx, $not_allowed)) {
-                        continue;
-                    } else {
-                        $table_no[] = $idx;
-                    }
-                }
-            }
-            $wrap = false;
-            foreach ($Program as $round) {
-                if ($round->positionW != $block) {
-                    continue;
-                }
-                if ($wrap == true) {// start again
-                    $round->nGroupsW = $range_start;
-                }
-                $found = false;
-                $categories = [];
-                foreach ($lists as $couple) {
-                    if (mb_strpos(mb_strtoupper($couple->roundId, 'UTF-8'), mb_strtoupper($round->description, 'UTF-8')) !== false) {
-                        if ($couple->number != 0) {
-                            $categories[] = $couple;
-
-                            continue;
-                        }
-                        while (true) {
-                            if (($key = array_search($round->nGroupsW, $table_no)) === false) {
-                                if ($round->nGroupsW < $round->nDancesW) {
-                                    $round->nGroupsW += 1;
-                                } else {
-                                    $round->nGroupsW = ($round->startNo > $range_start ? $round->startNo : $range_start);
-                                }
-                                if (count($table_no) == 0) {// no free number
-                                    break;
-                                }
-
-                                continue;
-                            }
-                            $found = true;
-                            $couple->number = $round->nGroupsW;
-                            $categories[] = $couple;
-                            // find this couple in another category in the same part of competition
-                            foreach ($lists as $pair) {
-                                if ($number_same == 'yes' || ($number_same != 'yes' && $pair->section == $block)) {
-                                    if ($pair->plIdA == $couple->plIdA &&
-                                        $pair->plIdB == $couple->plIdB &&
-                                        $pair->number != $couple->number) {
-                                        $pair->number = $couple->number;
-                                    }
-                                } else {
-                                    continue;
-                                }
-                            }
-                            if ($round->nGroupsW < $round->nDancesW) {
-                                $round->nGroupsW += 1;
-                                unset($table_no[$key]); // remove busy number from list
-                            } else {
-                                $round->nGroupsW = ($round->startNo > $range_start ? $round->startNo : $range_start);
-                                $wrap = true;
-                                unset($table_no);
-                                $table_no = [];
-                                for ($idx = $range_start; $idx <= $end; $idx++) {
-                                    if (in_array($idx, $not_allowed)) {
-                                        continue;
-                                    } else {
-                                        $table_no[] = $idx;
-                                    }
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                if ($found == true && mb_strpos(mb_strtoupper($round->styleName, 'UTF-8'), 'ST') === false) { // reserved two numbers for each category but no ST
-                    for ($free_no = 0; $free_no < $free_places; $free_no++) {
-                        if (($key = array_search($round->nGroupsW, $table_no)) !== false) {
-                            unset($table_no[$key]);
-                        }
-                        if ($round->nGroupsW < $round->nDancesW) {
-                            $round->nGroupsW += 1;
-                        } else {
-                            $round->nGroupsW = ($round->startNo > $range_start ? $round->startNo : $range_start);
-                            $wrap = true;
-                            unset($table_no);
-                            $table_no = [];
-                            for ($idx = $range_start; $idx <= $end; $idx++) {
-                                if (in_array($idx, $not_allowed)) {
-                                    continue;
-                                } else {
-                                    $table_no[] = $idx;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
-                if (count($categories)) {
-                    $this->tournamentHelper->SaveCouples2CSV($categories, $round);
-                }
-                unset($categories);
-            }
-        }
-
-        return redirect('admin/report');
+      return redirect('admin/report');
     }
+
 
     public function reportResults()
     {

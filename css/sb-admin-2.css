@@ -14198,13 +14198,13 @@
   }
 
   .table-striped>tbody>tr:nth-of-type(odd) {
-    font-size: 11pt;
+    font-size: 14pt;
     color: #000 !important;
     background-color: #ffe !important;
   }
 
   .table-striped>tbody>tr:nth-of-type(even) {
-    font-size: 11pt;
+    font-size: 14pt;
     color: #000 !important;
     background-color: #fff !important;
   }

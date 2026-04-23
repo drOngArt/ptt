@@ -38,29 +38,31 @@
                 <table class="table table-striped table-bordered table-hover text-center table-pad-6px font-print-18pt align-middle">
                     <thead>
                         <tr class="font-print-18pt">
-                            <th class="text-center" style="width:10%">Lp.</th>
-                            <th class="text-center" style="width:15%">Para</th>
-                            <th style="width:75%">Style</th>
+                            <th class="text-center" style="width:6%">Lp.</th>
+                            <th class="text-center" style="width:34%">Uczestnik</th>
+                            <th style="width:60%">Style</th>
                         </tr>
                     </thead>
 
                     <tbody>
-                        @php $idx = 0; @endphp
-
-                        @foreach($couples as $number => $description)
-                            <tr>
-                                <td class="btn-circle font-print-18pt">{{ $idx + 1 }}.</td>
-                                @php $idx++; @endphp
-
-                                <td class="text-center font-print-18pt">{{ $number }}</td>
-                                <td class="text-start font-print-18pt">{{ $description }}</td>
-                            </tr>
-                        @endforeach
+                      <?php $idx = 1; ?>
+                      @foreach($couples as $person)
+                      <tr>
+                          <td class="btn-circlet">{{$idx}}.</td>
+                          <?php $idx++; ?>
+                          <td class="text-start">{{ $person['lastName'] }} {{ $person['firstName'] }} {{ $person['club'] }}</td>
+                          <td class="text-start">
+                              @foreach($person['entries'] as $entry)
+                                  <div>
+                                    [{{ $entry['number'] }}] -> {{ $entry['description'] }} 
+                                  </div>
+                              @endforeach
+                          </td>
+                      </tr>
+                      @endforeach
                     </tbody>
-
                 </table>
             </div>
-
         </div>
     </div>
 
