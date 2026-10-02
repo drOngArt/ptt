@@ -361,6 +361,28 @@ body.wall-body::-webkit-scrollbar{
     3px 6px 10px rgba(0,0,0,0.35); /* cień zewnętrzny */
 }
 
+.lp-box {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+
+  border-radius: 8px; /* zaokrąglone rogi zamiast koła */
+
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+
+  background: radial-gradient(circle at 30% 30%, #6ea8fe, #0d6efd 60%, #084298);
+
+  box-shadow:
+    inset -4px -6px 10px rgba(0,0,0,0.4),
+    inset 3px 4px 8px rgba(255,255,255,0.3),
+    3px 6px 10px rgba(0,0,0,0.35);
+}
+
 /* ✨ odblask */
 .lp-ball::after {
   content: "";

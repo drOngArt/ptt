@@ -10,7 +10,6 @@
   </style>
 @endsection
 
-
 @section('content')
   <div class="d-print-none">
   <div id="page-wrapper" class="container-fluid">
@@ -74,51 +73,57 @@
                 ->maxlength(15)
                 ->class('form-control my_main_judge') }}
         </div>
-
-        @php $basePrintUrl = url('admin/panelSet'); @endphp
-        <div class="dropdown print-dropdown ms-auto">
+        <div class="ms-auto d-flex gap-2">
           <button type="button"
-                  class="btn btn-brown button-menu dropdown-toggle"
-                  data-bs-toggle="dropdown"
-                  aria-expanded="false">
-            <i class="fa fa-print me-2"></i>
-            <span class="border-start border-1 border-light px-2 ms-1">Drukuj</span>
+                  id="hideUnusedJudges"
+                  class="btn btn-dbisque button-menu">
+              Tylko sędziujący
           </button>
-
-          <ul class="dropdown-menu dropdown-menu-end print-menu">
-            <li>
-              <button type="submit"
-                      class="dropdown-item d-flex align-items-center gap-2"
-                      formaction="{{ $basePrintUrl }}"
-                      formmethod="POST"
-                      formtarget="_blank"
-                      name="print"
-                      value="V">
-                <i class="fa fa-file-text-o"></i> Pionowo
-              </button>
-            </li>
-
-            <li>
-              <button type="submit"
-                      class="dropdown-item d-flex align-items-center gap-2"
-                      formaction="{{ $basePrintUrl }}"
-                      formmethod="POST"
-                      formtarget="_blank"
-                      name="print"
-                      value="H">
-                <i class="fa fa-file-o"></i> Poziomo
-              </button>
-            </li>
-          </ul>
-
-          {{-- to pole pójdzie do panelSet razem z POST --}}
-          <input type="hidden" name="autoprint" value="1">
+          @php $basePrintUrl = url('admin/panelSet'); @endphp
+          <div class="dropdown print-dropdown">
+            <button type="button"
+                    class="btn btn-brown button-menu dropdown-toggle"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false">
+              <i class="fa fa-print me-2"></i>
+              <span class="border-start border-1 border-light px-2 ms-1">Drukuj</span>
+            </button>
+  
+            <ul class="dropdown-menu dropdown-menu-end print-menu">
+              <li>
+                <button type="submit"
+                        class="dropdown-item d-flex align-items-center gap-2"
+                        formaction="{{ $basePrintUrl }}"
+                        formmethod="POST"
+                        formtarget="_blank"
+                        name="print"
+                        value="V">
+                  <i class="fa fa-file-text-o"></i> Pionowo
+                </button>
+              </li>
+  
+              <li>
+                <button type="submit"
+                        class="dropdown-item d-flex align-items-center gap-2"
+                        formaction="{{ $basePrintUrl }}"
+                        formmethod="POST"
+                        formtarget="_blank"
+                        name="print"
+                        value="H">
+                  <i class="fa fa-file-o"></i> Poziomo
+                </button>
+              </li>
+            </ul>
+  
+            {{-- to pole pójdzie do panelSet razem z POST --}}
+            <input type="hidden" name="autoprint" value="1">
+            <input type="hidden" name="hide_empty_judges" id="hide_empty_judges" value="0">
+          </div>
         </div>
 
       </div>
     </div>
   </div>
-
 
   <div class="row mt-1">
     <div class="col-12">
@@ -129,8 +134,13 @@
               <th class="headcol sticky-col-1 text-end align-bottom fs-4">
                 Kategoria<br>Klasa<br>Styl
               </th>
-              <th class="sticky-col-2 align-bottom sum-header p-2 fs-2">
-                &Sigma;
+              <th class="sticky-col-2 align-bottom sum-header p-2 text-center">
+                  <div class="fs-5" id="visibleJudgesCount">
+                      {{ count($judges) }}
+                  </div>
+                  <div class="fs-2">
+                      &Sigma;
+                  </div>
               </th>
               @foreach($judges as $pl_id => $judge)
                 <th class="text-center fixed-col judge-vertical rotate-20" data-judge="{{ $pl_id }}">
@@ -162,9 +172,8 @@
                     <span class="category-name">
                       {{ $category->categoryName }} {{ $category->className }}
                     </span>
-                    <span class="category-style">
-                      {{ $category->styleName }}
-                    </span>
+                    <span class="category-style">{{ $category->styleName }}</span>
+                    <span class="alignright"> &nbsp{{ $category->baseNumberOfCouples}}</span>
                   </div>
                 </th>
                 <td class="sticky-col-2 text-center align-middle requirement-cell fs-6"
@@ -173,9 +182,9 @@
                   <span class="judge-counter small text-muted font-print-18pt"></span>
                 </td>
                 @foreach($judges as $pl_id => $judge)
-                  <td class="text-center fixed-col align-middle">
+                  <td class="text-center fixed-col align-middle judge-cell" data-judge="{{ $pl_id }}">
                     @php
-                      $checked = isset($judge->sign[$pos]) && $judge->sign[$pos] !== ' ';
+                      $checked = isset($judge->sign[$pos]) && $judge->sign[$pos] !== ' ' && $judge->sign[$pos] !== '#';
                     @endphp
 
                     {{ html()
@@ -223,7 +232,28 @@
   $pm = ($printMode ?? request('print') ?? 'V');     // 'V' albo 'H'
   $perPage = ($pm === 'H') ? 24 : 15;
 
-  $judgeChunks = array_chunk($judges, $perPage, true);
+  $printJudges = $judges;
+  
+  if (request('hide_empty_judges') == 1) {
+      $printJudges = [];
+  
+      foreach ($judges as $pl_id => $judge) {
+          $hasAny = false;
+  
+          foreach ($program as $roundIndex => $category) {
+              if (request()->has($roundIndex.'-'.$pl_id)) {
+                  $hasAny = true;
+                  break;
+              }
+          }
+  
+          if ($hasAny) {
+              $printJudges[$pl_id] = $judge;
+          }
+      }
+  }
+  
+  $judgeChunks = array_chunk($printJudges, $perPage, true);
 @endphp
 
 <div class="d-none d-print-block">
@@ -232,14 +262,13 @@
     <div class="print-page">
       <div class="mb-2 fw-bold print-title">
         Panel sędziowski — {{ $parts }}
-        (strona {{ $chunkIndex+1 }} / {{ count($judgeChunks) }})
       </div>
       <table class="table table-bordered table-sm print-table">
         <colgroup>
-          <col style="width: 38mm;">
+          <col style="width: 56mm;">
           <col style="width: 8mm;">
           @foreach($judgesPage as $pl_id => $judge)
-            <col style="width: 13mm;">
+            <col class="print-judge-colgroup" data-judge="{{ $pl_id }}" style="width: 13mm;">
           @endforeach
         </colgroup>
 
@@ -248,8 +277,13 @@
             <th class="headcol sticky-col-1 text-end align-bottom fs-4">
               Kategoria<br>Klasa<br>Styl
             </th>
-            <th class="sticky-col-2 align-bottom sum-header p-2 fs-2 text-center">
-              &Sigma;
+            <th class="sticky-col-2 align-bottom sum-header p-2 text-center">
+                <div class="fs-5" id="visibleJudgesCount">
+                    {{ count($printJudges) }} =>
+                </div>
+                <div class="fs-2">
+                    &Sigma;
+                </div>
             </th>
             @foreach($judgesPage as $pl_id => $judge)
               <th class="text-center fixed-col judge-vertical print-judge-col" data-judge="{{ $pl_id }}">
@@ -274,7 +308,8 @@
               <th class="headcol sticky-col-1 text-start align-middle category-cell">
                 <span class="cat-two-lines">
                   <span class="cat-title">{{ $category->categoryName }} {{ $category->className }}</span>
-                  <span class="cat-style"> {{ $category->styleName }}</span>
+                  <span class="cat-style"> {{ $category->styleName }} </span>
+                  <span class="alignright"> ~&nbsp{{ $category->baseNumberOfCouples}}</span>
                 </span>
               </th>
               <td class="sticky-col-2 text-center align-middle requirement-cell print-sum"
@@ -285,7 +320,7 @@
                 @php
                   $checked = request()->has($roundIndex.'-'.$pl_id);
                 @endphp
-                <td class="print-check">
+                <td class="print-check print-judge-cell" data-judge="{{ $pl_id }}">
                   <div class="check-wrap">
                     <span class="tick">
                       {!! $checked ? '&#9989;' : '&nbsp;' !!}
@@ -478,19 +513,6 @@
       window.open(url.toString(), '_blank', 'noopener');
     });
 
-    /*$('#printFormatV').on('click', function(e) {
-      e.preventDefault();
-      style.textContent = css_v;
-      head.appendChild(style);
-      window.print();
-    });
-    $('#printFormatH').on('click', function(e) {
-      e.preventDefault();
-      style.textContent = css_h;
-      head.appendChild(style);
-      window.print();
-    });*/
-
     // === 7. Sortowanie rund (wierszy) ===
     $('#sortable').sortable({
       axis: 'y',
@@ -538,14 +560,128 @@
       }
     });
 
-    // === 10. Funkcja: dodanie nowej kolumny (sędziego) ===
+    // === 10. Dodaj z bazy ===
+    $('#after_add').on('click', function () {
+      const val       = $('#from_base').val();
+      const lastname  = $.trim((val.split(',')[0] || ''));
+      const firstname = $.trim((val.split(',')[1] || ''));
+      const judgeId   = $.trim((val.split(',')[3] || ''));
+
+      if (!judgeId) 
+        return;
+
+      addJudgeColumn(judgeId, firstname, lastname);
+
+      $(this).addClass('d-none');
+      $('#from_base').addClass('d-none');
+    });
+
+    // === 11. Dodaj ręcznie ===
+    $('#after_add_manual').on('click', function () {
+      const lastname  = $.trim($('#judgeadd_l').val());
+      const firstname = $.trim($('#judgeadd_f').val());
+      const city      = $.trim($('#judgeadd_c').val());
+      const judgeId   = `${lastname};${firstname};${city};`; // jak u Ciebie
+
+      if (!lastname || !firstname) return;
+
+      addJudgeColumn(judgeId, firstname, lastname);
+
+      $(this).addClass('d-none');
+      $('#judgeadd_l, #judgeadd_f, #judgeadd_c, #from_base').addClass('d-none');
+    });
+
+    // === 12. Autocomplete z bazy ===
+    $('#from_base').autocomplete({
+      source: 'autocomplete',
+      minLength: 1,
+      autofocus: true,
+      scroll: true,
+      close: function() { $('#after_add').removeClass('d-none'); },
+      select: function(_event, ui) {
+        $('#from_base').val(ui.item.value);
+        return false;
+      },
+      open: function() { $('.ui-autocomplete').css('z-index', 5000); }
+    });
+
+    // === 13. Ukrywanie sędziów bez zaznaczenia ===
+    let judgesHidden = $('#hide_empty_judges').val() === '1';
+    $('#hideUnusedJudges').on('click', function () {
+        judgesHidden = !judgesHidden;
+    
+        $('#hide_empty_judges').val(judgesHidden ? '1' : '0');
+    
+        applyHideUnusedJudges(judgesHidden);
+        updateVisibleJudgesCount();
+    
+        $(this).text(
+            judgesHidden
+                ? 'Wszyscy sędziowie'
+                : 'Tylko sędziujący'
+        );
+    });
+    
+    const hideEmptyJudges = @json(request('hide_empty_judges', 0));
+    
+    if (hideEmptyJudges == 1) {
+        applyHideUnusedJudges(true);
+    }
+    
+    function applyHideUnusedJudges(hide) {
+        const usedJudges = {};
+    
+        $('#my_table .judgeCheckbox:checked').each(function () {
+            usedJudges[String($(this).data('judge'))] = true;
+        });
+    
+        $('#my_table thead th.judge-vertical[data-judge]').each(function () {
+            const judgeId = String($(this).data('judge'));
+    
+            if (usedJudges[judgeId]) return;
+    
+            $(this).toggle(!hide);
+            $('#my_table tbody td.judge-cell[data-judge="' + judgeId + '"]')
+                .toggle(!hide);
+        });
+    
+        $('.print-table').each(function () {
+            const $printTable = $(this);
+    
+            $printTable.find('thead th.print-judge-col[data-judge]').each(function () {
+                const judgeId = String($(this).data('judge'));
+    
+                if (usedJudges[judgeId]) return;
+    
+                $(this).toggle(!hide);
+                $printTable
+                  .find('tbody td.print-judge-cell[data-judge="' + judgeId + '"]')
+                  .toggle(!hide);
+                $printTable
+                  .find('col.print-judge-colgroup[data-judge="' + judgeId + '"]')
+                  .toggle(!hide);
+            });
+        });
+    }
+    
+    function updateVisibleJudgesCount() {
+      let visible = 0;
+      $('#my_table thead th.judge-vertical[data-judge]:visible').each(function () {
+          visible++;
+      });
+      $('#visibleJudgesCount').text(visible);
+    }
+
+    // === 14. Funkcja: dodanie nowej kolumny (sędziego) ===
     function addJudgeColumn(judgeId, firstname, lastname) {
       // nagłówek
       const thHtml = `
-        <th class="text-center fixed-col judge-vertical" data-judge="${judgeId}">
+        <th class="text-center fixed-col judge-vertical rotate-20" data-judge="${judgeId}">
           <div class="judge-vertical-text">
-            <span class="lname">${lastname}</span><br>
-            <span class="fname">${firstname}</span>
+            <span class="judge-two-lines">
+              <span class="lname">${lastname}</span>
+              <span class="fname">${firstname}</span>
+            </span>
           </div>
           <i class="fa fa-chevron-right rowToggle d-block mt-1"
              data-judge="${judgeId}"
@@ -571,54 +707,8 @@
         `;
         $(this).append(tdHtml);
       });
-
       updateColumnToggle(judgeId);
     }
-
-    // === 11. Dodaj z bazy ===
-    $('#after_add').on('click', function () {
-      const val       = $('#from_base').val();
-      const lastname  = $.trim((val.split(',')[0] || ''));
-      const firstname = $.trim((val.split(',')[1] || ''));
-      const judgeId   = $.trim((val.split(',')[3] || '')); // jak wcześniej
-
-      if (!judgeId) return;
-
-      addJudgeColumn(judgeId, firstname, lastname);
-
-      $(this).addClass('d-none');
-      $('#from_base').addClass('d-none');
-    });
-
-    // === 12. Dodaj ręcznie ===
-    $('#after_add_manual').on('click', function () {
-      const lastname  = $.trim($('#judgeadd_l').val());
-      const firstname = $.trim($('#judgeadd_f').val());
-      const city      = $.trim($('#judgeadd_c').val());
-      const judgeId   = `${lastname};${firstname};${city};`; // jak u Ciebie
-
-      if (!lastname || !firstname) return;
-
-      addJudgeColumn(judgeId, firstname, lastname);
-
-      $(this).addClass('d-none');
-      $('#judgeadd_l, #judgeadd_f, #judgeadd_c, #from_base').addClass('d-none');
-    });
-
-    // === 13. Autocomplete z bazy ===
-    $('#from_base').autocomplete({
-      source: 'autocomplete',
-      minLength: 1,
-      autofocus: true,
-      scroll: true,
-      close: function() { $('#after_add').removeClass('d-none'); },
-      select: function(_event, ui) {
-        $('#from_base').val(ui.item.value);
-        return false;
-      },
-      open: function() { $('.ui-autocomplete').css('z-index', 5000); }
-    });
-
   });
   </script>
 @stop

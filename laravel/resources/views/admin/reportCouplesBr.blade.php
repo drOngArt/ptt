@@ -11,10 +11,10 @@
 
     <div class="row mb-3">
         <div class="page-header-break fs-5">
-           RAPORT TAŃCZĄCYCH W RÓŻNYCH KATEGORIACH / KLASACH<br/>
+           RAPORT TAŃCZĄCYCH W RÓŻNYCH KAT./KLASACH {{$parts}}<br/>
         </div>
         <div class="col-12 d-flex align-items-center">
-          <h1 class="page-header mb-1">Startujący w różnych klasach.</h1>
+          <h1 class="page-header mb-1">Startujący w różnych kat./klasach.</h1>
           <div class="ms-auto d-flex gap-2">
             {{ html()
               ->submit('Powrót')
@@ -40,7 +40,7 @@
                         <tr class="font-print-18pt">
                             <th class="text-center" style="width:6%">Lp.</th>
                             <th class="text-center" style="width:34%">Uczestnik</th>
-                            <th style="width:60%">Style</th>
+                            <th style="width:60%">Kategorie / Klasy / Style</th>
                         </tr>
                     </thead>
 
@@ -50,7 +50,7 @@
                       <tr>
                           <td class="btn-circlet">{{$idx}}.</td>
                           <?php $idx++; ?>
-                          <td class="text-start">{{ $person['lastName'] }} {{ $person['firstName'] }} {{ $person['club'] }}</td>
+                          <td class="text-start">{{ $person['label'] }} <br>{{ $person['club'] }}</td>
                           <td class="text-start">
                               @foreach($person['entries'] as $entry)
                                   <div>

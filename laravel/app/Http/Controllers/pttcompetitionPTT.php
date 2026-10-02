@@ -2377,7 +2377,6 @@ class CompetitionPTT
         $Scrutineers = [];
         $ScrutineersforRound = [];
         $Scrutineers = $this->getScrutineersCSV();
-        // add scrutineers from ptt program to csv listed
         $ScrutineersforRound = $this->getScrutineers(0);
         if (count($ScrutineersforRound) > 0) {// add to all
             foreach ($ScrutineersforRound as $scrforR) {
@@ -2389,7 +2388,7 @@ class CompetitionPTT
                     }
                 }
                 if ($yes) { // new, add to list
-                    if ($scrforR->plId == '' && $scrforR->plId2 == '') { // without plId - maybe manual write, not form base
+                    if ($scrforR->plId == '' && $scrforR->plId2 == '') { // without plId - maybe manual written, not from base
                         $scrforR->plId2 = $scrforR->lastName.';'.$scrforR->firstName.';'.$scrforR->city.';'.$scrforR->country;
                     }
                     $Scrutineers = Arr::add($Scrutineers, $scrforR->plId2, $scrforR);
@@ -2399,8 +2398,15 @@ class CompetitionPTT
         $i = 0;
         foreach( $Scrutineers as $scr){
             $judge = false;
-            if( $scr->plId != '000000' && $scr->plId != 0 && $scr->plId != ' ' && is_numeric($scr->plId)) {
+            if( isset($scr->plId) && !empty($scr->plId) ){
+              if( $scr->plId != '000000' && $scr->plId != 0 && $scr->plId != ' ' && is_numeric($scr->plId)) {
                 $judge = $this->getJudgeDBbyID($scr->plId);
+              }              
+            }
+            if( $judge == false && isset($scr->plId2) && !empty($scr->plId2) ){
+              if( $scr->plId2 != '000000' && $scr->plId2 != 0 && $scr->plId2 != ' ' && is_numeric($scr->plId2)) {
+                $judge = $this->getJudgeDBbyID($scr->plId2);
+              }
             }
             $judgeFile->set($i + 1);
             $i++;
@@ -2411,16 +2417,9 @@ class CompetitionPTT
                 $judgeFile->append($judge->country);
                 $judgeFile->append($judge->plId);
                 $judgeFile->append($judge->categoryS);
-            } elseif (count($Scrutineers) > $i && ! is_numeric($scr->plId)) {// maybe manual added
-                $parts = explode(';', $scr);
-                $judgeFile->append($parts[0]);
-                $judgeFile->append($parts[1]);
-                $judgeFile->append($parts[2]);
-                $judgeFile->append($parts[3]);
-                $judgeFile->append('');
-                $judgeFile->append('');
-            } else {
-                $judgeFile->append(';;;;;');
+            } 
+            else {
+              $judgeFile->append(';;;;;');
             }
             $judgeFile->write();
         }
@@ -2577,10 +2576,11 @@ class CompetitionPTT
             $judge->city = $db->readStringAt(self::FIELD_JUDGES_CITY, self::FIELD_SIZE_JUDGES_CITY);
             $judge->country = $db->readStringAt(self::FIELD_JUDGES_COUNTRY, self::FIELD_SIZE_JUDGES_COUNTRY);
             $judge->category = $db->readStringAt(self::FIELD_JUDGES_CATEGORY, self::FIELD_SIZE_JUDGES_DB_CATEGORY);
-            // if( strlen($judge->firstName) && strlen($judge->lastName) )
             $this->judges[] = $judge;
         }
         $db->close();
+        
+        //dd('jugeds z baz db', $this->judges);
 
         foreach ($this->judges as $judge) {
             $judge->firstName = $this->convert($judge->firstName, $db->codePage());
@@ -2677,10 +2677,10 @@ class CompetitionPTT
                 continue;
             }
 
+            // JUDGES
             if ($counter > 2 &&
                  ((count($parts) == 8 && (strlen($parts[0]) < 3 || $this->convert($parts[0]) == 'Główny')) ||
                  (count($parts) == 15 && is_numeric($parts[5])))) {
-                // judges
                 $judge = new JudgeDB;
                 $judge->plId = trim($parts[5]);
                 $judge->firstName = $this->convert(substr(trim($parts[2]," \""), 0, 15));
@@ -2691,12 +2691,21 @@ class CompetitionPTT
                 if (strlen($judge->country) == 0) {
                     $judge->country = 'Polska';
                 }
-                $judge->category = trim($parts[6]);
+                if( is_numeric($judge->sign) ) {//scrutineer??
+                  $judge->categoryS = trim($parts[6]);
+                  $judge->categoryJ = '';
+                }
+                else {
+                  $judge->categoryJ = trim($parts[6]);
+                  $judge->categoryS = '';                  
+                }                  
                 $this->judgesCSV = Arr::add($this->judgesCSV, $judge->plId, $judge);
-            } elseif ($counter > 2 &&
+            } 
+            // CATEGORY NAME
+            elseif ($counter > 2 &&
                   ((count($parts) == 13 && ! is_numeric($parts[0]) && $parts[5] == '' && $parts[6] == '') ||
                   ((count($parts) == 15 && $parts[5] == '' && $parts[6] == '')))) {
-                // category name
+
                 $category = new SchedulePart;
                 if (mb_strpos(mb_strtoupper(trim($parts[2]), 'UTF-8'), 'KOMB') !== false) {
                     $parts[2] = 'Komb';
@@ -2719,8 +2728,9 @@ class CompetitionPTT
                 }
                 $section = $category->part;
                 $this->categoriesCSV[] = $category;
-            } elseif ($counter > 2 && count($parts) > 14 && is_numeric($parts[0]) && is_numeric($parts[10]) /* && is_numeric($parts[11]) */) {
-                // couples
+            } 
+            // COUPLES
+            elseif ($counter > 2 && count($parts) > 14 && is_numeric($parts[0]) && is_numeric($parts[10]) /* && is_numeric($parts[11]) */) {
                 $couple = new Couple;
                 if (is_numeric($parts[0])) {
                     $couple->number = $parts[0];
@@ -3003,6 +3013,11 @@ class CompetitionPTT
             $couple->resultPoints -= $db->readFloatAt(self::FIELD_COUPLES_RESULT_POINTS_BEFORE);
             $couple->resultPodium = $db->readIntAt(self::FIELD_COUPLES_RESULT_PODIUM_AFTER);
             $couple->resultPodium -= $db->readIntAt(self::FIELD_COUPLES_RESULT_PODIUM_BEFORE);
+            //for empty ID create one from names
+            if( strlen($couple->plIdA) < 1 )
+              $couple->plIdA = $couple->firstNameA.'_'.$couple->lastNameA;
+            if( strlen($couple->plIdB) < 1 )
+              $couple->plIdB = $couple->firstNameB.'_'.$couple->lastNameB;
             $this->couples[] = $couple;
         }
         $db->close();
@@ -3042,7 +3057,6 @@ class CompetitionPTT
         for ($i = 0; $i < $db->numberOfRecords(); $i++) {
             if (! $db->selectRecord($i)) {
                 $this->lastError = self::ERROR_RECORD;
-
                 return false;
             }
             if ($record->dbId != $db->readLongAt(self::FIELD_DANCES_ID)) {
@@ -3281,7 +3295,6 @@ class CompetitionPTT
         if ($round->isClosed) {
             return false;
         }
-
         foreach ($this->dances as $record) {
             if ($record->roundId == $roundId) {
                 if (! array_key_exists($record->coupleNumber, $votes)) {
@@ -3300,6 +3313,7 @@ class CompetitionPTT
                 $record->notesArray[$danceNumber - 1] = $dbResults->notes;
                 $record->sumArray[$danceNumber - 1] = $dbResults->sum;
                 $this->writeDanceResult($record, $danceNumber);
+                //dd('writeDanceResult',$record, $danceNumber);
             }
         }
 

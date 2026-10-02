@@ -109,11 +109,25 @@
                                     </div>
                                 </td>
                                 <td  class="p-1">
-                                    {{ html()->input('number', 'groupId[]', $programRound->groups)
-                                        ->class('groups btn-blue-gray text-center font-12pt form-control d-inline-block w-auto')
-                                        ->attribute('min',1)
-                                        ->attribute('max',99)
-                                        ->required() }}
+<!--                                @php
+                                  $description = mb_strtoupper($programRound->description ?? '', 'UTF-8');
+                                @endphp
+                                
+                               @if( !( str_contains($description, 'PRZERWA') ||
+                                        str_starts_with($description, 'POKAZ') )
+                                )
+                                  {{ html()->input('number', 'groupId[]', $programRound->groups)
+                                      ->class('groups btn-blue-gray text-center font-12pt form-control d-inline-block w-auto')
+                                      ->attribute('min',0)
+                                      ->attribute('max',99)
+                                      ->required() }}
+                                @endif -->
+                                  {{ html()->input('number', 'groupId[]', $programRound->groups)
+                                      ->class('groups btn-blue-gray text-center font-12pt form-control d-inline-block w-auto')
+                                      ->attribute('min',0)
+                                      ->attribute('max',99)
+                                      ->required() }}
+
                                 </td>
 
                                 @if($programRound->isDance)

@@ -11,6 +11,7 @@
   $couples    = is_array($couples ?? null) ? array_values($couples) : [];
   $couplesNo  = is_array($couplesNo ?? null) ? array_values($couplesNo) : [];
   $groupConst = is_array($groupConst ?? null) ? array_values($groupConst) : [];
+  $prgNo      = $noPrg;
 
   $lastDescription = null;
 @endphp
@@ -30,7 +31,7 @@
               <i class="fa fa-clock-o me-1"></i> {{ $times[0] }}
             @endif
             @if(!empty($compressedProgram))
-              <i class="fa fa-share-square"></i>  Koniec: ~ {{ $times[count($compressedProgram)+1] ?? '' }}
+              <i class="fa fa-flag-checkered"></i> Koniec: ~ {{ $times[count($compressedProgram)+1] ?? '' }}
             @endif
           </h3>
             @include('wall.scheduleTable')
@@ -50,6 +51,11 @@
 
               @if($desc && $lastDescription !== $desc)
                 <h2 class="w_page-header mb-1">
+                   <span class="lp-box fs-5">{{ $prgNo }}</span>
+                  @php
+                    $prgNo++;
+                  @endphp
+
                   {{ $alt !== '' ? $alt : $desc }}
 
                   @if(!empty($couplesNo[$pos]))
