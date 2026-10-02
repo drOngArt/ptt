@@ -517,6 +517,7 @@ class DashboardController extends Controller
             $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes((int)$layoutData[0]->parameter1);
         }
 
+
         $flag = 0;
         foreach ($compressedProgram as $index => $programRound) {
           $bBreak = false;
@@ -2768,7 +2769,7 @@ class DashboardController extends Controller
           ->with('couples', $conflicts)
           ->with('parts', $PartsStr);
     }
-
+*/
     public function reportListsRange()
     {
         $rounds = [];
@@ -3436,6 +3437,7 @@ class DashboardController extends Controller
       }
     }
 */
+
 
     public function reportResults()
     {
