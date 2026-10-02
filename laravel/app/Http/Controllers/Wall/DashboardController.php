@@ -172,10 +172,16 @@ class DashboardController extends Controller
             if ($programRound !== false) {
                 $programRound->dances = $dances;
                 $programRound->noPrg = $noPrg++;
+                $programRound->isFinal = false;
+                if( (mb_strtoupper(mb_substr($programRound->description, 0, 3, 'UTF-8'), 'UTF-8') === 'FIN') || // first 3 chars are Fin, FIN etc
+                    ( mb_strpos( mb_strtoupper($programRound->description, 'UTF-8'), 'WSTĘPNA' ) !== false ) || // round name 'Wstępna'
+                    ( mb_strpos( mb_strtoupper($programRound->alternative_description, 'UTF-8'), 'OCEN' ) !== false ) //alternate name 'Oceniana'
+                  )
+                  $programRound->isFinal = true;
                 $compressedProgram[] = $programRound;
             }
         }
-
+//dd('program',$compressedProgram);
         return $compressedProgram;
     }
 
@@ -227,7 +233,8 @@ class DashboardController extends Controller
         $flag = 0;
         foreach ($compressedProgram as $index => $programRound) {
             $bBreak = false;
-            if (($posit = mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'PRZERWA')) !== false) {
+            if( mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'PRZERWA') !== false ||
+              mb_strtoupper(mb_substr($programRound->description, 0, 5, 'UTF-8'), 'UTF-8') === 'POKAZ' ) {
                 $bBreak = true;
                 $round = false;
             } elseif (($posit = mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'POKAZOWA')) !== false) {
@@ -240,32 +247,31 @@ class DashboardController extends Controller
             }
             $counter = 0;
             foreach ($programRound->dances as $dance) {
-                if ($bBreak) {
-                    $counter = $dance['dance'];
-                    break;
-                } elseif ($dance['closed'] == '0') {
-                    $counter += $programRound->groups;
-                } else {
-                    $flag = 1;
-                }
+              if ($bBreak) {
+                $counter = $dance['dance'] ? (int)$dance['dance'] : 10;
+                break;
+              } 
+              elseif ($dance['closed'] == '0')
+                $counter += $programRound->groups;
+              else
+                $flag = 1;
             }
-            if ($counter > 0) {
-                if ($flag == 1) {
-                    $flag = 2;
-                }
-                $times[] = $definedTime->Format('H:i');
-                if ($bBreak) {
-                    $definedTime = $definedTime->addMinutes((int)$counter);
-                } elseif ($programRound->isFinal) {
-                  $seconds = (int)$layoutData[0]->durationFinal * (int)$counter;
-                    $definedTime = $definedTime->addSeconds($seconds);
-                } else {
-                  $seconds = (int)$layoutData[0]->durationRound * (int)$counter;
-                    $definedTime = $definedTime->addSeconds($seconds);
-                }
-            } else {
-                $times[] = '';
-            }
+            if( $counter > 0 ) {
+              if ($flag == 1)
+                $flag = 2;
+              $times[] = $definedTime->Format('H:i');
+              if ($bBreak)
+                $definedTime = $definedTime->addMinutes((int)$counter);
+              elseif ($programRound->isFinal) {
+                $seconds = (int)$layoutData[0]->durationFinal * (int)$counter;
+                $definedTime = $definedTime->addSeconds($seconds);
+              } else {
+                $seconds = (int)$layoutData[0]->durationRound * (int)$counter;
+                $definedTime = $definedTime->addSeconds($seconds);
+              }
+            } 
+            else
+              $times[] = '';
         }
         if (count((array)$compressedProgram) > 0) {// exist rounds
             $times[] = $definedTime->addMinutes((int)$layoutData[0]->parameter2)->Format('H:i');
@@ -485,7 +491,9 @@ class DashboardController extends Controller
               }
             }
         }
-        //dd('show -',$program, $compressedProgram, $rounds, $couples, $couplesNo);
+        $noPrg = count($compressedProgram) ? $compressedProgram[0]->noPrg: 0;
+
+        //dd('show -',$compressedProgram, $rounds);
         if ($display != false) {
             return view('wall.program')
                 ->with('program', $program)
@@ -498,7 +506,8 @@ class DashboardController extends Controller
                 ->with('couples', $couples)
                 ->with('couplesNo', $couplesNo)
                 ->with('groupConst', $groupConst)
-                ->with('times', $times);
+                ->with('times', $times)
+                ->with('noPrg', $noPrg);
         } else {
             return view('wall.program')
                 ->with('program', $program)
@@ -511,7 +520,8 @@ class DashboardController extends Controller
                 ->with('couples', null)
                 ->with('couplesNo', null)
                 ->with('groupConst', null)
-                ->with('times', null);
+                ->with('times', null)
+                ->with('noPrg', 0);
         }
     }
 

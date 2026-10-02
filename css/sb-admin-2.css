@@ -14477,9 +14477,11 @@
 
   table.print-table {
     table-layout: fixed;
-    width: 100%;
+    width: auto;
     border-collapse: collapse;
     outline: 1px solid red;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   table.print-table td,

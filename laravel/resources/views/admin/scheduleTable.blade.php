@@ -47,11 +47,11 @@
                               {{$programRound->description}}
                            @endif
                            </div>
-                           <div class="drukarka font-print-18pt alignright" media="only print">
+                           <div class="drukarka alignright font-arial" media="only print">
                            @if( $programRound->couples > 0 )
-                              &nbsp[ {{$programRound->couples}} ]
+                              <span class="badge badge-secondary p-1 fs-5">&nbsp{{$programRound->couples}}&nbsp</span>
                            @elseif( $programRound->couples < 0 )
-                              &nbsp[ {{-$programRound->couples}} ]
+                              <span class="font-print-18pt p-1">[&nbsp{{-$programRound->couples}}&nbsp]</span>
                            @endif
                            </div>
                         </td>

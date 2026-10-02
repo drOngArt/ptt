@@ -65,12 +65,12 @@
                       <th class="col-club">
                         <div style="display:flex; justify-content:space-between;">
                           <span class="text-start">Klub</span>
-                          <span class="alignright">Zgłoszeń</span>
+                          <span class="alignright">L. startów:</span>
                           </div>
                       </th>
                       @foreach(array_slice($table['headers'], 3) as $style)
                         <th class="text-center font-print-24pt">
-                        {{ $table['styleCounts'][$style] ?? 0 }}
+                        <span class="badge badge-secondary p-1 font-arial fs-4">&nbsp{{ $table['styleCounts'][$style] ?? 0 }}&nbsp</span>                        
                         </th>
                       @endforeach
                   </tr>
@@ -78,25 +78,25 @@
  
                 <tbody>
                   @foreach($table['rows'] as $row)
-                      <tr class="fs-5">
-                          <td class="btn-circle  col-lp font-print-18pt">{{ $row['lp'] }}</td>
-                          <td class="text-start col-name py-1">
-                            @foreach($row['couple_names'] as $name)
-                              <div class="name-line">{{ $name }}</div>
-                            @endforeach
-                          </td>
-                          <td class="text-center col-club py-1">
-                            <div class="cell">
-                              <span class="club">{{ $row['club'] }}</span>
-                              <span class="country"> {{ $row['country'] }}</span>
-                            </div>
-                          </td>
-                          @foreach(array_slice($table['headers'], 3) as $style)
-                              <td class="h3 col-style media-middle">
-                                  {{ $row[$style] ?? '' }}
-                              </td>
+                    <tr class="fs-5">
+                        <td class="btn-circle  col-lp font-print-18pt">{{ $row['lp'] }}.</td>
+                        <td class="text-start col-name py-1">
+                          @foreach($row['couple_names'] as $name)
+                            <div class="name-line">{{ $name ?: "\u{00A0}" }}</div>
                           @endforeach
-                      </tr>
+                        </td>
+                        <td class="text-center col-club py-1">
+                          <div class="cell">
+                            <span class="club">{{ $row['club'] ?: "\u{00A0}" }}</span>
+                            <span class="country"> {{ $row['country'] ?: "\u{00A0}" }}</span>
+                          </div>
+                        </td>
+                        @foreach(array_slice($table['headers'], 3) as $style)
+                            <td class="h3 col-style media-middle">
+                                {{ $row[$style] ?? '' }}
+                            </td>
+                        @endforeach
+                    </tr>
                   @endforeach
                 </tbody>
               </table>

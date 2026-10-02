@@ -18,6 +18,8 @@ use Monolog\Logger;
 use League\Fractal\Manager;
 use League\Fractal\Resource\Collection as FractalCollection;
 use League\Fractal\Serializer\ArraySerializer;
+use Illuminate\Support\Facades\Log;
+
 class APIJudgeController extends Controller
 {
     private $tournamentHelper;
@@ -45,6 +47,7 @@ class APIJudgeController extends Controller
         $definedTime = null;
         $rounds = [];
         $description = null;
+        $definedTimePrev = null;
 
         if (count($dances) > 0) {
             if ($dances[0]->closed == '1') {
@@ -58,111 +61,137 @@ class APIJudgeController extends Controller
                 ->addMinutes((int)$layoutData[0]->parameter1);
         }
         $orderNo = 1;
+
         foreach ($dances as $programRound) {
-            $programRound->isFinal = false;
-            if ($programRound->description[0] == 'F' || $programRound->description[0] == 'P') {
-                $programRound->isFinal = true;
-            }
-
-            if ($programRound->closed == '1') {
-                if ($description === null) {
-                    $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
-                    $description = $programRound->description;
-                    $programRound->description = $orderNo.'. '.$programRound->description;
-                    $modify_dances[] = $programRound;
-                } elseif ($description != $programRound->description) {
-                    $orderNo++;
-                    if (! in_array($programRound->description, $rounds)) {
-                        $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
-                        $description = $programRound->description;
-                        $programRound->description = $orderNo.'. '.$programRound->description;
-                        $modify_dances[] = $programRound;
-                    } else {
-                        $key = array_search($programRound->description, $rounds, true);
-                        if ($key !== false) {
-                            $description = $programRound->description;
-                            $programRound->description = $orderNo.'. '.$programRound->description;
-                            $modify_dances[] = $programRound;
-                        }
-                    }
-                } else {
-                    $key = array_search($programRound->description, $rounds, true);
-                    if ($key !== false) {
-                        $description = $programRound->description;
-                        $programRound->description = $orderNo.'. '.$programRound->description;
-                        $modify_dances[] = $programRound;
-                    } else {
-                        $programRound->description = $orderNo.'. '.$programRound->description;
-                        $modify_dances[] = $programRound;
-                    }
+          $roundDescription = !empty(trim($programRound->alternative_description ?? ''))
+            ? $programRound->alternative_description
+            : $programRound->description;
+    
+          if ($programRound->closed == '1') {    
+            if ($description === null) {    
+              $rounds = Arr::add( $rounds, $definedTime->format('H:i'), $roundDescription );
+      
+              $description = $roundDescription;
+              $programRound->description = $orderNo.'. '.$roundDescription;
+              $modify_dances[] = $programRound;    
+            } elseif ($description != $roundDescription) {    
+              $orderNo++;
+              if (! in_array($roundDescription, $rounds)) {
+                $rounds = Arr::add( $rounds, $definedTime->format('H:i'), $roundDescription );
+  
+              $description = $roundDescription;
+              $programRound->description = $orderNo.'. '.$roundDescription;
+              $modify_dances[] = $programRound;
+              } else {
+                $key = array_search($roundDescription, $rounds, true);
+                if ($key !== false) {
+                  $description = $roundDescription;
+                  $programRound->description = $orderNo.'. '.$roundDescription;
+                  $modify_dances[] = $programRound;
                 }
+              }
             } else {
-                if ($description === null) {
-                    $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
-                    $description = $programRound->description;
-                    $programRound->description = $orderNo.'. '.'[ '.$definedTime->format('H:i').' ] - '.$programRound->description;
-                    $modify_dances[] = $programRound;
-                } elseif ($description != $programRound->description) {
-                    $orderNo++;
-                    if (! in_array($programRound->description, $rounds)) {
-                        $rounds = Arr::add($rounds, $definedTime->format('H:i'), $programRound->description);
-                        $description = $programRound->description;
-                        $programRound->description = $orderNo.'. '.'[ '.$definedTime->format('H:i').' ] - '.$programRound->description;
-                        if( mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'PRZERWA') !== false )
-                          $programRound->dance = $programRound->dance.' min ---------------';
-                        $modify_dances[] = $programRound;
-                    } else {
-                        $key = array_search($programRound->description, $rounds, true);
-                        if ($key !== false) {
-                            $description = $programRound->description;
-                            $programRound->description = $orderNo.'. '.'[ '.$key.' ] - '.$programRound->description;
-                            $modify_dances[] = $programRound;
-                        }
-                    }
-                } else {
-                    $key = array_search($programRound->description, $rounds, true);
-                    if ($key !== false) {
-                        $description = $programRound->description;
-                        $programRound->description = $orderNo.'. '.'[ '.$key.' ] - '.$programRound->description;
-                        $modify_dances[] = $programRound;
-                    } else {
-                        $programRound->description = $orderNo.'. '.$programRound->description;
-                        $modify_dances[] = $programRound;
-                    }
-                }
-
-                $counter = $programRound->groups > 0 ? $programRound->groups : 1;
-                if( mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'PRZERWA') !== false ){
-                  $seconds = 60 * ($programRound->dance ? (int)$programRound->dance : 5);
-                  $definedTime = $definedTime->addSeconds($seconds);
-                }
-                else if ($programRound->isFinal) {
-                  $seconds = (int)$layoutData[0]->durationFinal * (int)$counter;
-                  $definedTime = $definedTime->addSeconds($seconds);
-                } else {
-                  $seconds = (int)$layoutData[0]->durationRound * (int)$counter;
-                  $definedTime = $definedTime->addSeconds($seconds);
-                }
+              $key = array_search($roundDescription, $rounds, true);
+              if( $key !== false ) {
+                $description = $roundDescription;
+                $programRound->description = $orderNo.'. '.$roundDescription;
+                $modify_dances[] = $programRound;
+              } else {
+                $programRound->description = $orderNo.'. '.$roundDescription;
+                $modify_dances[] = $programRound;
+              }
             }
+
+          } else {
+            if( $description === null ) {
+              $rounds = Arr::add( $rounds, $definedTime->format('H:i'), $roundDescription );
+              $description = $roundDescription;
+              $programRound->description = $orderNo.'. '.'[ '.$definedTime->format('H:i').' ] - '.$roundDescription;
+              $modify_dances[] = $programRound;    
+            } 
+            elseif( $description != $roundDescription ) {
+              $orderNo++;
+              if( !in_array($roundDescription, $rounds) ) {
+                if( $programRound->groups > 0 ) {
+                  $rounds = Arr::add( $rounds, $definedTime->format('H:i'), $roundDescription );
+                  $definedTimePrev = $definedTime->format('H:i');
+                }
+                else {
+                  $rounds[$definedTimePrev] = $roundDescription;
+                }
+                $description = $roundDescription;
+                if( mb_strpos( mb_strtoupper($roundDescription, 'UTF-8'), 'PRZERWA' ) !== false || 
+                  mb_strtoupper(mb_substr($roundDescription, 0, 5, 'UTF-8'), 'UTF-8') === 'POKAZ') {
+                  $programRound->dance = ($programRound->dance ? (int)$programRound->dance : 10).' min ---------------';
+                }
+                if( $programRound->groups > 0 )
+                  $programRound->description = $orderNo.'. '.'[ '.$definedTime->format('H:i').' ] - '.$roundDescription;
+                else
+                  $programRound->description = $orderNo.'. '.($definedTimePrev ? '[ '.$definedTimePrev.' ] - ':'').$roundDescription;
+                $modify_dances[] = $programRound;
+              } 
+              else {
+                $key = array_search($roundDescription, $rounds, true);
+                if( $key !== false ) {
+                  $description = $roundDescription;
+                  $programRound->description = $orderNo.'. '.'[ '.$key.' ] - '.$roundDescription;
+                  $modify_dances[] = $programRound;
+                }
+              }
+            } 
+            else {
+              $key = array_search($roundDescription, $rounds, true);
+              /*
+              Log::info('SESSION DEBUG', [
+                'round' => $roundDescription.'-'.$programRound->dance,
+                'key' => $key,
+              ]);
+              */
+              if( $key !== false && !empty($key )) {
+                $description = $roundDescription;
+                $programRound->description = $orderNo.'. '.'[ '.$key.' ] - '.$roundDescription;
+                $modify_dances[] = $programRound;
+                if( !$definedTimePrev )
+                  $definedTimePrev = $key;
+              } 
+              else {
+                $programRound->description = $orderNo.'. '.$roundDescription;
+                $modify_dances[] = $programRound;
+              }
+            }
+            if( $programRound->groups > 0 ) { //if 0 means that dnaces at the same time. np calculate new
+              $counter = $programRound->groups;
+              if( mb_strpos( mb_strtoupper($programRound->dance, 'UTF-8'), 'MIN --' ) !== false ) { //break or show
+                $seconds = 60 * ( $programRound->dance ? (int)$programRound->dance : 10 );
+                $definedTime = $definedTime->addSeconds($seconds);
+              } 
+              elseif( mb_strpos( mb_strtoupper($programRound->description, 'UTF-8'), 'WSTĘPNA' ) !== false ) {
+                $seconds = (int)$layoutData[0]->durationFinal * (int)$counter;
+                $definedTime = $definedTime->addSeconds($seconds);
+              } 
+              elseif( mb_strpos( mb_strtoupper($programRound->description, 'UTF-8'), 'OCEN' ) !== false ) {
+                $seconds = (int)$layoutData[0]->durationFinal * (int)$counter;
+                $definedTime = $definedTime->addSeconds($seconds);
+              }
+              elseif( ($pos = mb_strpos($programRound->description, ']', 0, 'UTF-8')) !== false &&
+                      mb_strtoupper( mb_substr($programRound->description, $pos + 4, 3, 'UTF-8'), 'UTF-8' ) === 'FIN' ) {
+                $seconds = (int)$layoutData[0]->durationFinal * (int)$counter;
+                $definedTime = $definedTime->addSeconds($seconds);
+              }
+              else {
+                $seconds = (int)$layoutData[0]->durationRound * (int)$counter;
+                $definedTime = $definedTime->addSeconds($seconds);
+              }
+            }
+          }
         }
-
-        /*usort($modify_dances, function ($a, $b) {
-            if ($a->description[2] == '0' && $b->description[2] == '2') return -1;
-            if ($a->description[2] == '2' && $b->description[2] == '0') return 1;
-            if ($a->description[0] == '[' && $b->description[0] != '[') return -1;
-            if ($a->description[0] != '[' && $b->description[0] == '[') return 1;
-            // zamiast $a->id > $b->id
-            if ($a->description[0] != '[' && $b->description[0] != '[') return $a->id <=> $b->id;
-            if ($a->description == $b->description) return $a->id <=> $b->id;
-            return $a->description <=> $b->description;
-        });*/
-
+      
         $fractal = new Manager();
         $fractal->setSerializer(new ArraySerializer()); // bez wrappera "data"
 
         $resource = new FractalCollection($modify_dances, new RoundTransformer());
         $payload = $fractal->createData($resource)->toArray();
-        //dd($data);
+
         $data = $payload['data']; //remove 'data' element
         return \Response::json($data);
     }
@@ -186,7 +215,8 @@ class APIJudgeController extends Controller
             'danceSignature'  => $localRound->dance,
             'votesRequired'   => $votesRequired,
             'adjudicatorSign' => $adjudicatorSign,
-            'roundName'       => $localRound->description,
+            'roundName'       => !empty(trim($localRound->alternative_description ?? '')) ? 
+                                  $localRound->alternative_description : $localRound->description,
             'isFinal'         => (bool) $round->isFinal,
             'groups'          => $groups,
         ];

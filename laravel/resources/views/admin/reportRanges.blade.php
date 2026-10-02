@@ -78,7 +78,7 @@
     
             {{ html()->input('text', 'lack_no', '')
                   ->placeholder('brakujące numery')
-                  ->maxlength(128)
+                  ->maxlength(248)
                   ->class('form-control text-start ekran') }}
           </div>
           <small class="text-muted ps-3">(wpisz numery oddzielone przecinkiem)</small>

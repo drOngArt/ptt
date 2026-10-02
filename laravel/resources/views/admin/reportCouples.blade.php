@@ -31,10 +31,8 @@
 
     <div class="row">
         <div class="col-lg-12">
-
             <div class="table-responsive">
                 <table class="table table-striped table-bordered table-hover text-center table-pad-6px font-print-18pt align-middle">
-
                     <thead>
                         <tr>
                             <th style="width: 5%">Lp.</th>
@@ -43,28 +41,27 @@
                             <th class="text-start">Numery</th>
                         </tr>
                     </thead>
-
                     <tbody>
-                        @php $idx = 0; @endphp
-
-                        @foreach($program as $index => $programRound)
-                            @if($programRound->baseNumberOfCouples > 0)
-                                <tr>
-                                    <td class="btn-circle font-print-18pt">{{ ++$idx }}.</td>
-                                    <td class="text-start font-print-18pt">
-                                        {{ $programRound->description }}
-                                    </td>
-                                    <td class="font-print-24pt">
-                                        {{ $programRound->baseNumberOfCouples }}
-                                    </td>
-                                    <td class="text-start font-print-18pt font-arial">
-                                        @foreach($couples[$index] as $i => $couple)
-                                            {{ $couple->number }}@if($i < count($couples[$index]) - 1),@endif
-                                        @endforeach
-                                    </td>
-                                </tr>
-                            @endif
-                        @endforeach
+                      @php $idx = 0; @endphp
+                      @foreach($rows as $row)
+                        <tr>
+                          <td class="btn-circle font-print-18pt">{{ ++$idx }}.</td>
+                          <td class="text-start font-print-18pt">
+                            {{ $row['description'] }}
+                          </td>
+                          <td class="font-print-24pt">
+                            {{ $row['count'] }}
+                          </td>
+                          <td class="text-start font-print-18pt font-arial">
+                            @foreach($row['numbers'] as $number)
+                              {{ $number }}
+                              @if(!$loop->last)
+                                ,
+                              @endif
+                            @endforeach
+                          </td>
+                        </tr>
+                      @endforeach
                     </tbody>
                 </table>
             </div>
