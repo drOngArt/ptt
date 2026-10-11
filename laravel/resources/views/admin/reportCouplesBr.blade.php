@@ -7,7 +7,7 @@
 @section('content')
 <div id="page-wrapper" class="container-fluid">
 
-    {{ html()->form('GET', url('admin/report'))->open() }}
+    {{ html()->form('GET', route('admin.report.index'))->open() }}
 
     <div class="row mb-3">
         <div class="page-header-break fs-5">

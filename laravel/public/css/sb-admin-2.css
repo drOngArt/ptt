@@ -83,8 +83,10 @@
 
 
   /* user defines */
-  --col-w: 130px;      /* szerokość zwykłej kolumny */
-  --headcol-w: 200px;  /* szerokość pierwszej kolumny (etykiety) */
+  --col-w: 130px;
+  /* szerokość zwykłej kolumny */
+  --headcol-w: 200px;
+  /* szerokość pierwszej kolumny (etykiety) */
   --thead-r1-h: 100px;
   --r1h: 40px;
   --admin-top: 66px;
@@ -223,7 +225,8 @@
   #page-wrapper {
     flex: 1 1 auto;
     background: #F9F6EE;
-    min-height: 0;    /*568px;*/
+    min-height: 0;
+    /*568px;*/
     padding: 0 1rem;
     overflow-y: hidden;
   }
@@ -238,7 +241,8 @@
   /* wrapper pod navbar */
   .admin-shell {
     height: calc(100vh - var(--admin-top));
-    min-height: 0;    /* KLUCZ dla flex */
+    min-height: 0;
+    /* KLUCZ dla flex */
     display: flex;
   }
 
@@ -446,6 +450,7 @@
   [type="reset"],
   [type="submit"] {
     -webkit-appearance: button;
+    appearance: button;
   }
 
   button:not(:disabled),
@@ -505,6 +510,7 @@
   [type="search"] {
     outline-offset: -2px;
     -webkit-appearance: none;
+    appearance: none;
   }
 
   [type="search"]::-webkit-search-decoration {
@@ -4142,7 +4148,7 @@
     min-height: 1.5rem;
     padding-left: 1.5rem;
     -webkit-print-color-adjust: exact;
-    color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   .custom-control-inline {
@@ -13274,10 +13280,15 @@
 
   input[type=checkbox] {
     /* Double-sized Checkboxes */
-    -ms-transform: scale(1.1);     /* IE */
-    -moz-transform: scale(1.1);    /* FF */
-    -webkit-transform: scale(1.1); /* Safari and Chrome */
-    -o-transform: scale(1.1);      /* Opera */
+    -ms-transform: scale(1.1);
+    /* IE */
+    -moz-transform: scale(1.1);
+    /* FF */
+    -webkit-transform: scale(1.1);
+    /* Safari and Chrome */
+    -o-transform: scale(1.1);
+    /* Opera */
+    transform: scale(1.1);
     padding: 4px 4px;
   }
 
@@ -13299,8 +13310,10 @@
     position: absolute;
     cursor: default;
     max-height: 350px;
-    overflow-y: auto;      /* prevent horizontal scrollbar */
-    overflow-x: hidden;    /* add padding to account for vertical scrollbar */
+    overflow-y: auto;
+    /* prevent horizontal scrollbar */
+    overflow-x: hidden;
+    /* add padding to account for vertical scrollbar */
     padding-right: 20px;
     /*z-index: 5000;*/
   }
@@ -13395,8 +13408,10 @@
   .admin-shell .sidebar .nav-link {
     position: relative;
     display: block;
-    width: calc(100% + 4px);  /* ile ma wystawać */
-    margin-right: -4px;       /* wypchnięcie w prawo */
+    width: calc(100% + 4px);
+    /* ile ma wystawać */
+    margin-right: -4px;
+    /* wypchnięcie w prawo */
     z-index: 2;
   }
 
@@ -13506,8 +13521,10 @@
   .table-panel td.sticky-col-1 {
     position: sticky;
     left: 0;
-    z-index: 50;      /* większy niż header sędziów */
-    background: #fff; /* pełne tło, żeby nic nie prześwitywało */
+    z-index: 50;
+    /* większy niż header sędziów */
+    background: #fff;
+    /* pełne tło, żeby nic nie prześwitywało */
   }
 
   .table-panel thead {
@@ -13574,7 +13591,8 @@
 
   th.judge-vertical .judge-vertical-text {
     position: absolute;
-    width: 120px;    /* kontrola łamania / widoczności */
+    width: 120px;
+    /* kontrola łamania / widoczności */
     left: 34px;
     transform-origin: left bottom;
     display: block;
@@ -13646,7 +13664,8 @@
   th.judge-vertical .judge-two-lines .fname {
     display: block;
     margin-top: 2px;
-    padding-left: 2px;    /* lekkie wcięcie */
+    padding-left: 2px;
+    /* lekkie wcięcie */
     font-size: .72rem;
     color: #666;
     white-space: nowrap;
@@ -13679,34 +13698,40 @@
     width: 18px;
     height: 18px;
     cursor: pointer;
-    accent-color: var(--bs-primary);    /* kolor zaznaczenia = primary */
+    accent-color: var(--bs-primary);
+    /* kolor zaznaczenia = primary */
   }
 
   /* kolory tła według statusu w kolumnie "Liczba sędziów" (druga kolumna) */
   .requirement-cell.table-ok {
-    background-color: #d1fae5 !important;    /* zielono */
+    background-color: #d1fae5 !important;
+    /* zielono */
     color: #065f46 !important;
   }
 
   .requirement-cell.table-low {
-    background-color: #fef3c7 !important;    /* żółto */
+    background-color: #fef3c7 !important;
+    /* żółto */
     color: #92400e !important;
   }
 
   .requirement-cell.table-high {
-    background-color: #fee2e2 !important;    /* czerwono */
+    background-color: #fee2e2 !important;
+    /* czerwono */
     color: #991b1b !important;
   }
 
   /* Hover dla komórek z checkboxem */
   .table-panel tbody td.fixed-col:hover {
-    background-color: rgba(78, 115, 223, 0.08);    /* lekko primary */
+    background-color: rgba(78, 115, 223, 0.08);
+    /* lekko primary */
   }
 
   /* Ikonka "rowToggle" przy nazwisku sędziego (w nagłówku kolumny) */
   .rowToggle {
     font-size: 0.9rem;
-    color: #4e73df;    /* primary */
+    color: #4e73df;
+    /* primary */
     transition: transform .2s ease, color .2s ease;
   }
 
@@ -13864,7 +13889,8 @@
   }
 
   .range-box {
-    max-width: 520px;    /* dopasuj wartość */
+    max-width: 520px;
+    /* dopasuj wartość */
   }
 
   .ui-state-highlight {
@@ -13879,7 +13905,8 @@
 
   /* tylko ta strona / blok */
   .program-tables table.table> :not(caption)>*>* {
-    padding: 0.10rem 0.10rem !important;    /* mocniej */
+    padding: 0.10rem 0.10rem !important;
+    /* mocniej */
     line-height: 1.15 !important;
     vertical-align: middle !important;
   }
@@ -13916,8 +13943,10 @@
 
   td.check-cell .check-wrapper {
     display: flex;
-    justify-content: center;  /* poziom */
-    align-items: center;      /* pion */
+    justify-content: center;
+    /* poziom */
+    align-items: center;
+    /* pion */
     height: 100%;
   }
 
@@ -13945,7 +13974,9 @@
   .category-two-lines {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;   /* ZAWSZE 2 linie */
+    -webkit-line-clamp: 2;
+    /* ZAWSZE 2 linie */
+    line-clamp: 2;
     line-height: 1.25;
     overflow: hidden;
   }
@@ -14066,6 +14097,7 @@
   body {
     font: 14pt Georgia, "Times New Roman", Times, serif;
     -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
     counter-reset: page 1;
   }
 
@@ -14106,11 +14138,11 @@
   }
 
   .div-no-break:first-of-type {
-     break-inside: auto;
+    break-inside: auto;
   }
 
   .div-no-break:first-child {
-     break-inside: auto;
+    break-inside: auto;
   }
 
   .table-cont {
@@ -14198,13 +14230,13 @@
   }
 
   .table-striped>tbody>tr:nth-of-type(odd) {
-    font-size: 11pt;
+    font-size: 14pt;
     color: #000 !important;
     background-color: #ffe !important;
   }
 
   .table-striped>tbody>tr:nth-of-type(even) {
-    font-size: 11pt;
+    font-size: 14pt;
     color: #000 !important;
     background-color: #fff !important;
   }
@@ -14221,7 +14253,8 @@
 
   .page-header-print {
     font-size: 22px;
-    width: 100%;    /*height: 33px;*/
+    width: 100%;
+    /*height: 33px;*/
     padding: 6px 6px;
     margin: 6px 0 0 6px;
     text-align: center;
@@ -14331,10 +14364,15 @@
   }
 
   input[type=checkbox] {
-    -ms-transform: scale(1.4);     /* IE */
-    -moz-transform: scale(1.4);    /* FF */
-    -webkit-transform: scale(1.4); /* Safari and Chrome */
-    -o-transform: scale(1.4);      /* Opera */
+    -ms-transform: scale(1.4);
+    /* IE */
+    -moz-transform: scale(1.4);
+    /* FF */
+    -webkit-transform: scale(1.4);
+    /* Safari and Chrome */
+    -o-transform: scale(1.4);
+    /* Opera */
+    transform: scale(1.4);
     padding: 4px 10px;
   }
 
@@ -14468,7 +14506,8 @@
   }
 
   .judgeCheckbox:checked {
-    accent-color: #000 !important;   /* czarny na wydruk */
+    accent-color: #000 !important;
+    /* czarny na wydruk */
   }
 
   input[type="checkbox"] {
@@ -14480,6 +14519,8 @@
     width: 100%;
     border-collapse: collapse;
     outline: 1px solid red;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   table.print-table td,
@@ -14547,17 +14588,20 @@
   }
 
   .requirement-cell.table-ok {
-    background-color: #d9ead3 !important;   /* jasna zieleń */
+    background-color: #d9ead3 !important;
+    /* jasna zieleń */
     color: #065f46 !important;
   }
 
   .requirement-cell.table-low {
-    background-color: #fff2cc !important;   /* jasny żółty */
+    background-color: #fff2cc !important;
+    /* jasny żółty */
     color: #92400e !important;
   }
 
   .requirement-cell.table-high {
-    background-color: #f4cccc !important;   /* jasny czerwony */
+    background-color: #f4cccc !important;
+    /* jasny czerwony */
     color: #991b1b !important;
   }
 
@@ -14586,7 +14630,9 @@
   .category-cell .cat-two-lines {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;    /* dokładnie 2 linie */
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    /* dokładnie 2 linie */
     overflow: hidden;
 
     line-height: 1.0;
@@ -14616,7 +14662,8 @@
   }
 
   .print-dropdown>.dropdown-menu.print-menu {
-    --bs-dropdown-min-width: 0;    /* zbija bootstrapowe 10rem */
+    --bs-dropdown-min-width: 0;
+    /* zbija bootstrapowe 10rem */
     min-width: 100% !important;
     width: 100% !important;
     max-width: 100% !important;
@@ -14690,15 +14737,19 @@
     width: 12mm;
     padding: 0;
     text-align: center;
-    vertical-align: middle;   /* ⬅️ wyrównanie do wiersza */
+    vertical-align: middle;
+    /* ⬅️ wyrównanie do wiersza */
   }
 
   /* wrapper robi centrowanie */
   table.print-table td.print-check .check-wrap {
     display: flex;
-    align-items: center;      /* pion */
-    justify-content: center;  /* poziom */
-    height: 100%;             /* ⬅️ WAŻNE */
+    align-items: center;
+    /* pion */
+    justify-content: center;
+    /* poziom */
+    height: 100%;
+    /* ⬅️ WAŻNE */
   }
 
   table.print-table td.print-check .tick {
@@ -14717,29 +14768,35 @@
 
   /* stała szerokość kolumn podstawowych */
   .col-lp {
-      width: 50px;
+    width: 50px;
   }
+
   .col-name {
-      width: 320px;
-      line-height: 1.2em;
+    width: 320px;
+    line-height: 1.2em;
   }
 
   .name-line {
     display: block;
-    white-space: nowrap;        /* ❌ brak zawijania */
-    overflow: hidden;           /* ukryj nadmiar */
-    text-overflow: ellipsis;    /* ... */
+    white-space: nowrap;
+    /* ❌ brak zawijania */
+    overflow: hidden;
+    /* ukryj nadmiar */
+    text-overflow: ellipsis;
+    /* ... */
   }
 
   .col-club {
-      width: 320px;
-      /*overflow-wrap: break-word;*/
+    width: 320px;
+    /*overflow-wrap: break-word;*/
   }
 
   .cell {
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;   /* max 2 linie */
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    /* max 2 linie */
     overflow: hidden;
   }
 
@@ -14749,7 +14806,8 @@
   }
 
   .country {
-    display: block; /* 🔥 zawsze druga linia */
+    display: block;
+    /* 🔥 zawsze druga linia */
     white-space: nowrap;
   }
 
@@ -14759,27 +14817,35 @@
     /*font-size: 9pt;*/
   }
 
-   /* wszystkie komórki w kolumnach stylów */
-    .table-wide th.style-col,
-    .table-wide td.style-col {
-        width: 80px;          /* stała szerokość dla stylów */
-        max-width: 80px;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        /*white-space: nowrap;  /* nie łamiemy nazwy */
-        /*word-break: break-all;*/
-        overflow-wrap: break-word;
-    }
+  /* wszystkie komórki w kolumnach stylów */
+  .table-wide th.style-col,
+  .table-wide td.style-col {
+    width: 80px;
+    /* stała szerokość dla stylów */
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /*white-space: nowrap;  /* nie łamiemy nazwy */
+    /*word-break: break-all;*/
+    overflow-wrap: break-word;
+  }
 
-  @page.landscape {
-      size: landscape;   /* orientacja pozioma dla szerokich tabel */
-      margin: 0.8cm;       /* dopasowane marginesy do druku */
+  @page landscape {
+    size: landscape;
+    /* orientacja pozioma dla szerokich tabel */
+    margin: 0.8cm;
+    /* dopasowane marginesy do druku */
   }
 
   /* każda tabela zaczyna się na nowej stronie */
   .table-wide {
-      page-break-after: always;
+    page-break-after: always;
   }
 
-
+  .badge-secondary {
+    color: #fff !important;
+    background-color: #858796 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }

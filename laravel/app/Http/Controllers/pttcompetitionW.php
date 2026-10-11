@@ -699,7 +699,12 @@ class CompetitionW
 
         return $this->findRoundByDescription($description, $matchType);
     }
-
+    /**
+    * @param int $roundId
+    * @param string $danceSignature
+    * @param int $error
+    * @param-out int $error
+    */
     public function getDanceCouples($roundId, $danceSignature, &$error)
     {
         $this->getRounds();

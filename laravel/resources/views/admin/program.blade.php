@@ -160,7 +160,8 @@
       tabindex="-1"
       aria-labelledby="programSelectorLabel"
       aria-hidden="true">
-    {{ html()->form('POST', url('admin/program'))->acceptsFiles()->open() }}
+   {{ html()->form('POST', route('admin.program.select'))->acceptsFiles()->open() }}
+    @csrf
       <div class="modal-dialog">
         <div class="modal-content">
   
@@ -195,7 +196,8 @@
       tabindex="-1"
       aria-labelledby="programAddRoundLabel"
       aria-hidden="true">
-    {{ html()->form('POST', action('Admin\DashboardController@postAddedRound'))->open() }}
+    {{ html()->form('POST', route('admin.program.added-round'))->open() }}
+      @csrf
   
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -282,7 +284,8 @@
       tabindex="-1"
       aria-labelledby="additionalProgramLabel"
       aria-hidden="true">
-    {{ html()->form('POST', url('admin/program/linkProgram'))->acceptsFiles()->open() }}
+    {{ html()->form('POST', route('admin.program.link'))->acceptsFiles()->open() }}
+      @csrf
       <div class="modal-dialog">
         <div class="modal-content">
   
@@ -319,7 +322,7 @@
       tabindex="-1"
       aria-labelledby="saveProgramLabel"
       aria-hidden="true">
-    {{ html()->form('GET', action('Admin\DashboardController@saveCurrentProgram'))->open() }}
+    {{ html()->form('GET', route('admin.program.save-current'))->open() }}
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -357,7 +360,8 @@
       tabindex="-1"
       aria-labelledby="additionalRoundLabel"
       aria-hidden="true">
-    {{ html()->form('POST', url('admin/program/postAdditionalRound'))->open() }}
+    {{ html()->form('POST', route('admin.program.additional-round'))->open() }}
+      @csrf
       <div class="modal-dialog">
         <div class="modal-content">
   

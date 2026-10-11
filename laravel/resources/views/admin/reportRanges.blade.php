@@ -11,7 +11,8 @@
     ZAKRES NUMERÓW STARTOWYCH<br>
   </div>
 
-  {{ html()->form('POST', url('admin/postRanges'))->open() }}
+  {{ html()->form('POST', route('admin.report.ranges.submit'))->open() }}
+    @csrf
 
   <div class="row mb-3">
     <div class="col-lg-12">

@@ -3,27 +3,33 @@
 namespace App\Http\Controllers\Wall;
 
 use App\Http\Controllers\Competition;
+use App\Http\Controllers\CompetitionPTT;
+use App\Http\Controllers\CompetitionW;
 use App\Http\Controllers\Controller;
-
-use App\Layout;
-use App\Round;
-use Cache;
-use Carbon\Carbon;
-use Config;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Response;
-use View;
+
+use App\Layout;
+use App\Round;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Support\Facades\View;
 
 class DashboardController extends Controller
 {
+    /** @var CompetitionPTT|CompetitionW */
     private $tournamentHelper;
  
-    private function checkToken($token)
-    { 
-      if ($token !== env('WALL_TOKEN')) {
-          abort(403);
+    private function checkToken(string $token): void
+    {
+      $expectedToken = config('services.wall.token');
+
+      if (!is_string($expectedToken) || $expectedToken === '' ||
+        !hash_equals($expectedToken, $token)) {
+        abort(403, 'Unauthorized access');
       }
     }
 
@@ -50,9 +56,7 @@ class DashboardController extends Controller
     public function showConfig( $token, $type = 0)
     {
         // Weryfikacja tokena
-        if( $token !== env('WALL_TOKEN') ) {
-          abort(403, 'Unauthorized access 1111`');
-        }
+        $this->checkToken($token);
 
         $colorSet = [];
         $divideFactor = [];
@@ -181,12 +185,13 @@ class DashboardController extends Controller
                 $compressedProgram[] = $programRound;
             }
         }
-//dd('program',$compressedProgram);
         return $compressedProgram;
     }
 
-    public function showDashboard()
+    public function showDashboard($token)
     {
+        $this->checkToken($token);
+
         $program = Round::all();
         $mainRounds = Round::orderBy('id')->groupBy('description')->get();
         $compressedProgram = $this->getCompressedProgram();
@@ -276,7 +281,7 @@ class DashboardController extends Controller
         if (count((array)$compressedProgram) > 0) {// exist rounds
             $times[] = $definedTime->addMinutes((int)$layoutData[0]->parameter2)->Format('H:i');
         }
-        //try {
+        
         for ($screen_max = 1; $pos < $maxDance; $pos++) { // configured in Config/ptt.php
             $different = true;
             if ($pos != 0) {
@@ -311,7 +316,7 @@ class DashboardController extends Controller
                                     } elseif( count((array)$couples[$idx]) > 1) { // groups
                                         // maybe constant groups??
                                         foreach ($dance->couples as $index => $group) {
-                                            if ($tmp_pos > 0 && count($dance->couples) == count($couples[$idx])) {// the same group number, not for first group of course
+                                            if( count($dance->couples) == count($couples[$idx]) ) {// the same group number, not for first group of course
                                                 $group_const = true;
                                                 asort($dance->couples[$index]);
                                                 for ($id = 0; $id < count($group); $id++) {

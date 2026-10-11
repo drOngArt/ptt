@@ -7,6 +7,9 @@ require_once __DIR__ . DIRECTORY_SEPARATOR . 'pttcompetitionW.php';
 
 class Competition
 {
+    /**
+    * @return CompetitionPTT|CompetitionW
+    */
     public static function create($folder)
     {
         $filename = str_replace('\\', '/', $folder);

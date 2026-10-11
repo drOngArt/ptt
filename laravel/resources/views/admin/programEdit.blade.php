@@ -7,8 +7,8 @@
 @section('content')
 <div id="page-wrapper" class="container-fluid">
 
-    {{ html()->form('POST', action('Admin\DashboardController@postFinalProgram'))->open() }}
-
+{{ html()->form('POST', route('admin.program.final'))->open() }}
+    @csrf
     <div class="row mb-3">
         <div class="col-lg-12">
             <div class="page-header-break">PROGRAM TURNIEJU</div>
@@ -250,7 +250,7 @@
       aria-labelledby="saveParametersLabel"
       aria-hidden="true">
   
-    {{ html()->form('GET', action('Admin\DashboardController@saveParameters'))->open() }}
+    {{ html()->form('GET', route('admin.program.save-parameters'))->open() }}
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
   

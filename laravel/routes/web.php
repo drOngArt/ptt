@@ -1,132 +1,230 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Auth;
 
 use App\Http\Controllers\Admin\LoginController as AdminLoginController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
-
-use App\Http\Controllers\Wall\LoginController as WallLoginController;
 use App\Http\Controllers\Wall\DashboardController as WallDashboardController;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
-// (opcjonalnie) standardowe trasy logowania/rejestracji/resetu dla zwykłych użytkowników
-// Auth::routes();
-// Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 /*
 |--------------------------------------------------------------------------
 | ADMIN
 |--------------------------------------------------------------------------
 */
-Route::prefix('admin')->group(function () {
 
-    // logowanie (bez middleware)
-    Route::get('login',  [AdminLoginController::class, 'showLogin']);
-    Route::post('login', [AdminLoginController::class, 'postLogin']);
+Route::prefix('admin')->name('admin.')->group(function () {
 
-    // wylogowanie: POST
-    Route::post('logout', [AdminDashboardController::class, 'logout'])->name('admin.logout');
+    // AUTH
+    Route::get('login', [AdminLoginController::class, 'showLogin'])
+        ->name('login');
 
-    // reszta tylko dla zalogowanych adminów
+    Route::post('login', [AdminLoginController::class, 'postLogin'])
+        ->name('login.submit');
+
+    Route::post('logout', [AdminDashboardController::class, 'logout'])
+        ->name('logout');
+
     Route::middleware('adminAuth')->group(function () {
 
-        Route::get('/', [AdminDashboardController::class, 'showDashboard']);
+        // DASHBOARD
+        Route::get('/', [AdminDashboardController::class, 'showDashboard'])
+            ->name('dashboard');
 
-        Route::get('chooseTournament',  [AdminDashboardController::class, 'showTournamentChooser']);
-        Route::post('chooseTournament', [AdminDashboardController::class, 'postTournamentChooser']);
+        // TOURNAMENT
+        Route::get('chooseTournament', [AdminDashboardController::class, 'showTournamentChooser'])
+            ->name('tournament.choose');
 
-        Route::get('password/{userId}/{flag?}',  [AdminDashboardController::class, 'showChangePasswordForm'])
-            ->whereNumber('userId');
+        Route::post('chooseTournament', [AdminDashboardController::class, 'postTournamentChooser'])
+            ->name('tournament.choose.submit');
+
+        // PASSWORD
+        Route::get('password/{userId}/{flag?}', [AdminDashboardController::class, 'showChangePasswordForm'])
+            ->whereNumber('userId')
+            ->name('password.edit');
+
         Route::post('password/{userId}/{flag?}', [AdminDashboardController::class, 'postChangePassword'])
-            ->whereNumber('userId');
+            ->whereNumber('userId')
+            ->name('password.update');
 
-        Route::get('savePasswordAll', [AdminDashboardController::class, 'savePasswordAll']);
+        Route::get('savePasswordAll', [AdminDashboardController::class, 'savePasswordAll'])
+            ->name('password.save-all');
 
-        // PROGRAM
-        Route::prefix('program')->group(function () {
+        /*
+        |--------------------------------------------------------------------------
+        | PROGRAM
+        |--------------------------------------------------------------------------
+        */
 
-            Route::get('/', [AdminDashboardController::class, 'showProgram']);
+        Route::prefix('program')->name('program.')->group(function () {
 
-            Route::get('saveCurrentProgram',   [AdminDashboardController::class, 'saveCurrentProgram']);
-            Route::post('postAdditionalRound', [AdminDashboardController::class, 'postAdditionalRound']);
-            Route::post('postAddedRound',      [AdminDashboardController::class, 'postAddedRound']);
+            Route::get('/', [AdminDashboardController::class, 'showProgram'])
+                ->name('index');
 
-            Route::get('editProgram/{cmd?}', [AdminDashboardController::class, 'editProgram']);
+            Route::get('saveCurrentProgram', [AdminDashboardController::class, 'saveCurrentProgram'])
+                ->name('save-current');
 
-            Route::get('saveParameters', [AdminDashboardController::class, 'saveParameters']);
-            Route::get('newProgram',     [AdminDashboardController::class, 'newProgram']);
+            Route::post('postAdditionalRound', [AdminDashboardController::class, 'postAdditionalRound'])
+                ->name('additional-round');
 
-            Route::get('selectedCategories/{type?}', [AdminDashboardController::class, 'selectedCategories']);
-            Route::post('postSelectedCategories/{type?}', [AdminDashboardController::class, 'postSelectedCategories']);
+            Route::post('postAddedRound', [AdminDashboardController::class, 'postAddedRound'])
+                ->name('added-round');
 
-            Route::post('linkProgram', [AdminDashboardController::class, 'linkProgram']);
+            Route::get('editProgram/{cmd?}', [AdminDashboardController::class, 'editProgram'])
+                ->name('edit');
 
-            Route::post('/',    [AdminDashboardController::class, 'postSelectProgram']);
-            Route::post('temp', [AdminDashboardController::class, 'postFinalProgram']);
+            Route::get('saveParameters', [AdminDashboardController::class, 'saveParameters'])
+                ->name('save-parameters');
+
+            Route::get('newProgram', [AdminDashboardController::class, 'newProgram'])
+                ->name('new');
+
+            Route::get('selectedCategories/{type?}', [AdminDashboardController::class, 'selectedCategories'])
+                ->name('categories');
+
+            Route::post('postSelectedCategories/{type?}', [AdminDashboardController::class, 'postSelectedCategories'])
+                ->name('categories.submit');
+
+            Route::post('linkProgram', [AdminDashboardController::class, 'linkProgram'])
+                ->name('link');
+
+            Route::post('/', [AdminDashboardController::class, 'postSelectProgram'])
+                ->name('select');
+
+            Route::post('temp', [AdminDashboardController::class, 'postFinalProgram'])
+                ->name('final');
         });
 
-        // ROUND
-        Route::get('round',  [AdminDashboardController::class, 'showCurrentRound']);
-        Route::post('round', [AdminDashboardController::class, 'postCloseRound']);
+        /*
+        |--------------------------------------------------------------------------
+        | ROUND
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('round', [AdminDashboardController::class, 'showCurrentRound'])
+            ->name('round.index');
+
+        Route::post('round', [AdminDashboardController::class, 'postCloseRound'])
+            ->name('round.close');
 
         Route::get('roundFromDb/{dbRoundId}', [AdminDashboardController::class, 'showRound'])
-            ->whereNumber('dbRoundId');
+            ->whereNumber('dbRoundId')
+            ->name('round.from-db');
 
         Route::get('round/forceCloseDance/{roundId}', [AdminDashboardController::class, 'forceCloseDance'])
-            ->whereNumber('roundId');
+            ->whereNumber('roundId')
+            ->name('round.force-close');
 
-        Route::post('round/undoRound',  [AdminDashboardController::class, 'undoRound']);
-        Route::get('round/isNewRound',  [AdminDashboardController::class, 'isNewRound']);
+        Route::post('round/undoRound', [AdminDashboardController::class, 'undoRound'])
+            ->name('round.undo');
+
+        Route::get('round/isNewRound', [AdminDashboardController::class, 'isNewRound'])
+            ->name('round.is-new');
 
         Route::get('round/roundResults/{dbRoundId}', [AdminDashboardController::class, 'getRoundResult'])
-            ->whereNumber('dbRoundId');
+            ->whereNumber('dbRoundId')
+            ->name('round.results');
 
-        // REPORTS
-        Route::get('report',      [AdminDashboardController::class, 'showReport']);
-        Route::post('postReport', [AdminDashboardController::class, 'postReport']);
+        /*
+        |--------------------------------------------------------------------------
+        | REPORTS
+        |--------------------------------------------------------------------------
+        */
 
-        Route::get('reportRoundData',       [AdminDashboardController::class, 'reportRoundData']);
-        Route::get('reportCouples',         [AdminDashboardController::class, 'reportCouples']);
-        Route::get('reportClubs',           [AdminDashboardController::class, 'reportClubs']);
-        Route::get('reportOpenClubs',       [AdminDashboardController::class, 'reportOpenClubs']);
-        Route::get('reportListsRange',      [AdminDashboardController::class, 'reportListsRange']);
-        Route::post('postRanges',           [AdminDashboardController::class, 'postRanges']);
-        Route::get('reportLists',           [AdminDashboardController::class, 'reportLists']);
-        Route::get('reportCouplesConflict', [AdminDashboardController::class, 'reportCouplesConflict']);
-        Route::get('reportResults',         [AdminDashboardController::class, 'reportResults']);
-        Route::get('reportResultsShort',    [AdminDashboardController::class, 'reportResultsShort']);
-        Route::get('reportTrainee',         [AdminDashboardController::class, 'reportTrainee']);
+        Route::get('report', [AdminDashboardController::class, 'showReport'])
+            ->name('report.index');
 
-        // masz dwa routy pod "generateReport" – zostawiam jak było
-        Route::get('generateReport', [AdminDashboardController::class, 'generateReport']);
-        Route::post('report',        [AdminDashboardController::class, 'generateReport']);
+        Route::post('postReport', [AdminDashboardController::class, 'postReport'])
+            ->name('report.submit');
+
+        Route::get('reportRoundData', [AdminDashboardController::class, 'reportRoundData'])
+            ->name('report.round-data');
+
+        Route::get('reportCouples', [AdminDashboardController::class, 'reportCouples'])
+            ->name('report.couples');
+
+        Route::get('reportClubs', [AdminDashboardController::class, 'reportClubs'])
+            ->name('report.clubs');
+
+        Route::get('reportOpenClubs', [AdminDashboardController::class, 'reportOpenClubs'])
+            ->name('report.open-clubs');
+
+        Route::get('reportListsRange', [AdminDashboardController::class, 'reportListsRange'])
+            ->name('report.lists-range');
+
+        Route::post('postRanges', [AdminDashboardController::class, 'postRanges'])
+            ->name('report.ranges.submit');
+
+        Route::get('reportLists', [AdminDashboardController::class, 'reportLists'])
+            ->name('report.lists');
+
+        Route::get('reportCouplesConflict', [AdminDashboardController::class, 'reportCouplesConflict'])
+            ->name('report.couples-conflict');
+
+        Route::get('reportResults', [AdminDashboardController::class, 'reportResults'])
+            ->name('report.results');
+
+        Route::get('reportResultsShort', [AdminDashboardController::class, 'reportResultsShort'])
+            ->name('report.results-short');
+
+        Route::get('reportTrainee', [AdminDashboardController::class, 'reportTrainee'])
+            ->name('report.trainee');
+
+        Route::get('generateReport', [AdminDashboardController::class, 'generateReport'])
+            ->name('report.generate');
+
+        Route::post('report', [AdminDashboardController::class, 'generateReport'])
+            ->name('report.generate.submit');
 
         Route::get('reportSet/{roundId}', [AdminDashboardController::class, 'showReportSet'])
-            ->whereNumber('roundId');
-        Route::post('reportSet', [AdminDashboardController::class, 'setReport']);
+            ->whereNumber('roundId')
+            ->name('report.set');
 
-        // UTILS / PANEL
+        Route::post('reportSet', [AdminDashboardController::class, 'setReport'])
+            ->name('report.set.submit');
+
+        /*
+        |--------------------------------------------------------------------------
+        | UTILS / PANEL
+        |--------------------------------------------------------------------------
+        */
+
         Route::get('utils/{userId}', [AdminDashboardController::class, 'showUtils'])
-            ->whereNumber('userId');
+            ->whereNumber('userId')
+            ->name('utils');
 
-        Route::post('postPanel',      [AdminDashboardController::class, 'postPanel']);
-        Route::post('postPanelTable', [AdminDashboardController::class, 'postPanelTable']);
-        Route::post('postAddedJudge', [AdminDashboardController::class, 'postAddedJudge']);
+        Route::post('postPanel', [AdminDashboardController::class, 'postPanel'])
+            ->name('panel.submit');
 
-        Route::get('panel',     [AdminDashboardController::class, 'showPanel']);
-        Route::get('panelSet',  [AdminDashboardController::class, 'panelSet']);
-        Route::post('panelSet', [AdminDashboardController::class, 'panelSet']);
-        Route::get('panelSave', [AdminDashboardController::class, 'panelSave']);
+        Route::post('postPanelTable', [AdminDashboardController::class, 'postPanelTable'])
+            ->name('panel.table.submit');
 
-        // inne
-        Route::get('help',         [AdminDashboardController::class, 'showHelp']);
-        Route::get('autocomplete', [AdminDashboardController::class, 'autocomplete']);
+        Route::post('postAddedJudge', [AdminDashboardController::class, 'postAddedJudge'])
+            ->name('panel.judge.submit');
+
+        Route::get('panel', [AdminDashboardController::class, 'showPanel'])
+            ->name('panel.index');
+
+        Route::get('panelSet', [AdminDashboardController::class, 'panelSet'])
+            ->name('panel.set');
+
+        Route::post('panelSet', [AdminDashboardController::class, 'panelSet'])
+            ->name('panel.set.submit');
+
+        Route::get('panelSave', [AdminDashboardController::class, 'panelSave'])
+            ->name('panel.save');
+
+        /*
+        |--------------------------------------------------------------------------
+        | OTHER
+        |--------------------------------------------------------------------------
+        */
+
+        Route::get('help', [AdminDashboardController::class, 'showHelp'])
+            ->name('help');
+
+        Route::get('autocomplete', [AdminDashboardController::class, 'autocomplete'])
+            ->name('autocomplete');
     });
 });
 
@@ -136,27 +234,18 @@ Route::prefix('admin')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-// user short
+// Zachowujemy dotychczasowy redirect z tokenem.
 Route::get('/wall', function () {
-    return redirect('/wall/' . env('WALL_TOKEN'));
-});
+    return redirect()->route('wall.config', [
+        'token' => config('services.wall.token'),
+    ]);
+})->name('wall.index');
 
-Route::prefix('wall')->group(function () {
+Route::prefix('wall')->name('wall.')->group(function () {
 
-    // logowanie (bez middleware)
-    //Route::get('login',  [WallLoginController::class, 'showLogin']);
-    //Route::post('login', [WallLoginController::class, 'postLogin']);
+    Route::get('{token}', [WallDashboardController::class, 'showConfig'])
+        ->name('config');
 
-    // wylogowanie: POST
-    //Route::post('logout', [WallDashboardController::class, 'logout'])->name('wall.logout');
-
-    // PUBLIC + TOKEN 
-    Route::get('{token}', [WallDashboardController::class, 'showConfig']);
-    Route::get('{token}/board', [WallDashboardController::class, 'showDashboard'])->name('wall.board');
-
-    /* chronione
-    Route::middleware('wallAuth')->group(function () {
-        Route::get('/',     [WallDashboardController::class, 'showConfig']);
-        Route::get('board', [WallDashboardController::class, 'showDashboard']); 
-    });*/
+    Route::get('{token}/board', [WallDashboardController::class, 'showDashboard'])
+        ->name('board');
 });

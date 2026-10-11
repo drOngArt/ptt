@@ -19,8 +19,6 @@ return [
         'BRĄZ', 'BRĄZ-DUETY', 'BRĄZ-SOLO'],
     // classes with places: 1 and 1 with honour
     'PositionRange_1withHonour' => [
-        'ZŁOTO', 'ZŁOTO-SOLO', 'ZŁOTO-DUETY', 
-        'SREBRO', 'SREBRO-DUETY', 'SREBRO-SOLO', 
         'BRĄZ', 'BRĄZ-DUETY', 'BRĄZ-SOLO', 'R1'],
     // classes with places 1-3
     'PositionRange_3' => [ 'G', 'G SOLO', 'G-SOLO', 'G - SOLO', 'G - DUETY', 'G-DUETY', 'R3' ],

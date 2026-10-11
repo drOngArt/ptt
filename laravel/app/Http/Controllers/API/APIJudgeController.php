@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\API;
 
-use App;
-use App\Http\Controllers\API\Transformers\RoundTransformer;
+use Illuminate\Support\Facades\App;
+use App\Http\Controllers\API\transformers\RoundTransformer;
 use App\Http\Controllers\Competition;
+use App\Http\Controllers\CompetitionPTT;
+use App\Http\Controllers\CompetitionW;
 use App\Http\Controllers\Controller;
 use App\Layout;
 use App\Round;
@@ -12,6 +14,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Http\JsonResponse;
 use Carbon\Carbon;
 use Monolog\Handler\StreamHandler;
 use Monolog\Logger;
@@ -22,7 +25,9 @@ use Illuminate\Support\Facades\Log;
 
 class APIJudgeController extends Controller
 {
+    /** @var CompetitionPTT|CompetitionW */
     private $tournamentHelper;
+    /** @var string */
     private $pttLogFile;
 
     private function loadTournamentData(): void
@@ -36,10 +41,10 @@ class APIJudgeController extends Controller
 
         $this->pttLogFile = new Logger('PTTLog');
         $logFilename = App::storagePath().'/logs/pttLog-'.Carbon::now()->toDateString().'.log';
-        $this->pttLogFile->pushHandler(new StreamHandler($logFilename), Logger::INFO);
+        $this->pttLogFile->pushHandler(new StreamHandler($logFilename, Logger::INFO) );
     }
 
-    public function getDances()
+    public function getDances(): JsonResponse
     {
         $dances = Round::all();
         $layoutData = Layout::get();
@@ -193,10 +198,10 @@ class APIJudgeController extends Controller
         $payload = $fractal->createData($resource)->toArray();
 
         $data = $payload['data']; //remove 'data' element
-        return \Response::json($data);
+        return response()->json($data);
     }
 
-    private function getRequiredVotes($round, $groups)
+    private function getRequiredVotes($round, $groups): int
     {
         $votesRequired = $round->votesRequired;
         if ($round->isFinal && count($groups->couples) > 0) {
@@ -230,7 +235,7 @@ class APIJudgeController extends Controller
         ];
     }
 
-    private function checkVotes($votes, $round, $groups)
+    private function checkVotes($votes, $round, $groups):bool
     {
         $votesRequired = $this->getRequiredVotes($round, $groups);
         $votesCount = 0;
@@ -242,46 +247,47 @@ class APIJudgeController extends Controller
         return $votesCount >= $votesRequired;
     }
 
-    public function getVotes()
+    public function getVotes(): JsonResponse
     {
-        $adjudicator = Auth::user();
-        $error = -1;
-        $roundsToCheck = Round::where('isDance', '1')->where('closed', '0')->get()->sortBy('id');
+      $adjudicator = Auth::user();
+      $error = -1;
+      $roundsToCheck = Round::where('isDance', '1')->where('closed', '0')->get()->sortBy('id');
 
-        foreach ($roundsToCheck as $roundToCheck) {
-            $round = $this->tournamentHelper->getRoundWithType($roundToCheck->description, $roundToCheck->type);
-            $danceSign = $roundToCheck->dance;
+      foreach ($roundsToCheck as $roundToCheck) {
+        $round = $this->tournamentHelper->getRoundWithType($roundToCheck->description, $roundToCheck->type);
+        $danceSign = $roundToCheck->dance;
 
-            if ($round != false) {
-                $judgeSign = $this->tournamentHelper->getJudgeSign($adjudicator->firstName, $adjudicator->lastName, $adjudicator->plId, $round->roundId);
-                if (! $judgeSign) {
-                    continue;
-                }
-                $votes  = $this->tournamentHelper->getVotes($round->roundId, $judgeSign, $danceSign);
-                $groups = $this->tournamentHelper->getDanceCouples($round->roundId, $danceSign, $error);
-                if ($error == 0) {
-                    \Log::debug('error !!! brak tanca "'.$danceSign.'" w rundzie '.$roundToCheck->description);
-                }
+        if ($round != false) {
+          $judgeSign = $this->tournamentHelper->getJudgeSign($adjudicator->firstName, $adjudicator->lastName, null, $round->roundId);
+          if (! $judgeSign) {
+              continue;
+          }
+          $votes  = $this->tournamentHelper->getVotes($round->roundId, $judgeSign, $danceSign);
+          $groups = $this->tournamentHelper->getDanceCouples($round->roundId, $danceSign, $error);
+          if ($error == 0) {
+              Log::debug('error !!! brak tanca "'.$danceSign.'" w rundzie '.$roundToCheck->description);
+          }
 
-                $requiredVotesMet = $this->checkVotes($votes, $round, $groups);
-                $competition = $this->getCompetition();
+          $requiredVotesMet = $this->checkVotes($votes, $round, $groups);
+          $competition = $this->getCompetition();
 
-                if (! $votes || ! $requiredVotesMet) {
-                    return Response::json($this->transformVotesReady($competition, $roundToCheck, $round, $judgeSign, $groups));
-                }
-            } else {
-                return Response::json(['status' => 2]);
-            }
+          if (! $votes || ! $requiredVotesMet) {
+            return response()->json( $this->transformVotesReady($competition, $roundToCheck, $round, $judgeSign, $groups) );
+          }
         }
-        return Response::json(['status' => 0]);
+        else {
+          return response()->json(['status' => 2]);
+        }
+      }
+      return response()->json(['status' => 0]);
     }
 
-    public function postVotes($danceId)
+    public function postVotes($danceId): JsonResponse
     {
         $data = request()->isJson() ? request()->json()->all() : request()->all();
 
         if (empty($data)) {
-          \Log::warning('postVotes empty data', [
+          Log::warning('postVotes empty data', [
           'ct' => request()->header('content-type'),
           'raw' => request()->getContent(),
           ]);
@@ -291,7 +297,7 @@ class APIJudgeController extends Controller
         $adjudicatorSign = $data['adjudicatorSign'] ?? null;
         $votes           = $data['votes'] ?? [];
         if (isset($data['danceId']) && (int)$data['danceId'] !== (int)$danceId) {
-          \Log::warning('danceId mismatch', ['url' => $danceId, 'body' => $data['danceId']]);
+          Log::warning('danceId mismatch', ['url' => $danceId, 'body' => $data['danceId']]);
         }
         //$votesObj = json_decode(json_encode($votes), false); // map -> stdClass
         $DBResult = $this->tournamentHelper->setVotes((int) $danceId, $danceSignature, $adjudicatorSign, $votes);
@@ -301,7 +307,7 @@ class APIJudgeController extends Controller
             : Response::json(['error' => 'true'], 401);
     }
 
-    public function postStatus()
+    public function postStatus(): JsonResponse
     {
         $data = request()->json()->all();
         $adjudicator = Auth::user();

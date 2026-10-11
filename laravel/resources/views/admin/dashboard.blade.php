@@ -153,7 +153,7 @@
             </h5>
           </div>
   
-          {{ html()->form('GET', action('Admin\DashboardController@savePasswordAll'))->open() }}
+          {{ html()->form('GET', route('admin.password.save-all'))->open() }}
           <div class="modal-body">
             <div class="mb-3 ekran">
               <div class="form-text mb-2">Przykład: Mieczysław Kowalski =&gt; 

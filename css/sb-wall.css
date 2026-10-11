@@ -1,20 +1,22 @@
 /* === WALL layout (BS5-friendly) ======================================== */
 
-:root{
-  --wall-top: 60px;   /* wysokość navbara */
+:root {
+  --wall-top: 60px;
+  /* wysokość navbara */
   --wall-left: 45%;
   --wall-gap: 3px;
 }
 
-html, body{
+html,
+body {
   height: 100%;
 }
 
-#wrapper{
+#wrapper {
   padding-top: var(--wall-top);
 }
 
-.wall-content{
+.wall-content {
   padding-top: 2px !important;
 }
 
@@ -23,7 +25,7 @@ html, body{
   padding-left: 0.1rem;
 }
 
-.wall-layout{
+.wall-layout {
   display: flex;
   gap: var(--wall-gap);
   padding: 0 var(--wall-gap) var(--wall-gap);
@@ -33,39 +35,42 @@ html, body{
 }
 
 .wall-layout .table td,
-.wall-layout .table th{
+.wall-layout .table th {
   padding: .35rem .45rem;
   vertical-align: middle;
 }
 
-.wall-layout-preview{
+.wall-layout-preview {
   height: 360px;
 }
 
 /* body dla wall */
-body.wall-body{
+body.wall-body {
   overflow-y: auto;
   overflow-x: hidden;
 
-  scrollbar-width: none;        /* Firefox */
-  -ms-overflow-style: none;     /* Edge legacy */
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* Edge legacy */
 }
 
-body.wall-body::-webkit-scrollbar{
+body.wall-body::-webkit-scrollbar {
   width: 0;
   height: 0;
 }
 
 /* panele */
-.wall-left{
+.wall-left {
   flex: 0 0 var(--wall-left);
-  min-width: 260px; /* zabezpieczenie */
+  min-width: 260px;
+  /* zabezpieczenie */
   overflow: hidden;
   padding: 6px;
   border-radius: 10px;
 }
 
-.wall-right{
+.wall-right {
   flex: 1 1 auto;
   overflow: hidden;
   padding: 6px;
@@ -83,14 +88,14 @@ body.wall-body::-webkit-scrollbar{
 }
 
 /* nagłówki/teksty (z Twoich klas) */
-.w_page-header{
+.w_page-header {
   margin: 6px 0 8px;
   padding-top: 6px;
   border-top: 4px solid currentColor;
   line-height: 1.15;
 }
 
-.w_page-header-dance{
+.w_page-header-dance {
   margin: 0 0 8px;
   padding: 4px 6px;
   border-radius: 8px;
@@ -98,18 +103,19 @@ body.wall-body::-webkit-scrollbar{
   width: fit-content;
 }
 
-.table-couples-main{
+.table-couples-main {
   line-height: 1.2;
 }
 
 /* tabela z parami */
-.couples-table{
-  table-layout: fixed;   /* 🔥 klucz */
+.couples-table {
+  table-layout: fixed;
+  /* 🔥 klucz */
   width: 100%;
 }
 
 /* 1. kolumna – zawsze 150px */
-.couples-col-label{
+.couples-col-label {
   width: 187px;
   min-width: 150px;
   max-width: 187px;
@@ -118,39 +124,39 @@ body.wall-body::-webkit-scrollbar{
 }
 
 /* 2. kolumna – startuje OD RAZU po 150px */
-.couples-col-numbers{
+.couples-col-numbers {
   width: auto;
   vertical-align: top;
 }
 
 /* === RIGHT PANEL TYPOGRAPHY === */
 /* 1️⃣ kategoria + liczba */
-.wall-right .w_page-header{
+.wall-right .w_page-header {
   font-size: 24px;
   font-weight: 700;
   line-height: 1.15;
   margin-bottom: 4px;
 }
 
-.wall-right .w_page-header-dance{
+.wall-right .w_page-header-dance {
   font-size: 15px;
   font-weight: 600;
   opacity: .85;
   margin-bottom: 6px;
 }
 
-.wall-right .table-couples-main{
+.wall-right .table-couples-main {
   font-size: 25px;
   font-weight: 700;
   line-height: 1.1;
 }
 
-.wall-layout table{
+.wall-layout table {
   margin-bottom: 0;
 }
 
 .wall-layout .table td,
-.wall-layout .table th{
+.wall-layout .table th {
   padding: .35rem .45rem;
   vertical-align: middle;
 }
@@ -162,17 +168,19 @@ body.wall-body::-webkit-scrollbar{
 }
 
 .wall-schedule-desc .lp-ball {
-  flex: 0 0 auto;   /* NIE rośnie */
+  flex: 0 0 auto;
+  /* NIE rośnie */
 }
 
 .wall-schedule-desc .desc-text {
-  flex: 1;          /* zajmuje resztę */
+  flex: 1;
+  /* zajmuje resztę */
   white-space: normal;
   word-break: break-word;
   line-height: 1.2;
 }
 
-.wall-schedule-dances{
+.wall-schedule-dances {
   white-space: nowrap;
   display: inline-flex;
   gap: 6px;
@@ -181,86 +189,95 @@ body.wall-body::-webkit-scrollbar{
   font-weight: 700;
 }
 
-.wall-pill{
+.wall-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: .35rem .6rem;
   border-radius: .75rem;
   font-weight: 700;
-  white-space: nowrap;        /* taniec + numer nie łamie się */
+  white-space: nowrap;
+  /* taniec + numer nie łamie się */
 }
 
-.wall-layout .table{
+.wall-layout .table {
   font-size: inherit;
 }
 
 .wall-pill,
-.wall-schedule-dance{
+.wall-schedule-dance {
   font-size: 20px;
   font-weight: 700;
 }
 
-.wall-schedule-note{
+.wall-schedule-note {
   opacity: .9;
   font-weight: 700;
 }
 
 .btn-indigo {
-    color: #f8f8f8;
-    background-color: #3E50B4;
-    border-color: #3949a2;
+  color: #f8f8f8;
+  background-color: #3E50B4;
+  border-color: #3949a2;
 }
+
 .btn-indigo .badge {
-    color: #3E50B4;
-    background-color: #FFF;    
+  color: #3E50B4;
+  background-color: #FFF;
 }
 
-.button-menu{
-  color:#fff;
-  font-size:14px;
-  width:155px;
-  height:33px;
-  padding:6px 12px;
-  margin:0 0 0 4px;
+.button-menu {
+  color: #fff;
+  font-size: 14px;
+  width: 155px;
+  height: 33px;
+  padding: 6px 12px;
+  margin: 0 0 0 4px;
 
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .35rem;
 }
 
-.button-menu.dropdown-toggle{
-  height:33px;
+.button-menu.dropdown-toggle {
+  height: 33px;
 }
 
 .btn-deep-orange {
-    color: #f8f8f8;
-    background-color: #FE5621;
-    border-color: #d4481c;
+  color: #f8f8f8;
+  background-color: #FE5621;
+  border-color: #d4481c;
 }
 
 .btn-deep-orange .badge {
-    color: #FE5621;
-    background-color: #FFF;
+  color: #FE5621;
+  background-color: #FFF;
 }
 
 .btn-purple {
-    color: #f8f8f8;
-    background-color: #9B26AF;
-    border-color: #89219b;
+  color: #f8f8f8;
+  background-color: #9B26AF;
+  border-color: #89219b;
 }
 
 .btn-purple .badge {
-    color: #9B26AF;
-    background-color: #FFF;    
+  color: #9B26AF;
+  background-color: #FFF;
 }
 
-.btn-indigo:hover{ filter: brightness(0.95); color:#fff; }
-.btn-deep-orange:hover{ filter: brightness(0.95); color:#fff; }
+.btn-indigo:hover {
+  filter: brightness(0.95);
+  color: #fff;
+}
+
+.btn-deep-orange:hover {
+  filter: brightness(0.95);
+  color: #fff;
+}
 
 /* jeżeli chcesz zachować Twój dawny wygląd (a nie bootstrapowy) */
-.wall-body .text-muted{
+.wall-body .text-muted {
   color: HoneyDew;
   background-color: Coral;
   border-radius: 8px;
@@ -270,40 +287,42 @@ body.wall-body::-webkit-scrollbar{
 
 
 .btn-circle {
-    width: 24px;
-    height: 24px;
-    padding: 2px 0;
-    border-radius: 15px;
-    text-align: center;
-    font-size: 10px;
-    line-height: 1.2;
+  width: 24px;
+  height: 24px;
+  padding: 2px 0;
+  border-radius: 15px;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.2;
 }
 
 .btn-circle.btn-lg {
-    width: 50px;
-    height: 50px;
-    padding: 10px 16px;
-    border-radius: 25px;
-    font-size: 18px;
-    line-height: 1.33;
+  width: 50px;
+  height: 50px;
+  padding: 10px 16px;
+  border-radius: 25px;
+  font-size: 18px;
+  line-height: 1.33;
 }
 
 .btn-circle.btn-xl {
-    width: 70px;
-    height: 70px;
-    padding: 10px 16px;
-    border-radius: 35px;
-    font-size: 24px;
-    line-height: 1.33;
+  width: 70px;
+  height: 70px;
+  padding: 10px 16px;
+  border-radius: 35px;
+  font-size: 24px;
+  line-height: 1.33;
 }
 
-.btn-circle.btn-sm, .btn-group-sm > .btn-circle.btn {
+.btn-circle.btn-sm,
+.btn-group-sm>.btn-circle.btn {
   height: 1.8rem;
   width: 1.8rem;
   font-size: 0.75rem;
 }
 
-.btn-circle.btn-lg, .btn-group-lg > .btn-circle.btn {
+.btn-circle.btn-lg,
+.btn-group-lg>.btn-circle.btn {
   height: 3.5rem;
   width: 3.5rem;
   font-size: 1.35rem;
@@ -315,7 +334,7 @@ body.wall-body::-webkit-scrollbar{
   justify-content: center;
   width: 32px;
   height: 32px;
-  background: red;//#0d6efd;
+  background: red;
   color: white;
   font-weight: bold;
   border-radius: 6px;
@@ -356,31 +375,12 @@ body.wall-body::-webkit-scrollbar{
   background: radial-gradient(circle at 30% 30%, #ff6b6b, #b02a37 60%, #5a0f14);
   /* background: radial-gradient(circle at 30% 30%, #d9a6ff, #6f42c1 55%, #4b1d3f 80%); - fiolet */
   box-shadow:
-    inset -4px -6px 10px rgba(0,0,0,0.4),   /* cień wewnętrzny */
-    inset 3px 4px 8px rgba(255,255,255,0.3), /* światło */
-    3px 6px 10px rgba(0,0,0,0.35); /* cień zewnętrzny */
-}
-
-.lp-box {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
-  height: 34px;
-
-  border-radius: 8px; /* zaokrąglone rogi zamiast koła */
-
-  color: white;
-  font-weight: bold;
-  font-size: 18px;
-
-  background: radial-gradient(circle at 30% 30%, #6ea8fe, #0d6efd 60%, #084298);
-
-  box-shadow:
-    inset -4px -6px 10px rgba(0,0,0,0.4),
-    inset 3px 4px 8px rgba(255,255,255,0.3),
-    3px 6px 10px rgba(0,0,0,0.35);
+    inset -4px -6px 10px rgba(0, 0, 0, 0.4),
+    /* cień wewnętrzny */
+    inset 3px 4px 8px rgba(255, 255, 255, 0.3),
+    /* światło */
+    3px 6px 10px rgba(0, 0, 0, 0.35);
+  /* cień zewnętrzny */
 }
 
 /* ✨ odblask */
@@ -391,7 +391,7 @@ body.wall-body::-webkit-scrollbar{
   left: 8px;
   width: 30%;
   height: 20%;
-  background: rgba(255,255,255,0.6);
+  background: rgba(255, 255, 255, 0.6);
   border-radius: 50%;
   filter: blur(2px);
 }
@@ -405,110 +405,189 @@ body.wall-body::-webkit-scrollbar{
   background: #0d6efd;
   transform: rotate(15deg);
   box-shadow:
-    inset 2px 2px 4px rgba(255,255,255,0.3),
-    inset -2px -2px 4px rgba(0,0,0,0.3),
-    3px 3px 8px rgba(0,0,0,0.3);
+    inset 2px 2px 4px rgba(255, 255, 255, 0.3),
+    inset -2px -2px 4px rgba(0, 0, 0, 0.3),
+    3px 3px 8px rgba(0, 0, 0, 0.3);
 }
 
 .lp-diamond span {
   transform: rotate(-15deg);
   color: white;
   font-weight: bold;
-} 
+}
 
 
 /* === THEMES (colorSet) ================================================= */
 
 /* 1: black/white */
 .theme-1 .wall-left,
-.theme-1 .wall-right{
+.theme-1 .wall-right {
   background: #000;
   color: #fff;
 }
+
 .theme-1 .w_page-header-dance,
-.theme-1 .table-couples-main{
+.theme-1 .table-couples-main {
   background: #000;
   color: #fff;
 }
-.theme-1 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#000; color:#fff; }
-.theme-1 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:#fff; color:#000; }
+
+.theme-1 .table-striped>tbody>tr:nth-of-type(odd)>* {
+  background-color: #000;
+  color: #fff;
+}
+
+.theme-1 .table-striped>tbody>tr:nth-of-type(even)>* {
+  background-color: #fff;
+  color: #000;
+}
 
 /* 2: white/black */
 .theme-2 .wall-left,
-.theme-2 .wall-right{
+.theme-2 .wall-right {
   background: #fff;
   color: #000;
 }
+
 .theme-2 .w_page-header-dance,
-.theme-2 .table-couples-main{
+.theme-2 .table-couples-main {
   background: #fff;
   color: #000;
 }
-.theme-2 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#fff; color:#000; }
-.theme-2 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:#000; color:#fff; }
+
+.theme-2 .table-striped>tbody>tr:nth-of-type(odd)>* {
+  background-color: #fff;
+  color: #000;
+}
+
+.theme-2 .table-striped>tbody>tr:nth-of-type(even)>* {
+  background-color: #000;
+  color: #fff;
+}
 
 /* 3: Twoje darkblue/yellow */
-.theme-3 .wall-left{
+.theme-3 .wall-left {
   background: darkblue;
   color: #FFFCa0;
   /*text-shadow: 3px 4px 4px #ddd;*/
   font-family: Verdana, Arial, sans-serif;
   font-weight: 700;
 }
-.theme-3 .wall-right{
+
+.theme-3 .wall-right {
   background: #FFFC00;
   color: #000;
   font-family: Arial, sans-serif;
   font-weight: 700;
   text-shadow: none;
 }
-.theme-3 .w_page-header{ color: darkblue; }
-.theme-3 .w_page-header-dance{
+
+.theme-3 .w_page-header {
+  color: darkblue;
+}
+
+.theme-3 .w_page-header-dance {
   color: #ffffe0;
   background: linear-gradient(to right, darkblue, blue, black, gold);
 }
-.theme-3 .table-couples-main{
+
+.theme-3 .table-couples-main {
   color: #ffffe0;
   background: linear-gradient(to right, #333, blue, #111);
   border-radius: 8px;
   padding: 3px 6px;
 }
-.theme-3 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#eee; color:darkblue; }
-.theme-3 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:darkblue; color:#eee; }
+
+.theme-3 .table-striped>tbody>tr:nth-of-type(odd)>* {
+  background-color: #eee;
+  color: darkblue;
+}
+
+.theme-3 .table-striped>tbody>tr:nth-of-type(even)>* {
+  background-color: darkblue;
+  color: #eee;
+}
 
 /* 4: wariant “róż/brąz/złoto” (z Twojego) */
-.theme-4 .wall-left{ background:#7F525D; color:#FCDFFF; font-family: Verdana, Arial, sans-serif; font-weight: 700; }
-.theme-4 .wall-right{ background:#FDD017; color:#B87333; font-family: Arial, sans-serif; font-weight: 700; }
-.theme-4 .w_page-header{ color:#7F5217; }
-.theme-4 .w_page-header-dance{
-  color:#ffffe0;
+.theme-4 .wall-left {
+  background: #7F525D;
+  color: #FCDFFF;
+  font-family: Verdana, Arial, sans-serif;
+  font-weight: 700;
+}
+
+.theme-4 .wall-right {
+  background: #FDD017;
+  color: #B87333;
+  font-family: Arial, sans-serif;
+  font-weight: 700;
+}
+
+.theme-4 .w_page-header {
+  color: #7F5217;
+}
+
+.theme-4 .w_page-header-dance {
+  color: #ffffe0;
   background: linear-gradient(to right, #7F5217, goldenrod, #E56717);
 }
-.theme-4 .table-couples-main{
-  color:#ffffe0;
+
+.theme-4 .table-couples-main {
+  color: #ffffe0;
   background: linear-gradient(to right, #7F5217, #E56717, #FFD801);
   border-radius: 8px;
   padding: 3px 6px;
 }
-.theme-4 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#FDD7E4; color:#7D0552; }
-.theme-4 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:#7D0552; color:#FDD7E4; }
+
+.theme-4 .table-striped>tbody>tr:nth-of-type(odd)>* {
+  background-color: #FDD7E4;
+  color: #7D0552;
+}
+
+.theme-4 .table-striped>tbody>tr:nth-of-type(even)>* {
+  background-color: #7D0552;
+  color: #FDD7E4;
+}
 
 /* 5: “ekran” (Twoje centrum + inne fonty) */
-.theme-5 .wall-left{
+.theme-5 .wall-left {
   background: darkblue;
   color: #FFFC00;
   font-family: Arial, sans-serif;
   font-weight: 600;
   text-shadow: none;
 }
-.theme-5 .wall-right{
+
+.theme-5 .wall-right {
   background: #FFFC00;
   color: #000;
   font-family: Arial, sans-serif;
   font-weight: 800;
 }
-.theme-5 .w_page-header{ color: darkblue; font-family: Arial, sans-serif; }
-.theme-5 .w_page-header-dance{ color: darkblue; background:#FFFC00; }
-.theme-5 .table-couples-main{ background: darkblue; color:#fff; border-radius: 8px; padding: 3px 6px; }
-.theme-5 .table-striped > tbody > tr:nth-of-type(odd)  > *{ background-color:#fff; color:darkblue; }
-.theme-5 .table-striped > tbody > tr:nth-of-type(even) > *{ background-color:darkblue; color:#eee; }
+
+.theme-5 .w_page-header {
+  color: darkblue;
+  font-family: Arial, sans-serif;
+}
+
+.theme-5 .w_page-header-dance {
+  color: darkblue;
+  background: #FFFC00;
+}
+
+.theme-5 .table-couples-main {
+  background: darkblue;
+  color: #fff;
+  border-radius: 8px;
+  padding: 3px 6px;
+}
+
+.theme-5 .table-striped>tbody>tr:nth-of-type(odd)>* {
+  background-color: #fff;
+  color: darkblue;
+}
+
+.theme-5 .table-striped>tbody>tr:nth-of-type(even)>* {
+  background-color: darkblue;
+  color: #eee;
+}

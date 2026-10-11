@@ -18,7 +18,7 @@
       LISTA SĘDZIÓW&nbsp;{{ $parts }}<br>
     </div>
   
-    {{ html()->form('POST', url('admin/postPanel'))->open() }}
+    {{ html()->form('POST', route('admin.panel.submit'))->open() }}
     @csrf
   
     <div class="row">

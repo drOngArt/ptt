@@ -42,10 +42,9 @@ return [
         */
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single', 'stdout', 'stderr'],
+            'channels' => ['daily'],
             'ignore_exceptions' => false,
         ],
-
         /*
         | Pojedynczy plik
         */

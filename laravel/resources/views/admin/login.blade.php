@@ -46,12 +46,13 @@
                     </div>
                     <div class="card-body">
 
-                        {{ html()->form('POST', url('admin/login'))->open() }}
+                       {{ html()->form('POST', route('admin.login.submit'))->open() }}
+                        @csrf
 
                         <p class="text-danger">{{ $errors->first('message') }}</p>
 
-                        @if (Session::has('flash_message'))
-                            <p class="text-success">{{ Session::get('flash_message') }}</p>
+                        @if (session()->has('flash_message'))
+                            <p class="text-success">{{ session('flash_message') }}</p>
                         @endif
 
                         <div class="mb-3">

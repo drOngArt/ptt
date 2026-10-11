@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Response;
+use Illuminate\Support\Facades\Response;
+use Illuminate\Http\JsonResponse;
 
 class APIJudgeLoginController extends Controller
 {
-    public function postLogin()
+    public function postLogin(): JsonResponse
     {
         /*$credentials = [
             'username' => Input::get('username'),
@@ -19,6 +20,6 @@ class APIJudgeLoginController extends Controller
         else{
             return Response::json(array(),401);
         }*/
-        return Response::json([], 200);
+        return response()->json([], 200);
     }
 }

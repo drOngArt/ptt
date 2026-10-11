@@ -2,13 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App;
+use Illuminate\Support\Facades\App;
 use App\Layout;
 use App\Role;
 use App\Round;
 use App\User;
 use App\Http\Controllers\Club;
 use App\Http\Controllers\Competition;
+use App\Http\Controllers\CompetitionPTT;
+use App\Http\Controllers\CompetitionW;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Couple;
 use App\Http\Controllers\Dance;
@@ -38,6 +40,7 @@ use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
+    /** @var CompetitionPTT|CompetitionW */
     private $tournamentHelper;
 
     public function console_log($data, $add_script_tags = true)
@@ -188,12 +191,9 @@ class DashboardController extends Controller
                 }
             }
         }
-        usort($JudgesAll, function ($a, $b) {
-            if ($a->lastName == $b->lastName) {
-                return  $a->firstName > $b->firstName;
-            } else {
-                return  $a->lastName > $b->lastName;
-            }
+        usort($JudgesAll, function ($a, $b): int {
+            return ($a->lastName <=> $b->lastName)
+            ?: ($a->firstName <=> $b->firstName);
         });
         $judges = $judges->sort(function ($a, $b) {
             return [$a->lastName, $a->firstName]
@@ -334,7 +334,7 @@ class DashboardController extends Controller
             if ($tournamentDirectoryFile->getClientOriginalName() != 'TurniejDir.txt') {
                 return redirect($chooseTournamentPath)->withErrors(['message' => 'Podany plik nie jest plikiem TurniejDir.txt']);
             }
-            Cache::forever('tournamentDirectory', file_get_contents($tournamentDirectoryFile, null, null, $filePathOffset, filesize($tournamentDirectoryFile) - 22));
+            Cache::forever('tournamentDirectory', file_get_contents($tournamentDirectoryFile, false, null, $filePathOffset, filesize($tournamentDirectoryFile) - 22));
 
             return redirect('/admin');
         } else {
@@ -392,11 +392,16 @@ class DashboardController extends Controller
           if ($programRound !== false) {
             $programRound->isFinal = false;
             $programRound->dances = $dances;
-            if( (mb_strtoupper(mb_substr($programRound->description, 0, 3, 'UTF-8'), 'UTF-8') === 'FIN') || // first 3 chars are Fin, FIN etc
-              ( mb_strpos( mb_strtoupper($programRound->description, 'UTF-8'), 'WSTĘPNA' ) !== false ) || // round name 'Wstępna'
-              ( mb_strpos( mb_strtoupper($programRound->alternative_description, 'UTF-8'), 'OCEN' ) !== false ) //alternate name 'Oceniana'
-            )
-              $programRound->isFinal = true;
+
+            $description = mb_strtoupper($programRound->description ?? '', 'UTF-8');
+            $alternativeDescription = mb_strtoupper($programRound->alternative_description ?? '', 'UTF-8');
+            if (
+                str_starts_with($description, 'FIN') ||
+                str_contains($description, 'WSTĘPNA') ||
+                str_contains($alternativeDescription, 'OCEN')
+            ) 
+                $programRound->isFinal = true;
+            
             $compressedProgram[] = $programRound;
           }
         }
@@ -658,7 +663,7 @@ class DashboardController extends Controller
         } else {// no rounds?/ impossible, maybe directory was changed
             return view('admin.tournamentChooser');
         }
-//dd('program-',$compressedProgram,$times);
+
         return view('admin.program')
             ->with('program', $program)
             ->with('compressedProgram', $compressedProgram)
@@ -695,12 +700,9 @@ class DashboardController extends Controller
             }
         }
         if ($scheduleParts) {
-            usort($baseRounds, function ($a, $b) {
-                if ($a->positionW == $b->positionW) {
-                    return $a->idx > $b->idx;
-                } else {
-                    return  $a->positionW > $b->positionW;
-                }
+            usort($baseRounds, function ($a, $b): int {
+                return ($a->positionW <=> $b->positionW)
+                ?: ($a->idx <=> $b->idx);
             });
         }
 
@@ -910,19 +912,19 @@ class DashboardController extends Controller
                     $ProgramFinal[] = $point;
                 }
             }
-            usort($ProgramFinal, function ($a, $b) {
-                if ($a->className == $b->className) {
-                    return  $a->categoryName < $b->categoryName;
-                } else {
-                    return  $a->className > $b->className;
-                }
-            });
+            usort($ProgramFinal, fn ($a, $b): int =>
+                ($a->className <=> $b->className)
+                ?: ($b->categoryName <=> $a->categoryName)
+            );
             unset($Program);
-            $Program = array_merge($ProgramPremilinary, $ProgramCombination);
+           /* $Program = array_merge($ProgramPremilinary, $ProgramCombination);
             $Program = array_merge($Program, $ProgramFinal);
             $data = array_values($Program);
-            $Program = array_combine(array_keys($data), $data);
-
+            $Program = array_combine(array_keys($data), $data); */
+            $Program = array_merge(
+                $ProgramPremilinary,
+                $ProgramCombination,
+                $ProgramFinal );
         } else {// another operation
             $program = Session::get('new_program');
             if ($type == 'saveFile') { // save file
@@ -982,7 +984,8 @@ class DashboardController extends Controller
                         }
                     }
                     $added->roundName = $roundName;
-                    $dances = explode(' ', trim(substr($category, $pos, strlen($category) - $pos), ' ()'));
+                    $dancesString = trim(substr($category, $pos), ' ()');
+                    $dances = $dancesString === '' ? [] : explode(' ', $dancesString);
                     if (count($dances) > 0) {
                         $cnt = count($dances);
                         unset($added->dances);
@@ -1036,7 +1039,7 @@ class DashboardController extends Controller
                 }
                 if (! empty($showNameDance)) {
                     $dances = explode(' ', $showNameDance);
-                    if (count($dances) > 0) {
+                    if( $dances[0] !== '' ) {
                         $cnt = count($dances);
                         unset($added->dances);
                         $added->dances = [];
@@ -1282,10 +1285,12 @@ class DashboardController extends Controller
             $added->id = $maxId + 1;
             $added->groups = 1;
             $maxId = $maxId + 1;
-            $dances = explode(' ', trim(substr($category, $pos, strlen($category) - $pos), ' ()'));
+            $dancesString = trim(substr($category, $pos), ' ()');
+            $dances = $dancesString === '' ? [] : explode(' ', $dancesString);
             unset($added->dances);
             $temp_dances = [];
-            if (count($dances) > 0) {
+
+            if( count($dances) > 0 ) {
                 $cnt = count($dances);
                 $added->dance = $dances[0];
                 for ($i = 0; $i < $cnt; $i++) {
@@ -1467,7 +1472,8 @@ class DashboardController extends Controller
       }
       // order
       foreach ($order as $key => $value) {
-          if ($value === null || $value === '') unset($order[$key]);
+          if( $value === null ) 
+            unset($order[$key]);
       }
       asort($order);
       // ułóż wynik wg order
@@ -1475,7 +1481,8 @@ class DashboardController extends Controller
       foreach ($data as $index => $value) {
           if (!array_key_exists($index, $order)) {
               $final[] = $value;
-          } elseif (count($order) > 0 && min($order) != 0) {
+          } 
+          elseif( min($order) != 0 ) {
               foreach ($order as $key => $number) {
                   $final[] = $data[$key];
                   $order[$key] = 0;
@@ -1543,38 +1550,6 @@ class DashboardController extends Controller
         return $this->showRound(0);
     }
 
-    private function getProgramNo()
-    {
-
-        $mainRounds = Round::orderBy('id')->get();
-
-        $compressedOrder = [];
-        $rounds = [];
-
-        $firstIndex = PHP_INT_MAX;
-        $lastIndex = 0;
-        foreach ($mainRounds as $programRound) {
-            if (in_array($programRound->description, $rounds)) {
-                continue;
-            }
-            foreach ($mainRounds as $index => $round) {
-                if ($programRound->description == $round->description) {
-                    if (! in_array($programRound->description, $rounds)) {
-                        $rounds[] = $programRound->description;
-                    }
-                    if ($index != count($compressedOrder)) {
-                        if ($index < $firstIndex) {
-                            $firstIndex = count($compressedOrder);
-                        }
-                        $lastIndex = count($compressedOrder);
-                    }
-                    $compressedOrder[] = $index;
-                }
-            }
-        }
-        return count($rounds);
-    }
-
     public function showRound($roundIdFromDB)
     {
         $prevRoundIdFromDB = 0;
@@ -1614,6 +1589,8 @@ class DashboardController extends Controller
         $groups = false;
         $votes = false;
         $error = -1;
+        $dance = null;
+        $coupleNames = [];
         if ($roundFromDB != null) {
             $round = $this->tournamentHelper->getRoundWithType($roundFromDB->description, $roundFromDB->type);
             $roundDescription = $roundFromDB->description;
@@ -1865,12 +1842,8 @@ class DashboardController extends Controller
             }
         }
         if ($scheduleParts) {
-            usort($baseRounds, function ($a, $b) {
-                if ($a->positionW == $b->positionW) {
-                    return $a->idx > $b->idx;
-                } else {
-                    return  $a->positionW > $b->positionW;
-                }
+            usort($baseRounds, function ($a, $b): int {
+                return ($a->positionW <=> $b->positionW) ?: ($a->idx <=> $b->idx);
             });
         }
         foreach ($baseRounds as $round) {
@@ -2701,17 +2674,13 @@ class DashboardController extends Controller
           $conflicts[$groupKey] = ['label' => $label, 'club' => $data['club'], 'entries' => [] ];
         }
         
-        $existing = $conflicts[$groupKey]['entries'] ?? [];
+        $existing = $conflicts[$groupKey]['entries'];
         $merged = [];
         
         $seen = [];
         
         foreach (array_merge($existing, $items) as $e) {
-          $key = mb_strtoupper(
-              ($e['number'] ?? '') . '|' .
-              ($e['description'] ?? '')
-          );
-        
+          $key = mb_strtoupper( $e['number'] . '|' . $e['description'], 'UTF-8' );
           if (isset($seen[$key])) {
               continue; // ❌ DUPLIKAT
           }
@@ -2769,7 +2738,7 @@ class DashboardController extends Controller
           ->with('couples', $conflicts)
           ->with('parts', $PartsStr);
     }
-*/
+
     public function reportListsRange()
     {
         $rounds = [];
@@ -2820,13 +2789,8 @@ class DashboardController extends Controller
             }
         }
         if ($scheduleParts) {
-            usort($Program, function ($a, $b) {
-                if ($a->positionW == $b->positionW) {
-                    return $a->idx > $b->idx;
-                } else {
-                    return  $a->positionW > $b->positionW;
-                }
-            });
+            usort( $Program, fn($a, $b): int =>
+                ($a->positionW <=> $b->positionW) ?: ($a->idx <=> $b->idx) );
         }
 
         $couples = $this->tournamentHelper->getCouplesCSV();
@@ -2943,6 +2907,7 @@ class DashboardController extends Controller
       $cursor = $range_start;
     
       // Generator pomija lack_no oraz numery zajęte przez free_places
+      /** @var array<int, bool> $freeReservedNumbers */
       $nextNumber = function () use (
         &$cursor,
         $range_start,
@@ -3621,13 +3586,6 @@ class DashboardController extends Controller
             ->with('Numbers', $Numbers);
     }
 
-    private function convert_dance($shortName)
-    {
-        $replaceDance = Config::get('ptt.replaceDance');
-
-        return strtr($shortName, $replaceDance);
-    }
-
     public function reportTrainee()
     {
         $baseRounds = request()->old('roundId');
@@ -3802,13 +3760,8 @@ class DashboardController extends Controller
             }
         }
         if ($scheduleParts) {
-            usort($baseRounds, function ($a, $b) {
-                if ($a->positionW == $b->positionW) {
-                    return $a->idx > $b->idx;
-                } else {
-                    return  $a->positionW > $b->positionW;
-                }
-            });
+            usort($baseRounds, fn($a, $b): int =>
+                ($a->positionW <=> $b->positionW) ?: ($a->idx <=> $b->idx) );
         }
 
         return view('admin.panel')
@@ -4040,7 +3993,7 @@ class DashboardController extends Controller
 
     $scheduleParts = $this->tournamentHelper->getPartsCSV(); // może być array/Collection/null
 
-    $count = is_countable($roundsId) ? count($roundsId) : 0;
+    $count = count($roundsId);
     for ($i = 0; $i < $count; $i++) {
        $judge_set = [];
        $scr_set   = [];
@@ -4098,13 +4051,10 @@ class DashboardController extends Controller
         $results = [];
         $JudgesDB = [];
         $JudgesDB = $this->tournamentHelper->getJudgesDB();
-        usort($JudgesDB, function ($a, $b) {
-            if ($a->lastName == $b->lastName) {
-                return  $a->firstName > $b->firstName;
-            } else {
-                return  $a->lastName > $b->lastName;
-            }
-        });
+        usort($JudgesDB, fn($a, $b): int =>
+            ($a->lastName <=> $b->lastName)
+            ?: ($a->firstName <=> $b->firstName)
+        );
         foreach ($JudgesDB as $judge) {
             if ((strpos(strtolower($judge->lastName[0]), strtolower($term[0])) !== false)) {
                 $results[] = ['id' => $judge->plId, 'value' => $judge->lastName.', '.$judge->firstName.', '.$judge->city.', '.$judge->plId];

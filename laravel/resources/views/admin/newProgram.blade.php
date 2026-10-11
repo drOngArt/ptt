@@ -8,7 +8,7 @@
     <div id="page-wrapper" class="container-fluid">
 
 
-        {{ html()->form('GET', action('Admin\DashboardController@selectedCategories'))->open() }}
+        {{ html()->form('GET', route('admin.program.categories'))->open() }}
         <div class="row mb-3">
             <div class="col-12 d-flex justify-content-between align-items-center">
                 <h1 class="h3 mb-0">Wybór kategorii</h1>
