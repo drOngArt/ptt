@@ -7,9 +7,9 @@
 @section('content')
 <div id="page-wrapper" class="container-fluid">
 
-  {{ html()->form('POST', url('admin/postPanel'))->attribute('id','panelForm')->open() }}
-  @csrf
-
+ {{ html()->form('POST', route('admin.panel.submit'))->attribute('id', 'panelForm')->open() }}
+    @csrf
+  
   <div class="row mb-3">
     <div class="col-12 d-flex justify-content-between align-items-center">
       <h1 class="h3 mb-0">Panel sędziowski</h1>

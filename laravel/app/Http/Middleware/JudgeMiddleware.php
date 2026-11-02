@@ -3,31 +3,25 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use Illuminate\Contracts\Auth\Guard;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Symfony\Component\HttpFoundation\Response;
 
 class JudgeMiddleware
 {
-    protected $auth;
-
-    public function __construct(Guard $auth)
+    public function handle(Request $request, Closure $next): Response
     {
-        $this->auth = $auth;
-    }
+        if (Auth::guest()) {
+            return $request->ajax()
+                ? response('Unauthorized.', 401)
+                : redirect()->guest('adjudicator/login');
+        }
 
-    public function handle($request, Closure $next)
-    {
-        if ($this->auth->guest()) {
-            if ($request->ajax()) {
-                return response('Unauthorized.', 401);
-            } else {
-                return redirect()->guest('adjudicator/login');
-            }
+        if (!Gate::allows('judge-only')) {
+            return redirect('adjudicator/login');
         }
-        if (Gate::allows('judge-only')) {
-            return $next($request);
-        } else {
-            return redirect()->guest('adjudicator/login');
-        }
+
+        return $next($request);
     }
 }

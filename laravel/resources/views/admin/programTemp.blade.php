@@ -6,11 +6,12 @@
 
 @section('content')
   <div id="page-wrapper">
-    @if( $cmd == false)
-      {!! html()->form('POST', action('Admin\DashboardController@postFinalProgram'))->open() !!}
-    @else
-      {!! html()->form('GET', action('Admin\DashboardController@selectedCategories', ['something']))->open() !!}
-    @endif
+   @if($cmd == false)
+    {{ html()->form('POST', route('admin.program.final'))->open() }}
+    @csrf
+   @else
+    {{ html()->form('GET', route('admin.program.categories', ['type' => 'something']))->open() }}
+   @endif
 
     <div class="row">
       <div class="col-lg-12">
@@ -124,7 +125,7 @@
     {!! html()->form()->close() !!}
 
     {{-- Zachowanie sesji --}}
-    {!! Session::put('new_program', $program) !!}
+    {{ session()->put('new_program', $program) }}
   </div>
   <!-- /#page-wrapper -->
 @stop

@@ -6,8 +6,9 @@
 
 @section('content')
     <div id="page-wrapper">
-        {!! html()->form('POST', url('admin/reportSet'))->open() !!}
-            {!! html()->hidden('roundId', $round->roundId) !!}
+      {{ html()->form('POST', route('admin.report.set.submit'))->open() }}
+        @csrf
+      {!! html()->hidden('roundId', $round->roundId) !!}
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">Ustalanie miejsc

@@ -6,7 +6,8 @@
 
 @section('content')
    <div id="page-wrapper">
-      {!! html()->form('POST', url('admin/postReport'))->open() !!}
+     {{ html()->form('POST', route('admin.report.submit'))->open() }}
+        @csrf
          <div class="row">
            <div class="col-lg-12 d-flex justify-content-between align-items-center mb-3">
              <h1 class="page-header mb-0">Raporty / Wyniki</h1>
@@ -79,9 +80,9 @@
             @endif
          @endif
 
-         @if(Session::has('conflict'))
+         @if(session()->has('conflict'))
             <div class="alert alert-success">
-               {{ Session::get('conflict') }}
+               {{ session('conflict') }}
                <a href="#" class="close" data-dismiss="alert" aria-label="close">&times;</a>
             </div>
          @endif
@@ -99,8 +100,13 @@
                               <td class="text-center"  style="width: 15%">
                                  <button id="select_{{$round->positionW}}" type="button" class="btn btn-primary">&nbsp;Zaznacz&nbsp;</button>
                               </td>
-                              <td class="text-center align-middle">&nbsp;BLOK&nbsp;{{$round->positionW}}</td>
-                              <td class="text-center align-middle">UCZESTNIKÓW</td>
+                              <td class="text-center align-middle">
+                                &nbsp;BLOK&nbsp;{{$round->positionW}}
+                                [ kategorii - {{ $blockStats[$round->positionW]['categories'] ?? 0 }} ]</td>
+                              <td class="text-center align-middle">
+                                UCZESTNIKÓW 
+                                [ {{ $blockStats[$round->positionW]['participants'] ?? 0 }} ]
+                              </td>
                               <td class="text-center">&nbsp;</td>
                            </tr>
                            <tr>

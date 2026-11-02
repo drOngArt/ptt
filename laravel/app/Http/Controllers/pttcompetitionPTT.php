@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Arr;
 
 class DatabaseBlock
@@ -388,7 +388,7 @@ class CPConverter
             $cpFrom = 'CP1250';
         }
         $converted = @iconv($cpFrom, $cpTo, $text);
-        if (! $converted || strlen($converted) == 0) {
+        if (! $converted ) {
             $converted = $text;
         }
 
@@ -445,11 +445,6 @@ class CollectionFile
         @rename($this->backupFilename, $backupName);
     }
 
-    public function append($roundId, $danceSignature, $judgeSign, $votes)
-    {
-        return appendDescription($roundId, $danceSignature, $judgeSign, $votes, false, false);
-    }
-
     public function appendDescription($roundId, $danceSignature, $judgeSign, $votes, $description, $matchType)
     {
         if (! file_exists($this->filename)) {
@@ -486,6 +481,12 @@ class CollectionFile
         $this->write($line);
         fclose($this->file);
         fclose($this->backupFile);
+        return true;
+    }
+
+    public function append($roundId, $danceSignature, $judgeSign, $votes)
+    {
+        return $this->appendDescription($roundId, $danceSignature, $judgeSign, $votes, false, false);
     }
 
     public function get($roundId)
@@ -515,7 +516,7 @@ class CollectionFile
             }
 
             $parts = explode(',', $line);
-            if (! $parts || count($parts) < 3) {
+            if (count($parts) < 3) {
                 break;
             }
             if ($parts[0] != $roundId) {
@@ -573,7 +574,7 @@ class CollectionFile
             }
 
             $parts = explode('^', $line);
-            if (! $parts || count($parts) < 4) {
+            if (count($parts) < 4) {
                 continue;
             }
             if ($parts[2] != $description || $parts[3] != $matchType) {
@@ -603,7 +604,7 @@ class CollectionFile
         while (true) {
             $line = fgets($this->file);
             $line = trim($line, "\n\r");
-            if ($line === false || strlen($line) < 6) {
+            if (strlen($line) < 6) {
                 break;
             }
             if ($line[0] == '$') { // comment
@@ -879,7 +880,7 @@ class ManualResults
             }
 
             $parts = explode(',', $line);
-            if (! $parts || count($parts) < 3) {
+            if (count($parts) < 3) {
                 break;
             }
 
@@ -1387,7 +1388,7 @@ class CompetitionPTT
                 continue;
             }
 
-            if (! isset($plId) || $plId == '') {
+            if ($plId === null || $plId === '') {
                 $plIdToCheck = $judge->plId;
             }
 
@@ -1604,6 +1605,12 @@ class CompetitionPTT
         return $arr;
     }
 
+    /**
+    * @param int $roundId
+    * @param string $danceSignature
+    * @param int $error
+    * @param-out int $error
+    */
     public function getDanceCouples($roundId, $danceSignature, &$error)
     {
         $this->getRounds();
@@ -1932,6 +1939,7 @@ class CompetitionPTT
 
     public function saveVotesToDatabase($roundId)
     {
+        $prevVotes = false;
         $round = $this->getRound($roundId);
         $collectionFile = new CollectionFile($this->votesname);
 
@@ -2730,13 +2738,9 @@ class CompetitionPTT
                 $this->categoriesCSV[] = $category;
             } 
             // COUPLES
-            elseif ($counter > 2 && count($parts) > 14 && is_numeric($parts[0]) && is_numeric($parts[10]) /* && is_numeric($parts[11]) */) {
+            elseif (count($parts) > 14 && is_numeric($parts[0]) && is_numeric($parts[10]) /* && is_numeric($parts[11]) */) {
                 $couple = new Couple;
-                if (is_numeric($parts[0])) {
-                    $couple->number = $parts[0];
-                } else {
-                    $couple->number = 0;
-                }
+                $couple->number = $parts[0];                
                 $couple->roundId = $name;
                 $couple->plIdA = $parts[10];
                 $couple->plIdB = $parts[11];
@@ -3147,7 +3151,7 @@ class CompetitionPTT
         return 0; // mark unexisting dance
     }
 
-    private function getDanceRecord($roundId, $coupleNumber)
+    /*private function getDanceRecord($roundId, $coupleNumber)
     {
         $this->readDances();
         foreach ($this->dances as $dance) {
@@ -3157,7 +3161,7 @@ class CompetitionPTT
         }
 
         return false;
-    }
+    }*/
 
     private function unpackDanceResults($dbResult)
     {
@@ -3233,7 +3237,7 @@ class CompetitionPTT
     }
 
     // array: ['judge']=>'A-W' ['note']=>''/'X'/'1-n' ['rmark']=>true/false
-    private function unpackVotes($dbVotes)
+    /*private function unpackVotes($dbVotes)
     {
         $arr = [];
         for ($i = 0; $i < strlen($dbVotes); $i++) {
@@ -3258,7 +3262,7 @@ class CompetitionPTT
         }
 
         return $arr;
-    }
+    }*/
 
     private function collectVotes($roundId, $danceSignature, $judgeSign, $votes)
     {
@@ -3383,12 +3387,7 @@ class CompetitionPTT
                         if (strlen($item->description) > 0) {
                             $schedule[] = $item;
                         }
-                        if ($ch == ';') {
-                            $state = 1;
-                        } // next item
-                        else {
-                            $state = 0;
-                        } // next line
+                        $state = 1;
                     }
                     if ($ch == ')') //maybe alt name
                       $state = 4;
@@ -3397,10 +3396,10 @@ class CompetitionPTT
                     $name = $name.$ch;
                     $triple = $triple + 1;
                     if ($triple >= 3) {
-                        if (strlen($name) > 0) { // there was a name of dance
+                        /*if (strlen($name) > 0) { // there was a name of dance*/
                             $item->dances[] = $name;
                             $name = '';
-                        }
+                        /*}*/
                         $triple = 0;
                     }
                 }
@@ -3412,7 +3411,7 @@ class CompetitionPTT
                   $name = '';
                   continue;
                 }
-                if (ord($ch) < 0x20 || $ch == ']' || $ch == ';') { // separator, end alt or end line
+                if ( /*ord($ch) < 0x20 ||*/ $ch == ']' || $ch == ';') { // separator, end alt or end line
                     if (strlen($name) > 0) { // there was an alt name
                         $item->alt_description = $this->convert($name);
                         $name = '';

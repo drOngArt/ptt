@@ -37,8 +37,8 @@
 
             <p class="bg-danger">{{ $errors->first('message') }}</p>
 
-            @if (Session::has('flash_message'))
-              <p id="message" class="bg-success">{{ Session::get('flash_message') }}</p>
+            @if (session()->has('flash_message'))
+              <p id="message" class="bg-success">{{ session('flash_message') }}</p>
             @endif
 
             <div class="form-group">

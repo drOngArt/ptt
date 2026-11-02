@@ -12,7 +12,8 @@
         Zmiana hasła: <br>{{ $user->username }}
       </h1>
 
-      {{ html()->form('POST', action('Admin\DashboardController@postChangePassword', [$user->id, $flag]))->open() }}
+      {{ html()->form('POST', route('admin.password.update', ['userId' => $user->id, 'flag' => $flag]))->open() }}
+        @csrf
         <div class="mb-3">
           {{ html()->label('Hasło')->class('form-label') }}
           {{ html()->password('password')

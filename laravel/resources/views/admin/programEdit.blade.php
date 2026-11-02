@@ -7,8 +7,8 @@
 @section('content')
 <div id="page-wrapper" class="container-fluid">
 
-    {{ html()->form('POST', action('Admin\DashboardController@postFinalProgram'))->open() }}
-
+{{ html()->form('POST', route('admin.program.final'))->open() }}
+    @csrf
     <div class="row mb-3">
         <div class="col-lg-12">
             <div class="page-header-break">PROGRAM TURNIEJU</div>
@@ -250,7 +250,7 @@
       aria-labelledby="saveParametersLabel"
       aria-hidden="true">
   
-    {{ html()->form('GET', action('Admin\DashboardController@saveParameters'))->open() }}
+    {{ html()->form('GET', route('admin.program.save-parameters'))->open() }}
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
   
@@ -263,6 +263,16 @@
         <div class="modal-body">
           <div class="mb-3 ekran">
   
+            <div class="mb-2">
+              {{ html()->input('number', 'intDurationStart', $layout->parameter1)
+                  ->id('intDurationStart')
+                  ->class('form-control d-inline-block text-center width_100px btn-light-blue ekran')
+                  ->attribute('min', 0)
+                  ->attribute('max', 60)
+                  ->required() }}
+              <span class="ms-2">[min] – otwarcie turnieju</span>
+            </div>
+
             <div class="mb-2">
               {{ html()->input('number', 'intDurationElm', $layout->durationRound)
                   ->id('intDurationElm')
@@ -282,17 +292,7 @@
                   ->required() }}
               <span class="ms-2">[sec] – czas trwania tańca w rundzie finałowej</span>
             </div>
-  
-            <div class="mb-2">
-              {{ html()->input('number', 'intDurationStart', $layout->parameter1)
-                  ->id('intDurationStart')
-                  ->class('form-control d-inline-block text-center width_100px btn-light-blue ekran')
-                  ->attribute('min', 0)
-                  ->attribute('max', 60)
-                  ->required() }}
-              <span class="ms-2">[min] – otwarcie turnieju</span>
-            </div>
-  
+ 
             <div class="mb-2">
               {{ html()->input('number', 'intDurationEnd', $layout->parameter2)
                   ->id('intDurationEnd')

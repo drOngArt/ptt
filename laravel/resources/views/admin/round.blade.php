@@ -108,17 +108,17 @@
         </div>
 
         {{-- ALERTY --}}
-        @if(Session::has('success'))
+        @if(session()->has('success'))
             <div class="alert alert-success alert-dismissible fade show mt-2" role="alert">
-                <strong>ZAPISANE</strong> {{ Session::get('success', '') }}
+                <strong>ZAPISANE</strong> {{ session('success', '') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
             </div>
         @endif
 
-        @if(Session::has('alert'))
+        @if(session()->has('alert'))
             <div class="alert alert-danger alert-dismissible fade show mt-2" role="alert">
                 <h3 class="mb-0">
-                    <strong>BŁĄD!</strong> {{ Session::get('alert', '') }}
+                    <strong>BŁĄD!</strong> {{ session('alert', '') }}
                 </h3>
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
             </div>
@@ -221,7 +221,8 @@
     </div> {{-- /#page-wrapper --}}
 
     <div class="modal fade roundCloseModal" tabindex="-1" aria-labelledby="roundCloseModalLabel" aria-hidden="true">
-        {{ html()->form('POST', url('admin/round'))->open() }}
+        {{ html()->form('POST', route('admin.round.close'))->open() }}
+           @csrf
         <div class="modal-dialog">
             <div class="modal-content">
 
@@ -257,7 +258,8 @@
     </div>
 
     <div class="modal fade roundUndoModal" tabindex="-1" aria-labelledby="roundUndoModalLabel" aria-hidden="true">
-        {{ html()->form('POST', url('admin/round/undoRound'))->open() }}
+        {{ html()->form('POST', route('admin.round.undo'))->open() }}
+           @csrf
         <div class="modal-dialog">
             <div class="modal-content">
 
@@ -294,7 +296,8 @@
     </div>
 
     <div class="modal fade judgeResults" tabindex="-1" aria-labelledby="judgeResultsLabel" aria-hidden="true">
-        {{ html()->form('POST', url('admin/round/undoRound'))->id('judgeUndoForm')->open() }}
+      {{ html()->form('POST', route('admin.round.undo'))->id('judgeUndoForm')->open() }}
+         @csrf
         <div class="modal-dialog">
             <div class="modal-content">
 
@@ -417,7 +420,7 @@
 @section('customScripts')
     <script src="{{ asset('js/adminRound.js') }}"></script>
     <script>
-        var adminRefreshTimer = "{{ Config::get('ptt.adminRefreshTimer') }}";
+        var adminRefreshTimer = "{{ config('ptt.adminRefreshTimer') }}";
         var roundIdFromDB     = "{{ $roundIdFromDB }}";
         var baseURI           = "{{ $baseURI }}";
 

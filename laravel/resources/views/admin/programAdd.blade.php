@@ -6,7 +6,8 @@
 
 @section('content')
   <div id="page-wrapper">
-    {{ html()->form('POST', action('Admin\DashboardController@postFinalProgram'))->open() }}
+    {{ html()->form('POST', route('admin.program.final'))->open() }}
+    @csrf
 
     <div class="row">
       <div class="col-lg-12">

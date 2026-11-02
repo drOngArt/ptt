@@ -7,7 +7,7 @@
 @section('content')
 <div id="page-wrapper" class="container-fluid">
 
-    {{ html()->form('GET', url('admin/report'))->open() }}
+    {{ html()->form('GET', route('admin.report.index'))->open() }}
     <div class="row">
         <div class="col-lg-12 d-flex align-items-center mb-3">
            <h1 class="page-header mb-0">Stażysta</h1>

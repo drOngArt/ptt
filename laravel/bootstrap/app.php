@@ -1,55 +1,73 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Create The Application
-|--------------------------------------------------------------------------
-|
-| The first thing we will do is create a new Laravel application instance
-| which serves as the "glue" for all the components of Laravel, and is
-| the IoC container for the system binding all of the various parts.
-|
-*/
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Session\TokenMismatchException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 
-$app = new Illuminate\Foundation\Application(
-    realpath(__DIR__.'/../')
-);
+return Application::configure(basePath: dirname(__DIR__))
+    ->withRouting(
+        commands: __DIR__.'/../routes/console.php',
+        health: '/up',
 
-/*
-|--------------------------------------------------------------------------
-| Bind Important Interfaces
-|--------------------------------------------------------------------------
-|
-| Next, we need to bind some important interfaces into the container so
-| we will be able to resolve them when needed. The kernels serve the
-| incoming requests to this application from both the web and CLI.
-|
-*/
+        using: function () {
 
-$app->singleton(
-    'Illuminate\Contracts\Http\Kernel',
-    'App\Http\Kernel'
-);
+            // WEB
+            // Zachowujemy stary namespace kontrolerów.
+            Route::middleware('web')
+                ->namespace('App\Http\Controllers')
+                ->group(base_path('routes/web.php'));
 
-$app->singleton(
-    'Illuminate\Contracts\Console\Kernel',
-    'App\Console\Kernel'
-);
+            // API
+            // Celowo bez prefix('api'), ponieważ routes/api.php
+            // zawiera już api/v1.
+            Route::middleware('api')
+                ->namespace('App\Http\Controllers')
+                ->group(base_path('routes/api.php'));
+        },
+    )
 
-$app->singleton(
-    'Illuminate\Contracts\Debug\ExceptionHandler',
-    'App\Exceptions\Handler'
-);
+    ->withMiddleware(function (Middleware $middleware): void {
 
-/*
-|--------------------------------------------------------------------------
-| Return The Application
-|--------------------------------------------------------------------------
-|
-| This script returns the application instance. The instance is given to
-| the calling script so we can separate the building of the instances
-| from the actual running of the application and sending responses.
-|
-*/
+       $middleware->alias([
+          'adminAuth' => \App\Http\Middleware\AdminMiddleware::class,
+          'judgeAuth' => \App\Http\Middleware\JudgeMiddleware::class,
+          'wallAuth'  => \App\Http\Middleware\WallMiddleware::class,
+          'APIAuth'   => \App\Http\Middleware\APIAuth::class,
+        ]);
+    })
 
-return $app;
+    ->withExceptions(function (Exceptions $exceptions): void {
+        $exceptions->stopIgnoring(TokenMismatchException::class);
+        // Tymczasowa diagnostyka losowego błędu 419
+        $exceptions->report(function (TokenMismatchException $e) {
+
+            $request = request();
+
+            Log::error('CSRF 419 TOKEN MISMATCH', [
+                'url' => $request->fullUrl(),
+                'method' => $request->method(),
+
+                'user_id' => auth()->id(),
+
+                'session_id' => $request->hasSession()
+                    ? $request->session()->getId()
+                    : null,
+
+                'session_token' => $request->hasSession()
+                    ? $request->session()->token()
+                    : null,
+
+                'request_token' => $request->input('_token'),
+
+                'referer' => $request->header('referer'),
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'time' => now()->toDateTimeString(),
+            ]);
+        });
+    })
+
+    ->create();

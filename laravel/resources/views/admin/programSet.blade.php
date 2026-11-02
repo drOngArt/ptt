@@ -12,8 +12,8 @@
         <div class="page-header-break">PROGRAM TURNIEJU</div>
 
         @php
-          $urlNormal = action('Admin\DashboardController@selectedCategories', ['something']);
-          $urlSave   = action('Admin\DashboardController@selectedCategories', ['saveFile']);
+          $urlNormal = route('admin.program.categories', ['type' => 'something']);
+          $urlSave   = route('admin.program.categories', ['type' => 'saveFile']);
         @endphp
 
         {{ html()->form('GET', $urlNormal)
@@ -54,7 +54,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Zamknij"></button>
               </div>
             @endif
-            {!! Session::forget('status') !!}
+            {{ session()->forget('status') }}
           @endif
       </div>
     </div>

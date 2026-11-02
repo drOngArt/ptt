@@ -10,7 +10,13 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+/**
+ * @property int|null $plId
+ * @property-read string|null $role
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Role> $roles
+ */
 class User extends Model implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract
 {
     use Authenticatable, Authorizable, CanResetPassword;
@@ -38,7 +44,10 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         // return $this->attributes['role'];
     }
 
-    public function roles()
+    /**
+    * @return BelongsToMany<Role, $this>
+    */
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'role_user');
     }
