@@ -663,7 +663,7 @@ class DashboardController extends Controller
         } else {// no rounds?/ impossible, maybe directory was changed
             return view('admin.tournamentChooser');
         }
-
+//dd('program-',$compressedProgram,$times);
         return view('admin.program')
             ->with('program', $program)
             ->with('compressedProgram', $compressedProgram)
@@ -2193,6 +2193,7 @@ class DashboardController extends Controller
                 return $result;
             }
         }
+      }
 
         // Pozostałe kategorie w kolejności pierwotnej
         return $a['originalOrder'] <=> $b['originalOrder'];
@@ -2587,7 +2588,6 @@ class DashboardController extends Controller
     
           $allEntries[] = $c;
         }
-      }
     
       // ======================================================
       // MAPA OSÓB -> STARTY
@@ -2967,6 +2967,342 @@ class DashboardController extends Controller
     
       // Generator pomija lack_no oraz numery zajęte przez free_places
       /** @var array<int, bool> $freeReservedNumbers */
+      $nextNumber = function () use (
+        &$cursor,
+        $range_start,
+        $range_end,
+        $notAllowed,
+        &$freeReservedNumbers,
+        &$wrapAround
+      ) {
+        $checked = 0;
+        $maxChecks = $range_end - $range_start + 1;
+    
+        while( $checked < $maxChecks ) {
+          if( $cursor > $range_end ) {
+              $cursor = $range_start;
+              $wrapAround = true;
+          }
+    
+          $number = $cursor++;
+          $checked++;
+    
+          if( in_array( $number, $notAllowed, true ) ) {
+            continue;
+          }
+    
+          if( isset( $freeReservedNumbers[$number] ) ) {
+            continue;
+          }
+          return $number;
+        }
+        return null;
+      };
+    
+      $debugLog = [];
+    
+      // ============================================================
+      // BLOKI
+      // ============================================================
+      foreach( $blocks as $blockIndex => $block ) {
+        $blockReservedNumbers = [];
+    
+        // Ręczny start bloku
+        if( isset($block_no[$blockIndex]) && is_numeric($block_no[$blockIndex]) ) {
+          $cursor = max((int) $block_no[$blockIndex], $range_start);
+        }
+    
+        /*
+        * NUMBER SAME:
+        * najpierw sprawdzamy cały blok i rezerwujemy numery
+        * par/solistów, którzy występowali wcześniej.
+        */
+        if( $isGlobal ) {
+          foreach ($Program as $round) {
+            if( $round->positionW != $block ) {
+                continue;
+            }
+    
+            $roundKey = mb_strtoupper( $round->description, 'UTF-8' );
+            $roundCouples = $couplesByRound[$roundKey] ?? [];
+    
+            foreach( $roundCouples as $couple ) {
+              $key = $pairKey( $couple );
+    
+              if( isset( $globalAssigned[$key] ) ) {
+                $number = $globalAssigned[$key];
+                $blockReservedNumbers[$number] = $key;
+    
+                $debugLog[] = [
+                  'STEP'   => 'BLOCK_RESERVE_OLD_NUMBER',
+                  'pair'   => $key,
+                  'number' => $number,
+                  'block'  => $block,
+                ];
+              }
+            }
+          }
+        }
+    
+        // KATEGORIE W BLOKU
+        foreach( $Program as $round ) {
+          if( $round->positionW != $block ) {
+            continue;
+          }
+    
+          $roundKey = mb_strtoupper( $round->description, 'UTF-8' );
+          $roundCouples = $couplesByRound[$roundKey] ?? [];
+    
+          // Start kategorii przesuwa tylko do przodu
+          if( !empty( $round->startFrom ) ) {
+            $cursor = max( $cursor, (int) $round->startFrom );
+          }
+    
+          $categories = [];
+          foreach( $roundCouples as $couple ) {
+            $key = $pairKey( $couple );
+            $debugLog[] = [
+              'STEP'   => 'ENTRY',
+              'pair'   => $key,
+              'round'  => $round->description,
+              'block'  => $block,
+              'cursor' => $cursor,
+            ];
+
+            // Para ma już numer globalny
+            if( $isGlobal && isset( $globalAssigned[$key] ) ) {
+              $couple->number = $globalAssigned[$key];
+              $categories[] = $couple;
+    
+              $debugLog[] = [
+                'STEP'   => 'GLOBAL_USE_AGAIN',
+                'pair'   => $key,
+                'number' => $couple->number,
+                'block'  => $block,
+                'cursor' => $cursor,
+              ];
+              continue;
+            }
+    
+            // Para ma już numer w tym bloku
+            if( !$isGlobal && isset( $blockAssigned[$block][$key]) ) {
+              $couple->number = $blockAssigned[$block][$key];
+              $categories[] = $couple;
+    
+              $debugLog[] = [
+                'STEP'   => 'BLOCK_USE_AGAIN',
+                'pair'   => $key,
+                'number' => $couple->number,
+                'block'  => $block,
+                'cursor' => $cursor,
+              ];
+              continue;
+            }
+    
+            // Nowa para - szukamy wolnego numeru
+            $number = null;
+            $maxChecks = $range_end - $range_start + 1;
+    
+            for( $checked = 0; $checked < $maxChecks; $checked++ ) {
+              $candidate = $nextNumber();
+              if( $candidate === null ) {
+                  break;
+              }
+              if( $candidate > $round->nDancesW ) {
+                  continue;
+              }
+              if( isset( $blockReservedNumbers[$candidate] ) ) {
+                  continue;
+              }
+              $number = $candidate;
+              break;
+            }
+    
+            if( $number === null ) {
+              $debugLog[] = [
+                  'ERROR' => 'NO_NUMBER',
+                  'pair'  => $key,
+                  'round' => $round->description,
+                  'block' => $block,
+              ];
+              continue;
+            }
+    
+            $couple->number = $number;
+    
+            if( $isGlobal ) {
+              $globalAssigned[$key] = $number;
+            } 
+            else {
+              $blockAssigned[$block][$key] = $number;
+            }
+    
+            // Numer jest zajęty w aktualnym bloku
+            $blockReservedNumbers[$number] = $key;
+            $categories[] = $couple;
+    
+            $debugLog[] = [
+              'STEP'   => 'ASSIGN',
+              'pair'   => $key,
+              'number' => $number,
+              'block'  => $block,
+              'cursor' => $cursor,
+            ];
+          }
+    
+          if( !empty( $categories) ) {
+            $this->tournamentHelper->SaveCouples2CSV( $categories, $round );
+          }
+        }
+    
+        // ========================================================
+        // FREE PLACES - RAZ PO CAŁYM BLOKU
+        // ========================================================
+        for( $i = 0; $i < $free_places; $i++ ) {
+          $freeNumber = null;
+          $maxChecks = $range_end - $range_start + 1;
+    
+          for( $checked = 0; $checked < $maxChecks; $checked++ ) {
+            $candidate = $nextNumber();
+    
+            if( $candidate === null ) {
+              break;
+            }
+    
+            // Nie rezerwujemy numeru używanego w tym bloku
+            if( isset( $blockReservedNumbers[$candidate] ) ) {
+              continue;
+            }
+            $freeNumber = $candidate;
+            break;
+          }
+    
+          if( $freeNumber === null ) {
+            $debugLog[] = [
+                'ERROR' => 'NO_FREE_PLACE_NUMBER',
+                'block' => $block,
+            ];
+            break;
+          }
+    
+          // free_places jest trwale zajęty dla następnych bloków
+          $freeReservedNumbers[$freeNumber] = true;
+          $debugLog[] = [
+            'STEP'   => 'FREE_PLACE_RESERVED',
+            'number' => $freeNumber,
+            'block'  => $block,
+            'cursor' => $cursor,
+          ];
+        }
+      }
+    
+      Log::info('STREAM_ALLOCATOR_DEBUG', $debugLog);
+    
+      if ($wrapAround) {
+          return redirect('admin/report')
+              ->with('conflict', 'Brak dostępnych numerów, część kategorii od początku numeracji!');
+      }
+    
+      return redirect('admin/report')
+          ->with('conflict', 'Przydział numerów prawidłowy.');
+    }
+
+  /*  public function postRanges()
+    {
+      $range_start = is_numeric(request()->input('main_start_no')) ? (int) request()->input('main_start_no') : 1;
+      $range_end   = is_numeric(request()->input('main_end_no')) ? (int) request()->input('main_end_no') : 200;
+    
+      $lack        = request()->input('lack_no');
+      $blocks      = request()->input('blockId');
+      $block_no    = request()->input('block_no');
+      $roundIds    = request()->input('roundId');
+      $start_no    = request()->input('start_no');
+      $number_same = request()->input('agree');
+      $free_places = is_numeric(request()->input('free_places')) ? (int) request()->input('free_places') : 0;
+    
+      $isGlobal = filter_var($number_same, FILTER_VALIDATE_BOOLEAN);
+    
+      // Numery niedozwolone
+      $notAllowed = [];
+      if( !empty($lack) ) {
+        $notAllowed = array_map('intval', array_filter(array_map('trim', explode(',', $lack))));
+      }
+    
+      // Startowe numery kategorii
+      $startNoMap = [];
+      foreach( $roundIds as $i => $rid ) {
+        if( isset( $start_no[$i] ) && is_numeric( $start_no[$i] ) ) {
+          $startNoMap[$rid] = (int) $start_no[$i];
+        }
+      }
+    
+      // Kategorie
+      $Program = [];
+      foreach( $roundIds as $roundId ) {
+        $round = $this->tournamentHelper->getBaseRound((int) $roundId);
+        if( mb_strpos( mb_strtoupper( trim($round->styleName), 'UTF-8' ), 'KOMB' ) !== false ) {
+          $round->styleName = 'Komb';
+        }
+        $round->description = $round->categoryName . ' ' . $round->className . ' ' . $round->styleName;
+        $round->startFrom   = $startNoMap[$roundId] ?? null;
+        $round->nDancesW    = min($round->endNo, $range_end);
+    
+        $Program[] = $round;
+      }
+    
+      // Przypisanie kategorii do bloków
+      $scheduleParts = $this->tournamentHelper->getPartsCSV();
+    
+      foreach( $Program as $round ) {
+        $round->positionW = '0';
+    
+        foreach( $scheduleParts as $category ) {
+          if( mb_strpos( mb_strtoupper($round->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8') ) !== false) {
+            $round->positionW = $category->part;
+            break;
+          }
+        }
+      }
+    
+      // Lista par / solistów
+      $lists = $this->tournamentHelper->getCouplesCSV();
+    
+      if( !$lists ) {
+        Session::flash('status', 'error');
+        return;
+      }
+    
+      $couplesByRound = [];
+      foreach( $lists as $couple ) {
+        $key = mb_strtoupper( $couple->roundId, 'UTF-8' );
+        $couplesByRound[$key][] = $couple;
+      }
+    
+      /*
+      * globalAssigned:
+      * para => numer historyczny
+      *
+      * blockAssigned:
+      * para => numer w bloku, gdy number_same == false
+      *
+      * freeReservedNumbers:
+      * numery trwale zajęte przez free_places
+      */
+      $globalAssigned      = [];
+      $blockAssigned       = [];
+      $freeReservedNumbers = [];
+    
+      $pairKey = function ($c) {
+        $a = (int) $c->plIdA;
+        $b = (int) $c->plIdB;
+    
+        return $a < $b ? $a . '_' . $b : $b . '_' . $a;
+      };
+    
+      $wrapAround = false;
+      $cursor = $range_start;
+    
+      // Generator pomija lack_no oraz numery zajęte przez free_places
       $nextNumber = function () use (
         &$cursor,
         $range_start,
