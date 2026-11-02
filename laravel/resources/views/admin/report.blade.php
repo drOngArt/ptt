@@ -100,8 +100,13 @@
                               <td class="text-center"  style="width: 15%">
                                  <button id="select_{{$round->positionW}}" type="button" class="btn btn-primary">&nbsp;Zaznacz&nbsp;</button>
                               </td>
-                              <td class="text-center align-middle">&nbsp;BLOK&nbsp;{{$round->positionW}}</td>
-                              <td class="text-center align-middle">UCZESTNIKÓW</td>
+                              <td class="text-center align-middle">
+                                &nbsp;BLOK&nbsp;{{$round->positionW}}
+                                [ kategorii - {{ $blockStats[$round->positionW]['categories'] ?? 0 }} ]</td>
+                              <td class="text-center align-middle">
+                                UCZESTNIKÓW 
+                                [ {{ $blockStats[$round->positionW]['participants'] ?? 0 }} ]
+                              </td>
                               <td class="text-center">&nbsp;</td>
                            </tr>
                            <tr>

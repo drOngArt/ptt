@@ -1590,11 +1590,18 @@ class DashboardController extends Controller
         $votes = false;
         $error = -1;
         $dance = null;
+        $posit = -1;
         $coupleNames = [];
         if ($roundFromDB != null) {
-            $round = $this->tournamentHelper->getRoundWithType($roundFromDB->description, $roundFromDB->type);
+            if( ($posit = mb_strpos(mb_strtoupper($roundFromDB->description, 'UTF-8'), 'POKAZOWA')) !== false) {
+              $round = $this->tournamentHelper->getRoundWithType('Wstępna'.substr($roundFromDB->description, $posit + 8, strlen($roundFromDB->description) - $posit - 8), $roundFromDB->type);
+              $roundAlternativeDescription = 'Pamiętaj ręcznie zakończyc ten taniec! Sędziowie go nie oceniają ;)';
+            }
+            else {
+              $round = $this->tournamentHelper->getRoundWithType($roundFromDB->description, $roundFromDB->type);
+              $roundAlternativeDescription = $roundFromDB->alternative_description;
+            }
             $roundDescription = $roundFromDB->description;
-            $roundAlternativeDescription = $roundFromDB->alternative_description;
             if ($round) {
                 $dance = $this->tournamentHelper->getDanceCouples($round->roundId, $roundFromDB->dance, $error);
                 $coupleNames = $this->tournamentHelper->getCouples($round->baseRoundId);
@@ -1619,17 +1626,21 @@ class DashboardController extends Controller
                     }
                     $groups = count($dance->couples);
                     $votes = $round->votesRequired;
-                } elseif ($error == 0) {
+                } 
+                elseif ($error == 0) {
                     $round = false;
                     $roundAlternativeDescription = 'Brak tańca "'.$roundFromDB->dance.'" w rundzie.';
-                } else {
+                } 
+                else {
                     $round = false;
                     $roundAlternativeDescription = 'Nie ustalona liczba grup (wyszarzone przyciski "Typy" i "Karty") lub nie wygenerowany podział na grupy w tej rundzie.';
                 }
-            } else {
+            } 
+            else {
                 $roundAlternativeDescription = 'Brak zamkniętej lub zdefiniowanej rundy "'.$roundDescription.'" w strukturze turnieju.';
             }
-        } else {
+        } 
+        else {
             $roundDescription = 'Koniec programu lub nie pobrany następny.';
             $roundAlternativeDescription = 'Wczytaj nowy program albo .. się pakuj Mistrzu, znów się udało :))';
         }
@@ -1853,25 +1864,44 @@ class DashboardController extends Controller
                 $isManual[] = false;
             }
         }
+        $blockStats = [];
+
+        foreach ($baseRounds as $round) {
+            $block = $round->positionW;
+        
+            if (!isset($blockStats[$block])) {
+                $blockStats[$block] = [
+                    'categories' => 0,
+                    'participants' => 0,
+                ];
+            }
+        
+            $blockStats[$block]['categories']++;
+            $blockStats[$block]['participants'] += (int) $round->baseNumberOfCouples;
+        }
+
         $result = $this->tournamentHelper->getEventId();
         if (empty($result)) {
             return view('admin.report')
                 ->with('baseRounds', $baseRounds)
                 ->with('isManual', $isManual)
                 ->with('eventId', 'Brak numeru imprezy w programie PTT. Wczytaj prawidłowy plik Baza.csv.')
-                ->with('listyCSV', false);
+                ->with('listyCSV', false)
+                ->with('blockStats', $blockStats);
         } elseif (! $this->tournamentHelper->existListyCSV()) {
             return view('admin.report')
                 ->with('baseRounds', $baseRounds)
                 ->with('isManual', $isManual)
                 ->with('eventId', false)
-                ->with('listyCSV', 'Brak pliku Listy_'.$result.'.csv w katalogu turnieju lub jest uszkodzony albo nieprawidłowy format.');
+                ->with('listyCSV', 'Brak pliku Listy_'.$result.'.csv w katalogu turnieju lub jest uszkodzony albo nieprawidłowy format.')
+                ->with('blockStats', $blockStats);
         } else {
             return view('admin.report')
                    ->with('baseRounds', $baseRounds)
                    ->with('isManual', $isManual)
                    ->with('listyCSV', false)
-                   ->with('eventId', false);
+                   ->with('eventId', false)
+                   ->with('blockStats', $blockStats);
         }
     }
 
@@ -2029,119 +2059,148 @@ class DashboardController extends Controller
           ->with('program', $Program);
     }
 
-    public function reportCouples()
-    {
+    public function reportCouples() 
+    { 
       $rounds = [];
       $baseRounds = request()->old('roundId');
-    
+
       if ($baseRounds != null) {
         foreach ($baseRounds as $round) {
           if (filter_var(request()->old($round), FILTER_VALIDATE_BOOLEAN)) {
-            $rounds[] = $round;
+              $rounds[] = $round;
           }
         }
       }
-    
-      if (count($rounds) == 0) {
+
+      if (count($rounds) === 0) {
         return redirect('admin/report');
       }
-    
+
       $compressedProgram = $this->getCompressedProgram();
+      // ====== NORMALIZACJA ======
       $normalize = function ($txt) {
         $txt = mb_strtoupper(trim($txt ?? ''), 'UTF-8');
         $txt = str_replace(['-', '–', '—'], ' ', $txt);
-        $txt = preg_replace('/\s+/', ' ', $txt);
+        $txt = preg_replace('/\s+/u', ' ', $txt);
+
         return trim($txt);
-      };    
+      };
 
       $normalizeStyle = function ($style) use ($normalize) {
         $style = $normalize($style);
+
         if (mb_strpos($style, 'KOMB') !== false) {
             return 'KOMB';
         }
+
         if (mb_strpos($style, 'LAT') !== false) {
             return 'LAT';
         }
+
         if (mb_strpos($style, 'ST') !== false) {
             return 'ST';
         }
+
         return $style;
       };
-    
+
+      // ====== WYBRANE KATEGORIE ======
       $selectedRounds = [];
       foreach ($rounds as $roundId) {
-        $round = $this->tournamentHelper->getBaseRound((int)$roundId);
+        $round = $this->tournamentHelper->getBaseRound((int) $roundId);
+
         if (mb_strpos($normalize($round->styleName), 'KOMB') !== false) {
             $round->styleName = 'Komb.';
         }
-    
-        $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
-    
+
+        $round->description =
+            $round->categoryName.' '.$round->className.' '.$round->styleName;
+
         $round->sortKey = $normalize(
-            $round->categoryName.' '.$round->className.' '.$normalizeStyle($round->styleName)
+            $round->categoryName.' '.
+            $round->className.' '.
+            $normalizeStyle($round->styleName)
         );
-    
+
         $round->shortKey = $round->sortKey;
+
         $selectedRounds[] = $round;
       }
-    
-      // =====================================================
-      // Kolejność wg compressedProgram — tylko pierwsze wystąpienie
-      // =====================================================
+
+      // ====== KOLEJNOŚĆ WG PROGRAMU ======
+      // Pierwsze wystąpienie kategorii decyduje o kolejności.
       $programOrder = [];
-      if (!empty($compressedProgram)) {
-        foreach ($compressedProgram as $idx => $item) {
-          if (empty($item->description)) {
+      foreach ($compressedProgram ?? [] as $idx => $item) {
+        if (empty($item->description)) {
             continue;
-          }
-          $programDesc = $normalize($item->description);
-          foreach ($selectedRounds as $round) {
+        }
+
+        $programDesc = $normalize($item->description);
+
+        foreach ($selectedRounds as $round) {
             if (isset($programOrder[$round->sortKey])) {
-              continue;
+                continue;
             }
-    
+
             if (mb_strpos($programDesc, $round->shortKey) !== false) {
-              $programOrder[$round->sortKey] = $idx;
+                $programOrder[$round->sortKey] = $idx;
             }
-          }
         }
       }
 
+      // ====== NUMERY STARTOWE ======
       $rows = [];
-      $defaultOrder = 0;
-    
-      foreach ($selectedRounds as $round) {
+      foreach ($selectedRounds as $index => $round) {
         $couples = $this->tournamentHelper->getCouples($round->baseRoundId);
         $numbers = [];
-    
+
         foreach ($couples as $couple) {
-          if (!empty($couple->number)) {
-            $numbers[] = (int)$couple->number;
-          }
+            if (!empty($couple->number)) {
+                $numbers[] = (int) $couple->number;
+            }
         }
-    
+
         sort($numbers);
         $numbers = array_values(array_unique($numbers));
-    
+
+        $foundInProgram = isset($programOrder[$round->sortKey]);
+
         $rows[] = [
-          'order'       => $programOrder[$round->sortKey] ?? $defaultOrder++,
-          'description' => $round->description,
-          'count'       => count($numbers),
-          'numbers'     => $numbers,
+            'inProgram'   => $foundInProgram,
+            'order'       => $foundInProgram
+                ? $programOrder[$round->sortKey]
+                : PHP_INT_MAX,
+            'originalOrder' => $index,
+            'description' => $round->description,
+            'count'       => count($numbers),
+            'numbers'     => $numbers,
         ];
       }
 
+      // ====== SORTOWANIE ======
       usort($rows, function ($a, $b) {
-        if ($a['order'] == $b['order']) {
-          return strcmp($a['description'], $b['description']);
-        }
-        return $a['order'] <=> $b['order'];
-      });
-    
-      return view('admin.reportCouples')
-          ->with('rows', $rows);
-    }
 
+        // Najpierw kategorie występujące w programie
+        if ($a['inProgram'] !== $b['inProgram']) {
+            return $a['inProgram'] ? -1 : 1;
+        }
+
+        // Kategorie z programu wg pierwszego wystąpienia
+        if ($a['inProgram']) {
+            $result = $a['order'] <=> $b['order'];
+
+            if ($result !== 0) {
+                return $result;
+            }
+        }
+
+        // Pozostałe kategorie w kolejności pierwotnej
+        return $a['originalOrder'] <=> $b['originalOrder'];
+      });
+
+      return view('admin.reportCouples')
+        ->with('rows', $rows);
+    }
     public function reportClubs()
     {
         $rounds = [];
@@ -3768,282 +3827,342 @@ class DashboardController extends Controller
             ->with('baseRounds', $baseRounds);
     }
 
-  public function panelSet()
-  {
-  // tryb druku
-    $printMode = request('print'); // 'V'/'H'/null
-    $isPrint   = request()->has('print') || request()->boolean('autoprint');
-
-    // 1) po redirect()->withInput() dane są w old()
-    $rounds = old('selected');
-
-    // 2) jeśli przyszło bez redirecta (np. POST bezpośrednio) – weź z request
-    if (!is_array($rounds) || count($rounds) === 0) {
+    public function panelSet()
+    {
+    // tryb druku
+      $printMode = request('print'); // 'V'/'H'/null
+      $isPrint   = request()->has('print') || request()->boolean('autoprint');
+  
+      // 1) po redirect()->withInput() dane są w old()
+      $rounds = old('selected');
+  
+      // 2) jeśli przyszło bez redirecta (np. POST bezpośrednio) – weź z request
+      if( !is_array($rounds) || count($rounds) === 0 ) {
         $rounds = request()->input('selected', []);
-    }
-
-    // 3) jeśli to wydruk z panelTable – tam masz roundBaseId[]
-    if (!is_array($rounds) || count($rounds) === 0) {
+      }
+  
+      // 3) jeśli to wydruk z panelTable – tam masz roundBaseId[]
+      if( !is_array($rounds) || count($rounds) === 0 ) {
         $rounds = old('roundBaseId');
-        if (!is_array($rounds) || count($rounds) === 0) {
-            $rounds = request()->input('roundBaseId', []);
+        if( !is_array($rounds) || count($rounds) === 0 ) {
+          $rounds = request()->input('roundBaseId', []);
         }
-    }
-
-    // 4) fallback – sesja (np. druk w nowej karcie bez POST)
-    if (!is_array($rounds) || count($rounds) === 0) {
+      }
+  
+      // 4) fallback – sesja (np. druk w nowej karcie bez POST)
+      if( !is_array($rounds) || count($rounds) === 0 ) {
         $rounds = session('panel_selected', []);
-    }
-
-    // normalizacja
-    $rounds = is_array($rounds) ? array_values(array_filter($rounds, fn($v) => $v !== null && $v !== '')) : [];
-
-    if (count($rounds) === 0) {
-        if ($isPrint) {
-            return view('admin.panelTable')
-                ->with('program', [])
-                ->with('judges', [])
-                ->with('judgelist', [])
-                ->with('eventId', $this->tournamentHelper->getEventId())
-                ->with('parts', 'BLOK - ')
-                ->with('printMode', $printMode);
+      }
+  
+      // normalizacja
+      $rounds = is_array($rounds) ? array_values(array_filter($rounds, fn($v) => $v !== null && $v !== '')) : [];
+  
+      if( count($rounds) === 0 ) {
+        if( $isPrint ) {
+          return view('admin.panelTable')
+              ->with('program', [])
+              ->with('judges', [])
+              ->with('judgelist', [])
+              ->with('eventId', $this->tournamentHelper->getEventId())
+              ->with('parts', 'BLOK - ')
+              ->with('printMode', $printMode);
         }
         return redirect('admin/panel');
-    }
-
-    // ====== PROGRAM (kategorie/rundy) ======
-    $scheduleParts = $this->tournamentHelper->getPartsCSV();
-    $Program  = [];
-    $PartsNo  = [];
-    $PartsStr = 'BLOK - ';
-
-    $mainJudge = false;
-    foreach ($rounds as $index) {
+      }
+  
+      // ====== PROGRAM (kategorie/rundy) ======
+      $scheduleParts = $this->tournamentHelper->getPartsCSV();
+      $compressedProgram = $this->getCompressedProgram();
+      $Program  = [];
+      $PartsNo  = [];
+      $PartsStr = 'BLOK - ';
+  
+      $mainJudge = false;
+      foreach ($rounds as $index) {
         $round = $this->tournamentHelper->getBaseRound((int)$index);
         if( $mainJudge == false )
           $mainJudge = $this->tournamentHelper->getMainJudge($round->baseRoundId);
-        if (mb_strpos(mb_strtoupper($round->className, 'UTF-8'), 'H.') !== false) {
-            $round->className = 'H';
+        if( mb_strpos( mb_strtoupper($round->className, 'UTF-8'), 'H.' ) !== false ) {
+          $round->className = 'H';
         }
-
+  
         // style normalizacja
         //$styleUpper = mb_strtoupper(trim($round->styleName), 'UTF-8');
         //if (mb_strpos($styleUpper, 'KOMB') !== false)   $round->styleName = 'Komb.';
         //if (mb_strpos($styleUpper, 'STAND') !== false)  $round->styleName = 'Standard';
         //if (mb_strpos($styleUpper, 'LATIN') !== false)  $round->styleName = 'Latin';
-
+  
         $round->description = $round->categoryName.' '.$round->className.' '.$round->styleName;
-
         // część turnieju (BLOK - ...)
         foreach ($scheduleParts as $category) {
-            if (mb_strpos(
-                mb_strtoupper($round->description, 'UTF-8'),
-                mb_strtoupper($category->name, 'UTF-8')
-            ) !== false) {
+          if( mb_strpos(
+              mb_strtoupper($round->description, 'UTF-8'),
+              mb_strtoupper($category->name, 'UTF-8') ) !== false) {
                 if (!in_array($category->part, $PartsNo, true)) {
-                    $PartsNo[] = $category->part;
-                    $PartsStr .= (count($PartsNo) === 1) ? $category->part : ', '.$category->part;
+                  $PartsNo[] = $category->part;
+                  $PartsStr .= (count($PartsNo) === 1) ? $category->part : ', '.$category->part;
                 }
-            }
+          }
         }
-
         $round->judgesNo = $this->tournamentHelper->getJudgesNo($round->baseRoundId);
-
         // klucz = baseRoundId
         $Program = Arr::add($Program, $round->baseRoundId, $round);
-    }
-    // mapa baseRoundId -> pozycja w tablicy (0..n-1) dla $judge->sign[$idx]
-    $programKeys = array_keys($Program);               // np. [2,5,9,...]
-    $roundPosMap = array_flip($programKeys);           // [2=>0, 5=>1, 9=>2...]
-
-    // ====== SĘDZIOWIE ======
-    $Judges = $this->tournamentHelper->getJudgesCSV();
-
-    if (count($Judges) === 0) {
-        if ($mainJudge) {
-            $mainJudge->sign = '#';
-            if (is_numeric($mainJudge->plId2)) {
-                $Judges = Arr::add($Judges, $mainJudge->plId2, $mainJudge);
-            } elseif (is_numeric($mainJudge->plId)) {
-                $Judges = Arr::add($Judges, $mainJudge->plId, $mainJudge);
-            } else {
-                $mainJudge->plId2 = $mainJudge->lastName.';'.$mainJudge->firstName.';'.$mainJudge->city.';'.$mainJudge->country;
-                $Judges = Arr::add($Judges, $mainJudge->plId2, $mainJudge);
-            }
+      }
+      
+      // ====== SORTOWANIE KATEGORII WG PROGRAMU ======
+      $normalize = function ($txt) {
+        $txt = mb_strtoupper(trim($txt ?? ''), 'UTF-8');
+        $txt = str_replace(['-', '–', '—'], ' ', $txt);
+        $txt = preg_replace('/\s+/u', ' ', $txt);
+        return trim($txt);
+      };
+      
+      $normalizeStyle = function ($style) use ($normalize) {
+        $style = $normalize($style);
+        if( mb_strpos($style, 'KOMB') !== false ) {
+          return 'KOMB';
         }
-        Session::flash('status', 'error');
+        return $style;
+      };
+      
+      // Przygotowanie kluczy kategorii
+      foreach( $Program as $round ) {
+        $round->sortKey = $normalize(
+          $round->categoryName.' '.$round->className.' '.$normalizeStyle($round->styleName)
+        );
+      }
+      
+      // Pierwsze wystąpienie kategorii w programie
+      $programOrder = [];
+      
+      foreach( $compressedProgram as $idx => $item ) {
+        if( empty($item->description) ) {
+          continue;
+        }
+      
+        $programDesc = $normalize($item->description);
+        foreach( $Program as $round ) {
+          if( isset($programOrder[$round->sortKey]) ) {
+            continue;
+          }
+      
+          if( mb_strpos($programDesc, $round->sortKey) !== false ) {
+            $programOrder[$round->sortKey] = $idx;
+          }
+        }
+      }
+      
+      // Sortowanie z zachowaniem kluczy baseRoundId
+      // Kategorie nieznalezione w programie trafiają na koniec
+      // w dotychczasowej kolejności.
+      $originalOrder = array_flip(array_keys($Program));
+      
+      uasort($Program, function ($a, $b) use ($programOrder, $originalOrder) {
+          $orderA = $programOrder[$a->sortKey] ?? PHP_INT_MAX;
+          $orderB = $programOrder[$b->sortKey] ?? PHP_INT_MAX;
+      
+          $result = $orderA <=> $orderB;
+      
+          if ($result !== 0) {
+              return $result;
+          }
+      
+          return $originalOrder[$a->baseRoundId]
+              <=> $originalOrder[$b->baseRoundId];
+      });
+      
+      // mapa baseRoundId -> pozycja w tablicy (0..n-1) dla $judge->sign[$idx]
+      $programKeys = array_keys($Program);               // np. [2,5,9,...]
+      $roundPosMap = array_flip($programKeys);           // [2=>0, 5=>1, 9=>2...]
+  
+      // ====== SĘDZIOWIE ======
+      $Judges = $this->tournamentHelper->getJudgesCSV();
+  
+      if (count($Judges) === 0) {
+          if ($mainJudge) {
+              $mainJudge->sign = '#';
+              if (is_numeric($mainJudge->plId2)) {
+                  $Judges = Arr::add($Judges, $mainJudge->plId2, $mainJudge);
+              } elseif (is_numeric($mainJudge->plId)) {
+                  $Judges = Arr::add($Judges, $mainJudge->plId, $mainJudge);
+              } else {
+                  $mainJudge->plId2 = $mainJudge->lastName.';'.$mainJudge->firstName.';'.$mainJudge->city.';'.$mainJudge->country;
+                  $Judges = Arr::add($Judges, $mainJudge->plId2, $mainJudge);
+              }
+          }
+          Session::flash('status', 'error');
+      }
+  
+      $JudgesRound = $this->tournamentHelper->getJudges(0);
+  
+      foreach ($JudgesRound as $judgeDB) {
+          $exists = false;
+          foreach ($Judges as $judge) {
+              if ($judgeDB->firstName == $judge->firstName && $judgeDB->lastName == $judge->lastName) {
+                  $exists = true;
+                  break;
+              }
+          }
+          if (!$exists) {
+              $new = new Judge;
+              $new->plId      = $judgeDB->plId2;
+              $new->firstName = $judgeDB->firstName;
+              $new->lastName  = $judgeDB->lastName;
+              $new->city      = $judgeDB->city;
+              $new->country   = $judgeDB->country ?: 'Polska';
+              $new->category  = $judgeDB->category;
+              $new->sign      = $judgeDB->sign;
+  
+              if (!$new->plId) {
+                  $new->plId = $new->lastName.';'.$new->firstName.';'.$new->city.';'.$new->country;
+              }
+              $Judges = Arr::add($Judges, $new->plId, $new);
+          }
+      }
+  
+      //dd('$Judges', $Judges);
+      // lista do selecta “Sędzia główny”
+      $JudgesList = [];
+      if (count($Judges) > 0) {
+          reset($Judges);
+          if (current($Judges)->sign != '#') {
+              $JudgesList = Arr::add($JudgesList, ' ', ' ');
+          } else {
+              $JudgesList = Arr::add(
+                  $JudgesList,
+                  current($Judges)->plId,
+                  current($Judges)->lastName.' '.current($Judges)->firstName
+              );
+          }
+      }
+  
+      // bazowe znaki z DB/CSV (domyślnie)
+      foreach ($Judges as $judge) {
+          $idx = 0;
+          //if (!is_numeric($judge->sign) && is_numeric($judge->plId)) {
+          if( !is_numeric($judge->sign) ) {
+              $JudgesList = Arr::add($JudgesList, $judge->plId, $judge->lastName.' '.$judge->firstName);
+          }
+  
+          foreach ($Program as $round) {
+              $judge->sign[$idx] = $this->tournamentHelper->getBaseJudgeSign(
+                  $judge->firstName,
+                  $judge->lastName,
+                  $round->baseRoundId
+              );
+              $idx++;
+          }
+      }
+  
+      $hasAnyAssignments = false;
+      foreach ($Judges as $plId => $judge) {
+          foreach ($programKeys as $baseRoundId) {
+              $key = $baseRoundId . '-' . $plId;
+              if (request()->has($key)) { $hasAnyAssignments = true; break 2; }
+          }
+      }
+  
+      if ($hasAnyAssignments) {
+          foreach ($Judges as $plId => $judge) {
+              foreach ($programKeys as $baseRoundId) {
+                  $pos = $roundPosMap[$baseRoundId] ?? null;
+                  if ($pos === null) continue;
+  
+                  $key = $baseRoundId . '-' . $plId;
+                  $judge->sign[$pos] = request()->has($key) ? 'X' : ' ';
+              }
+          }
+      }
+  
+      $JudgesList = Arr::add($JudgesList, '000000', 'Wprowadź: ');
+  
+      $JudgesBaza = $this->tournamentHelper->getJudgesDB();
+      usort($JudgesBaza, function ($a, $b) {
+          $c = strcmp($a->lastName, $b->lastName);
+          return $c !== 0 ? $c : strcmp($a->firstName, $b->firstName);
+      });
+      return view('admin.panelTable')
+          ->with('program', $Program)
+          ->with('judges', $Judges)
+          ->with('judgelist', $JudgesList)
+          ->with('eventId', $this->tournamentHelper->getEventId())
+          ->with('parts', $PartsStr)
+          ->with('printMode', $printMode);
     }
 
-    $JudgesRound = $this->tournamentHelper->getJudges(0);
-
-    foreach ($JudgesRound as $judgeDB) {
-        $exists = false;
-        foreach ($Judges as $judge) {
-            if ($judgeDB->firstName == $judge->firstName && $judgeDB->lastName == $judge->lastName) {
-                $exists = true;
-                break;
-            }
-        }
-        if (!$exists) {
-            $new = new Judge;
-            $new->plId      = $judgeDB->plId2;
-            $new->firstName = $judgeDB->firstName;
-            $new->lastName  = $judgeDB->lastName;
-            $new->city      = $judgeDB->city;
-            $new->country   = $judgeDB->country ?: 'Polska';
-            $new->category  = $judgeDB->category;
-            $new->sign      = $judgeDB->sign;
-
-            if (!$new->plId) {
-                $new->plId = $new->lastName.';'.$new->firstName.';'.$new->city.';'.$new->country;
-            }
-            $Judges = Arr::add($Judges, $new->plId, $new);
-        }
-    }
-
-    //dd('$Judges', $Judges);
-    // lista do selecta “Sędzia główny”
-    $JudgesList = [];
-    if (count($Judges) > 0) {
-        reset($Judges);
-        if (current($Judges)->sign != '#') {
-            $JudgesList = Arr::add($JudgesList, ' ', ' ');
+    public function panelSave()
+    {
+      // Bezpieczne pobranie "old" – zamieniamy brak na [] i pilnujemy typów
+      $roundsId    = request()->old('roundBaseId', []);
+      $roundNames  = request()->old('roundName', []);
+      $judgesId    = request()->old('judgeId', []);
+      $judgesNo    = request()->old('judgeNo', []);
+      $judgeNames  = request()->old('judgeName', []);
+  
+      $judgeMainId    = request()->old('MainJudge');
+      $judgeMainLast  = request()->old('main_judge_l');
+      $judgeMainFirst = request()->old('main_judge_f');
+      $judgeMainCity  = request()->old('main_judge_c');
+  
+      // Upewnij się, że mamy tablice (a nie stringi/null)
+      $roundsId   = is_array($roundsId)   ? $roundsId   : ($roundsId   !== null ? [$roundsId]   : []);
+      $roundNames = is_array($roundNames) ? $roundNames : ($roundNames !== null ? [$roundNames] : []);
+      $judgesId   = is_array($judgesId)   ? $judgesId   : ($judgesId   !== null ? [$judgesId]   : []);
+      $judgesNo   = is_array($judgesNo)   ? $judgesNo   : ($judgesNo   !== null ? [$judgesNo]   : []);
+  
+      $scheduleParts = $this->tournamentHelper->getPartsCSV(); // może być array/Collection/null
+  
+      $count = count($roundsId);
+      for ($i = 0; $i < $count; $i++) {
+        $judge_set = [];
+        $scr_set   = [];
+  
+        // Sędzia główny
+        if (!empty($judgeMainId) && $judgeMainId !== '000000') {
+              $judge_set[] = $judgeMainId;
+        } elseif (!empty($judgeMainLast) && !empty($judgeMainFirst)) {
+              $judge_set[] = $judgeMainLast.';'.$judgeMainFirst.';'.($judgeMainCity ?? '').';';
         } else {
-            $JudgesList = Arr::add(
-                $JudgesList,
-                current($Judges)->plId,
-                current($Judges)->lastName.' '.current($Judges)->firstName
-            );
+              // fallback: pierwszy z listy sędziów, jeśli istnieje
+              if (!empty($judgesId)) {
+                  $judge_set[] = $judgesId[0];
+              }
         }
-    }
-
-    // bazowe znaki z DB/CSV (domyślnie)
-    foreach ($Judges as $judge) {
-        $idx = 0;
-        //if (!is_numeric($judge->sign) && is_numeric($judge->plId)) {
-        if( !is_numeric($judge->sign) ) {
-            $JudgesList = Arr::add($JudgesList, $judge->plId, $judge->lastName.' '.$judge->firstName);
+        // Wybrani sędziowie dla tej rundy
+        if (!empty($judgesId)) {
+              foreach ($judgesId as $id) {
+                  $checked = filter_var(request()->old($roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN);
+                  if ($checked) {
+                    $judge_set[] = $id;
+                  }
+              }
         }
-
-        foreach ($Program as $round) {
-            $judge->sign[$idx] = $this->tournamentHelper->getBaseJudgeSign(
-                $judge->firstName,
-                $judge->lastName,
-                $round->baseRoundId
-            );
-            $idx++;
+        if (count($judge_set) > 1) {
+              $part = '';
+              if (!empty($scheduleParts)) {
+                  foreach ($scheduleParts as $category) {
+                    // upewnij się, że $category->name istnieje
+                    $catName = isset($category->name) ? $category->name : '';
+                    if ($catName !== '' &&
+                          mb_strpos(mb_strtoupper($roundNames[$i] ?? '', 'UTF-8'), mb_strtoupper($catName, 'UTF-8') ) !== false) {
+                          $part = $category->part ?? '';
+                    }
+                  }
+              }
+              // judgesNo dla i-tej rundy – domyślnie '7', jeśli brak
+              $judgesNoForRound = $judgesNo[$i] ?? '7';
+              $this->tournamentHelper->SaveJudge2CSV(
+                  $roundNames[$i] ?? '',
+                  $part,
+                  $judge_set,
+                  $judgesNoForRound
+              );
         }
+        unset($judge_set, $scr_set);
+      }
+      session()->forget('panel_selected');
+      return redirect('admin/panel')->with('status', 'success');
     }
-
-    $hasAnyAssignments = false;
-    foreach ($Judges as $plId => $judge) {
-        foreach ($programKeys as $baseRoundId) {
-            $key = $baseRoundId . '-' . $plId;
-            if (request()->has($key)) { $hasAnyAssignments = true; break 2; }
-        }
-    }
-
-    if ($hasAnyAssignments) {
-        foreach ($Judges as $plId => $judge) {
-            foreach ($programKeys as $baseRoundId) {
-                $pos = $roundPosMap[$baseRoundId] ?? null;
-                if ($pos === null) continue;
-
-                $key = $baseRoundId . '-' . $plId;
-                $judge->sign[$pos] = request()->has($key) ? 'X' : ' ';
-            }
-        }
-    }
-
-    $JudgesList = Arr::add($JudgesList, '000000', 'Wprowadź: ');
-
-    $JudgesBaza = $this->tournamentHelper->getJudgesDB();
-    usort($JudgesBaza, function ($a, $b) {
-        $c = strcmp($a->lastName, $b->lastName);
-        return $c !== 0 ? $c : strcmp($a->firstName, $b->firstName);
-    });
-    return view('admin.panelTable')
-        ->with('program', $Program)
-        ->with('judges', $Judges)
-        ->with('judgelist', $JudgesList)
-        ->with('eventId', $this->tournamentHelper->getEventId())
-        ->with('parts', $PartsStr)
-        ->with('printMode', $printMode);
-  }
-
-  public function panelSave()
-  {
-    // Bezpieczne pobranie "old" – zamieniamy brak na [] i pilnujemy typów
-    $roundsId    = request()->old('roundBaseId', []);
-    $roundNames  = request()->old('roundName', []);
-    $judgesId    = request()->old('judgeId', []);
-    $judgesNo    = request()->old('judgeNo', []);
-    $judgeNames  = request()->old('judgeName', []);
-
-    $judgeMainId    = request()->old('MainJudge');
-    $judgeMainLast  = request()->old('main_judge_l');
-    $judgeMainFirst = request()->old('main_judge_f');
-    $judgeMainCity  = request()->old('main_judge_c');
-
-    // Upewnij się, że mamy tablice (a nie stringi/null)
-    $roundsId   = is_array($roundsId)   ? $roundsId   : ($roundsId   !== null ? [$roundsId]   : []);
-    $roundNames = is_array($roundNames) ? $roundNames : ($roundNames !== null ? [$roundNames] : []);
-    $judgesId   = is_array($judgesId)   ? $judgesId   : ($judgesId   !== null ? [$judgesId]   : []);
-    $judgesNo   = is_array($judgesNo)   ? $judgesNo   : ($judgesNo   !== null ? [$judgesNo]   : []);
-
-    $scheduleParts = $this->tournamentHelper->getPartsCSV(); // może być array/Collection/null
-
-    $count = count($roundsId);
-    for ($i = 0; $i < $count; $i++) {
-       $judge_set = [];
-       $scr_set   = [];
-
-       // Sędzia główny
-       if (!empty($judgeMainId) && $judgeMainId !== '000000') {
-             $judge_set[] = $judgeMainId;
-       } elseif (!empty($judgeMainLast) && !empty($judgeMainFirst)) {
-             $judge_set[] = $judgeMainLast.';'.$judgeMainFirst.';'.($judgeMainCity ?? '').';';
-       } else {
-             // fallback: pierwszy z listy sędziów, jeśli istnieje
-             if (!empty($judgesId)) {
-                $judge_set[] = $judgesId[0];
-             }
-       }
-       // Wybrani sędziowie dla tej rundy
-       if (!empty($judgesId)) {
-             foreach ($judgesId as $id) {
-                $checked = filter_var(request()->old($roundsId[$i].'-'.$id), FILTER_VALIDATE_BOOLEAN);
-                if ($checked) {
-                   $judge_set[] = $id;
-                }
-             }
-       }
-       if (count($judge_set) > 1) {
-             $part = '';
-             if (!empty($scheduleParts)) {
-                foreach ($scheduleParts as $category) {
-                   // upewnij się, że $category->name istnieje
-                   $catName = isset($category->name) ? $category->name : '';
-                   if ($catName !== '' &&
-                         mb_strpos(mb_strtoupper($roundNames[$i] ?? '', 'UTF-8'), mb_strtoupper($catName, 'UTF-8') ) !== false) {
-                         $part = $category->part ?? '';
-                   }
-                }
-             }
-             // judgesNo dla i-tej rundy – domyślnie '7', jeśli brak
-             $judgesNoForRound = $judgesNo[$i] ?? '7';
-             $this->tournamentHelper->SaveJudge2CSV(
-                $roundNames[$i] ?? '',
-                $part,
-                $judge_set,
-                $judgesNoForRound
-             );
-       }
-       unset($judge_set, $scr_set);
-    }
-    session()->forget('panel_selected');
-    return redirect('admin/panel')->with('status', 'success');
-  }
 
     public function autocomplete()
     {

@@ -264,6 +264,16 @@
           <div class="mb-3 ekran">
   
             <div class="mb-2">
+              {{ html()->input('number', 'intDurationStart', $layout->parameter1)
+                  ->id('intDurationStart')
+                  ->class('form-control d-inline-block text-center width_100px btn-light-blue ekran')
+                  ->attribute('min', 0)
+                  ->attribute('max', 60)
+                  ->required() }}
+              <span class="ms-2">[min] – otwarcie turnieju</span>
+            </div>
+
+            <div class="mb-2">
               {{ html()->input('number', 'intDurationElm', $layout->durationRound)
                   ->id('intDurationElm')
                   ->class('form-control d-inline-block text-center width_100px btn-light-blue ekran')
@@ -282,17 +292,7 @@
                   ->required() }}
               <span class="ms-2">[sec] – czas trwania tańca w rundzie finałowej</span>
             </div>
-  
-            <div class="mb-2">
-              {{ html()->input('number', 'intDurationStart', $layout->parameter1)
-                  ->id('intDurationStart')
-                  ->class('form-control d-inline-block text-center width_100px btn-light-blue ekran')
-                  ->attribute('min', 0)
-                  ->attribute('max', 60)
-                  ->required() }}
-              <span class="ms-2">[min] – otwarcie turnieju</span>
-            </div>
-  
+ 
             <div class="mb-2">
               {{ html()->input('number', 'intDurationEnd', $layout->parameter2)
                   ->id('intDurationEnd')

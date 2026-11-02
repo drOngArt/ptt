@@ -46,11 +46,12 @@ if exist "%TEMP%\" (
         exit /b 1
     )
 )
+
 mkdir "%DEST%"
 if errorlevel 1 exit /b 1
 
 echo [2] Kopiowanie aplikacji...
-robocopy "%SOURCE%" "%DEST%" /E /R:1 /W:1 /XD .git .github .vscode node_modules public tests /XF .gitattributes .gitignore .gitkeep robots.txt phpstan.neon phpstan.neon.dist .env.example gulpfile.js _ide_helper.php phpunit.xml phpspec.yml README.md CHANGELOG.md
+robocopy "%SOURCE%" "%DEST%" /E /R:1 /W:1 /XD .git .github .vscode node_modules public tests /XF .gitattributes .gitignore .gitkeep robots.txt phpstan.neon phpstan.neon.dist .env.example gulpfile.js _ide_helper.php phpunit.xml phpspec.yml README.md CHANGELOG.md build-prod.bat
 if errorlevel 8 goto error
 
 echo [3] Kopiowanie zasobow publicznych...
@@ -61,7 +62,20 @@ for %%D in (css js fonts apk) do (
     )
 )
 
-echo [4] Instalowanie zaleznosci produkcyjnych...
+echo [4] Kopiowanie plikow glownych z laravel\public...
+for %%F in (.htaccess index.php version.xml) do (
+    if not exist "%SOURCE%\laravel\public\%%F" (
+        echo BLAD: Brak pliku laravel\public\%%F
+        goto error
+    )
+    copy /Y "%SOURCE%\laravel\public\%%F" "%DEST%\%%F" >nul
+    if errorlevel 1 goto error
+)
+
+echo Pliki glowne skopiowane poprawnie.
+
+
+echo [5] Instalowanie zaleznosci produkcyjnych...
 pushd "%DEST%\laravel"
 if errorlevel 1 goto error
 call composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
@@ -71,7 +85,7 @@ if errorlevel 1 (
 )
 popd
 
-echo [5] Czyszczenie cache i logow w kopii...
+echo [6] Czyszczenie cache i logow w kopii...
 if exist "%DEST%\laravel\bootstrap\cache\" (
     del /f /q "%DEST%\laravel\bootstrap\cache\*.php" >nul 2>&1
 )
@@ -89,17 +103,50 @@ if exist "%DEST%\laravel\storage\framework\sessions\" (
     for /f "delims=" %%F in ('dir /b /a-d "%DEST%\laravel\storage\framework\sessions" 2^>nul') do del /f /q "%DEST%\laravel\storage\framework\sessions\%%F" >nul 2>&1
 )
 
-echo [6] Pakowanie ZIP...
+REM ==========================================
+REM LARAVEL 12 - CACHE PRODUKCYJNY
+REM ==========================================
+
+echo.
+echo [7] Generowanie cache Laravel w katalogu RELEASE...
+
+if not exist "%DEST%\laravel\artisan" (
+    echo BLAD: Brak artisan w katalogu RELEASE.
+    exit /b 1
+)
+
+pushd "%DEST%\laravel"
+if errorlevel 1 exit /b 1
+
+echo.
+echo [CACHE 2] Generowanie cache tras...
+php artisan route:cache
+if errorlevel 1 goto :CACHE_ERROR
+
+popd
+
+echo.
+echo Cache Laravel wygenerowany poprawnie.
+goto :CACHE_END
+
+:CACHE_ERROR
+echo.
+echo BLAD: Nie udalo sie wygenerowac cache Laravel!
+popd
+exit /b 1
+:CACHE_END
+
+echo [8] Pakowanie ZIP...
 if exist "%PACKAGE%" del /f /q "%PACKAGE%"
 if exist "%PACKAGE%" goto error
 powershell -NoProfile -ExecutionPolicy Bypass -Command "Add-Type -AssemblyName System.IO.Compression.FileSystem; [System.IO.Compression.ZipFile]::CreateFromDirectory('%TEMP%', '%PACKAGE%', [System.IO.Compression.CompressionLevel]::Optimal, $false)"
 if errorlevel 1 goto error
 
-echo [7] Weryfikacja paczki...
+echo [9] Weryfikacja paczki...
 powershell -NoProfile -ExecutionPolicy Bypass -Command "$ErrorActionPreference='Stop'; Add-Type -AssemblyName System.IO.Compression.FileSystem; $z=[System.IO.Compression.ZipFile]::OpenRead('%PACKAGE%'); try { $names=@($z.Entries | ForEach-Object { $_.FullName.Replace('\','/') }); $required=@('ptt/index.php','ptt/.htaccess','ptt/laravel/.env','ptt/laravel/vendor/autoload.php','ptt/laravel/artisan'); foreach($n in $required) { if($names -cnotcontains $n) { throw ('Brak w ZIP: '+$n) } }; if(@($names | Where-Object { $_ -match '(^|/)(\.git|\.github|\.vscode|public|phpstan\.neon)(/|$)' }).Count -gt 0) { throw 'W ZIP sa wykluczone pliki lub katalogi' }; Write-Host 'OK: wymagane pliki sa w ZIP' } finally { $z.Dispose() }"
 if errorlevel 1 goto error
 
-echo [8] Usuwanie katalogu tymczasowego...
+echo [10] Usuwanie katalogu tymczasowego...
 rmdir /s /q "%TEMP%"
 if exist "%TEMP%\" (
     echo UWAGA: Nie udalo sie usunac katalogu tymczasowego.

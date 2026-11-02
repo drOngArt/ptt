@@ -57,12 +57,12 @@
                         </td>
                         <td class="userTime ekran ps-1">
                            @if( $times[$index] )
-                           <div class="font-14pt ekran text-center" media="only screen">
+                           <div class="font-14pt ekran text-center align-middle" media="only screen">
                               <span class="btn-blue-gray badge badge-pill">
                                  {{$times[$index]}}
                               </span>
                            </div>
-                           <div class="font-14pt drukarka text-center" media="only print">
+                           <div class="font-14pt drukarka text-center align-middle" media="only print">
                               <span class="userTime3 font-14pt">
                                  {{$times[$index]}}
                               </span>
@@ -75,20 +75,21 @@
                         @endif
                         </td>
                            @foreach($programRound->dances as $dance)
-                              <td class="fs-5"><tablecell>
-                                 <tc-order>
-                                    {{$dance['order']}}&nbsp
-                                 </tc-order>
+                              <td class="font-print-18pt text-center"><tablecell>
+                                 @if(!empty($dance['order']))
+                                    <tc-order>{{ $dance['order'] }}&nbsp;</tc-order>
+                                 @endif
                                  <tc-dance>
-                                    {{$dance['dance']}}
                                     @if($dance['closed'])
-                                       <div class="fa fa-check"></div>
+                                      <span class="dance-closed">{{ $dance['dance'] }}</span>
                                        @if($inProgress!==2)
                                           <?php $inProgress=1 ?>
                                        @endif
                                     @elseif($inProgress==1)
-                                       <div class="fa fa-spinner fa-pulse fa-lg"></div>
+                                       <div class="dance-current">{{$dance['dance']}}</div>
                                        <?php $inProgress=2 ?>
+                                    @else
+                                      {{$dance['dance']}}
                                     @endif
                                  </tc-dance>
                               </tablecell></td>

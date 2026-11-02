@@ -14003,8 +14003,68 @@
     max-width: 100% !important;
     box-sizing: border-box;
   }
+  
+  .dance-current {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 30px;
+    padding: 0;
+    box-sizing: border-box;
 
+    background: #fff;
+    color: #111 !important;
+    border: 3px solid #e00000;
+    border-radius: 7px 0;
+
+    font-size: 15px;
+    font-weight: 700;
+    vertical-align: middle;
+
+    animation: dance-pulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes dance-pulse {
+      0%, 100% {
+          border-color: #e00000;
+          box-shadow: 0 0 0 0 rgba(224, 0, 0, 0.5);
+      }
+      50% {
+          border-color: #ff6666;
+          box-shadow: 0 0 0 5px rgba(224, 0, 0, 0);
+      }
+  }
+  
+  .dance-closed {
+    position: relative;
+    display: inline-block;
+    color: #888;
+  }
+  
+  .dance-closed::after {
+    content: "";
+    position: absolute;
+    left: -25%;
+    top: 45%;
+    width: 150%;
+    border-top: 2px solid red;
+    transform: rotate(-20deg);
+  }
+  tablecell {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  tc-order,
+  tc-dance {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
+
 
 /* end of screen */
 /* -- print -------------------------------------------------------------------- */

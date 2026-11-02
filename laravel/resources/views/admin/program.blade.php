@@ -114,10 +114,16 @@
               <div class="d-flex justify-content-between align-items-center">
               <!-- LEWA STRONA -->
               <div class="font-14pt userTime ekran">
-                  Czas rozpoczęcia:
-                  <button class="btn-light-blue font-print-18pt">{{ $layout->startTime }}</button>
-                  &nbsp;zakończenia:
-                  <button class="btn-light-blue font-print-18pt">{{ $times[count($compressedProgram)] }}</button>
+                  START&nbsp;
+                  <span class="btn-light-blue font-print-18pt p-1" style="border-radius: 0 0 6px 0;">{{ $layout->startTime }}</span>
+                  &nbsp; KONIEC&nbsp; ~
+                  <span class="btn-light-blue font-print-18pt p-1" style="border-radius: 0 6px;">{{ $times[count($compressedProgram)] }}</span>
+                  <span class="fs-6 ps-3">Parametry</span>
+                  <span class="btn-blue-gray fs-6 p-1" style="border-radius: 6px;">
+                    &nbsp;{{ sprintf('%02d', $layout->parameter1) }}"
+                    &nbsp;{{ intdiv($layout->durationRound,60) }}:{{ sprintf('%02d', $layout->durationRound % 60) }}"
+                    &nbsp;{{ intdiv($layout->durationFinal,60) }}:{{ sprintf('%02d', $layout->durationFinal % 60) }}"
+                    &nbsp;{{ sprintf('%02d', $layout->parameter2) }}"&nbsp;</span>
               </div>
               <!-- PRAWA STRONA -->
               <div class="dropdown print-dropdown ms-auto">
