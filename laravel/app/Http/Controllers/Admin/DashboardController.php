@@ -2770,7 +2770,6 @@ class DashboardController extends Controller
     
           $allEntries[] = $c;
         }
-      }
     
       // ======================================================
       // MAPA OSÓB -> STARTY
