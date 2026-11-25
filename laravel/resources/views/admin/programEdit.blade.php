@@ -8,241 +8,217 @@
 <div id="page-wrapper" class="container-fluid">
 
 {{ html()->form('POST', route('admin.program.final'))->open() }}
-    @csrf
-    <div class="row mb-3">
-        <div class="col-lg-12">
-            <div class="page-header-break">PROGRAM TURNIEJU</div>
-            <div class="d-flex justify-content-between align-items-center mt-2">
-                <h1 class="h3 mb-0">Program turnieju</h1>
-                <div class="d-flex align-items-center gap-2">
-                    {{ html()->button('Zmień kolejność')
-                        ->type('button')
-                        ->id('startStop')
-                        ->class('btn btn-warning button-menu') }}
-                    {{ html()->button('Zmień nazwy')
-                        ->type('button')
-                        ->id('altNames')
-                        ->class('btn btn-warning button-menu') }}
-                    {{ html()->submit('Zatwierdź')
-                        ->id('submitButton1')
-                        ->class('btn btn-primary button-menu') }}
+  @csrf
+  <div class="row mb-1">
+      <div class="col-lg-12">
+          <div class="page-header-break">PROGRAM TURNIEJU</div>
+          <div class="d-flex justify-content-between align-items-center">
+
+          <div class="d-flex align-items-center gap-3">
+              <h1 class="h3 mb-0">Program turnieju</h1>
+
+              {{ html()->button('Parametry')
+                  ->type('button')
+                  ->class('btn btn-light-blue button-menu')
+                  ->attribute('data-bs-toggle','modal')
+                  ->attribute('data-bs-target','.programParametersModal') }}
+          </div>
+          <div class="d-flex align-items-center gap-2 ms-auto">
+
+              {{ html()->button('Zmień kolejność')
+                  ->type('button')
+                  ->id('startStop')
+                  ->class('btn btn-warning button-menu') }}
+
+              {{ html()->button('Zmień nazwy')
+                  ->type('button')
+                  ->id('altNames')
+                  ->class('btn btn-warning button-menu') }}
+
+              {{ html()->submit('Zatwierdź')
+                  ->id('submitButton1')
+                  ->class('btn btn-primary button-menu') }}
+
+          </div>
+        </div>
+      </div>
+  </div>
+  <?php
+    if( !empty($program) && count($program) ) 
+      $maxDances = max(array_map(fn($r) => count($r->dances), $program)); 
+    else
+      $maxDances = 4; 
+  ?>
+  <div class="row">
+    <div class="col-lg-12">
+      <div class="table-responsive program-edit-wrapper">
+        <table class="table table-striped table-bordered table-hover">
+          <thead>
+            <tr>
+              <th style="width:50px;"  class="p-1">Lp.</th>
+              <th  class="p-1">
+                <div class="d-flex justify-content-between">
+                  <div class="alignleft">
+                      Runda
+                      @if($additionalRounds)
+                          + dodatkowe rundy
+                      @endif
+                  </div>
+                  <div class="alignright">
+                    [ Prezentacji ]
+                  </div>
                 </div>
-            </div>
+              </th>
+              <th class="p-1">Grup</th>
+              <th colspan="10"  class="p-1">Tańce</th>
+            </tr>
+          </thead>
 
-            <div class="mt-3">
-                <h4 class="h5 mb-0">
-                    <div class="d-inline-flex align-items-center flex-wrap gap-2">
-                        <span>Czas rozpoczęcia:</span>
-                        {{ html()->input('time', 'stTime', $layout->startTime)
-                            ->id('inpStTime')
-                            ->class('form-control d-inline-block w-auto btn-light-blue font-14pt')
-                            ->attribute('step', '300') }}
-                        {{ html()->button('Parametry')
-                            ->type('button')
-                            ->class('btn btn-light-blue button-menu ms-2')
-                            ->attribute('data-bs-toggle','modal')
-                            ->attribute('data-bs-target','.programParametersModal') }}
+          <tbody id="sortable1" class="connectedSortable">
+            @foreach($program as $index => $programRound)
+              <tr>
+                <td class="btn-circle fs-5 p-1">{{ $index + 1 }}.</td>
+
+                @if($programRound->isDance)
+                  <td  class="p-1">
+                @else
+                  <td class="text-muted p-1">
+                @endif
+                  {{ html()->hidden('roundId[]',   $programRound->id) }}
+                  {{ html()->hidden('roundName[]', $programRound->description) }}
+                  {{ html()->hidden('isDance[]',   $programRound->isDance) }}
+
+                  <div class="d-flex justify-content-between">
+                    <div class="alignleft {{ $programRound->couples == -1000 ? 'text-decoration-line-through' : '' }}">
+                      <span class="description">{{ $programRound->description }}</span>
+                      <div class="mt-0 ps-2">
+                        <span class="alternativeDescription" @if(empty($programRound->alternative_description)) hidden @endif>
+                          {{ $programRound->alternative_description }}
+                        </span>
+                        {{ html()->text('roundAlternativeName[]', $programRound->alternative_description)
+                            ->class('form-control form-control-sm alternativeInput')
+                            ->attribute('hidden', true)
+                            ->attribute('maxlength', 50) }}
+                      </div>
                     </div>
-                </h4>
-            </div>
-        </div>
+
+                    <div class="alignright">
+                      @if($programRound->couples && $programRound->couples != -1000)
+                        [ {{ $programRound->couples }} ]
+                      @endif
+                    </div>
+                  </div>
+                </td>
+                <td  class="p-1">
+                  {{ html()->input('number', 'groupId[]', $programRound->groups)
+                      ->class('groups btn-blue-gray text-center font-12pt form-control d-inline-block w-auto')
+                      ->attribute('min',0)
+                      ->attribute('max',99)
+                      ->required() }}
+                </td>
+
+                @if($programRound->isDance)
+                  @foreach($programRound->dances as $programRoundDance)
+                    <td  class="p-1">
+                      <tablecell>
+                        {{ html()->hidden($programRound->id.'DanceName[]', $programRoundDance['dance']) }}
+
+                        <tc-dance>
+                          @php
+                            $dbRound = \App\Round::where('description', trim($programRound->description))
+                                  ->where('dance', $programRoundDance['dance'])
+                                  ->first();
+                          @endphp
+
+                          @if(!is_null($dbRound) && $dbRound->closed == 1)
+                            {{ html()->checkbox($programRound->id.$programRoundDance['dance'], true)
+                                ->class('danceCheckbox')
+                                ->id($programRound->id.$programRoundDance['dance']) }}
+                          @else
+                            {{ html()->checkbox($programRound->id.$programRoundDance['dance'], false)
+                                ->class('danceCheckbox')
+                                ->id($programRound->id.$programRoundDance['dance']) }}
+                          @endif
+
+                          <label for="{{ $programRound->id }}{{ $programRoundDance['dance'] }}">
+                            &nbsp;&nbsp;{{ $programRoundDance['dance'] }}
+                          </label>
+                        </tc-dance>
+
+                        <tc-order>{{ $programRoundDance['order'] }}</tc-order>
+                        {{ html()->hidden('order'.$programRound->id.$programRoundDance['dance'], $programRoundDance['order']) }}
+                      </tablecell>
+                    </td>
+                  @endforeach
+                  {{-- 🔥 brakujące komórki --}}
+                  @for($i = count($programRound->dances); $i < $maxDances; $i++)
+                    <td class="p-1">&nbsp;</td>
+                  @endfor
+                @endif
+              </tr>
+            @endforeach
+
+            @if($additionalRounds)
+              @foreach($additionalRounds as $additionalRound)
+                <tr>
+                  <td class="btn-circle fs-5 p-1">{{ ++$index+1 }}.</td>
+                  @if($additionalRound->isDance)
+                    <td class="p-1">
+                    {{ html()->hidden('isDance[]', 1) }}
+                  @else
+                    <td class="text-muted p-1">
+                    {{ html()->hidden('isDance[]', 0) }}
+                  @endif
+                    {{ html()->hidden('roundId[]',   $additionalRound->id) }}
+                    {{ html()->hidden('roundName[]', $additionalRound->description) }}
+                    <div>
+                      <span class="description text-primary">{{ $additionalRound->description }}</span>
+                    </div>
+                    <div>
+                      <span class="alternativeDescription text-primary fst-italic ps-2">{{ $additionalRound->alternative_description }}</span>
+                        {{ html()->hidden('roundAlternativeName[]', '')
+                        ->class('alternativeInput') }}
+                    </div>
+                  </td>
+
+                  <td class="p-1">
+                    {{ html()->input('number', 'groupId[]', $additionalRound->groups)
+                        ->class('groups btn-blue-gray text-center font-12pt form-control d-inline-block w-auto')
+                        ->attribute('min',1)
+                        ->attribute('max',99)
+                        ->required() }}
+                  </td>
+
+                  @if($additionalRound->isDance)
+                    @foreach($additionalRound->dances as $additionalRoundDance)
+                      <td class="p-1">
+                        <tablecell>
+                          {{ html()->hidden($additionalRound->id.'DanceName[]', $additionalRoundDance['dance']) }}
+                          <tc-dance>
+                            {{ html()->checkbox($additionalRound->id.$additionalRoundDance['dance'], false)
+                                ->class('danceCheckbox')
+                                ->id($additionalRound->id.$additionalRoundDance['dance']) }}
+
+                            <label for="{{ $additionalRound->id }}{{ $additionalRoundDance['dance'] }}">
+                              {{ $additionalRoundDance['dance'] }}&nbsp;&nbsp;
+                            </label>
+                          </tc-dance>
+                          <tc-order>{{ $additionalRoundDance['order'] }}</tc-order>
+                        </tablecell>
+                      </td>
+                    @endforeach
+                  @endif
+                </tr>
+              @endforeach
+            @endif
+
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
 
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="table-responsive">
-                <table class="table table-striped table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th style="width:50px;"  class="p-1">Lp.</th>
-                            <th  class="p-1">
-                                <div class="d-flex justify-content-between">
-                                    <div class="alignleft">
-                                        Runda
-                                        @if($additionalRounds)
-                                            + dodatkowe rundy
-                                        @endif
-                                    </div>
-                                    <div class="alignright">
-                                        [ Prezentacji ]
-                                    </div>
-                                </div>
-                            </th>
-                            <th  class="p-1">Grup</th>
-                            <th colspan="10"  class="p-1">Tańce</th>
-                        </tr>
-                    </thead>
-
-                    <tbody id="sortable1" class="connectedSortable">
-                        @foreach($program as $index => $programRound)
-                            <tr>
-                                <td class="btn-circle fs-5 p-1">{{ $index + 1 }}.</td>
-
-                                @if($programRound->isDance)
-                                    <td  class="p-1">
-                                @else
-                                    <td class="text-muted p-1">
-                                @endif
-                                    {{ html()->hidden('roundId[]',   $programRound->id) }}
-                                      {{ html()->hidden('roundName[]', $programRound->description) }}
-                                    {{ html()->hidden('isDance[]',   $programRound->isDance) }}
-
-                                    <div class="d-flex justify-content-between">
-                                      <div class="alignleft">
-                                        <span class="description">{{ $programRound->description }}</span>
-                                        <div class="mt-1">
-                                          <span class="alternativeDescription" @if(empty($programRound->alternative_description)) hidden @endif>
-                                            {{ $programRound->alternative_description }}
-                                          </span>
-                                          {{ html()->text('roundAlternativeName[]', $programRound->alternative_description)
-                                              ->class('form-control form-control-sm alternativeInput')
-                                              ->attribute('hidden', true)
-                                              ->attribute('maxlength', 50) }}
-                                        </div>
-                                      </div>
-
-                                      <div class="alignright">
-                                        @if($programRound->couples)
-                                          [ {{ $programRound->couples }} ]
-                                        @endif
-                                      </div>
-                                    </div>
-                                </td>
-                                <td  class="p-1">
-<!--                                @php
-                                  $description = mb_strtoupper($programRound->description ?? '', 'UTF-8');
-                                @endphp
-                                
-                               @if( !( str_contains($description, 'PRZERWA') ||
-                                        str_starts_with($description, 'POKAZ') )
-                                )
-                                  {{ html()->input('number', 'groupId[]', $programRound->groups)
-                                      ->class('groups btn-blue-gray text-center font-12pt form-control d-inline-block w-auto')
-                                      ->attribute('min',0)
-                                      ->attribute('max',99)
-                                      ->required() }}
-                                @endif -->
-                                  {{ html()->input('number', 'groupId[]', $programRound->groups)
-                                      ->class('groups btn-blue-gray text-center font-12pt form-control d-inline-block w-auto')
-                                      ->attribute('min',0)
-                                      ->attribute('max',99)
-                                      ->required() }}
-
-                                </td>
-
-                                @if($programRound->isDance)
-                                    @foreach($programRound->dances as $programRoundDance)
-                                        <td  class="p-1">
-                                            <tablecell>
-                                                {{ html()->hidden($programRound->id.'DanceName[]', $programRoundDance['dance']) }}
-
-                                                <tc-dance>
-                                                    @php
-                                                        $dbRound = \App\Round::where('description', trim($programRound->description))
-                                                            ->where('dance', $programRoundDance['dance'])
-                                                            ->first();
-                                                    @endphp
-
-                                                    @if(!is_null($dbRound) && $dbRound->closed == 1)
-                                                        {{ html()->checkbox($programRound->id.$programRoundDance['dance'], true)
-                                                            ->class('danceCheckbox')
-                                                            ->id($programRound->id.$programRoundDance['dance']) }}
-                                                    @else
-                                                        {{ html()->checkbox($programRound->id.$programRoundDance['dance'], false)
-                                                            ->class('danceCheckbox')
-                                                            ->id($programRound->id.$programRoundDance['dance']) }}
-                                                    @endif
-
-                                                    <label for="{{ $programRound->id }}{{ $programRoundDance['dance'] }}">
-                                                        &nbsp;&nbsp;{{ $programRoundDance['dance'] }}
-                                                    </label>
-                                                </tc-dance>
-
-                                                <tc-order>{{ $programRoundDance['order'] }}</tc-order>
-                                                {{ html()->hidden('order'.$programRound->id.$programRoundDance['dance'], $programRoundDance['order']) }}
-                                            </tablecell>
-                                        </td>
-                                    @endforeach
-                                @endif
-                            </tr>
-                        @endforeach
-
-                        @if($additionalRounds)
-                            @foreach($additionalRounds as $additionalRound)
-                                <tr>
-                                    <td class="btn-circle fs-5 p-1">{{ ++$index+1 }}.</td>
-
-                                    @if($additionalRound->isDance)
-                                        <td class="p-1">
-                                        {{ html()->hidden('isDance[]', 1) }}
-                                    @else
-                                        <td class="text-muted p-1">
-                                        {{ html()->hidden('isDance[]', 0) }}
-                                    @endif
-
-                                        {{ html()->hidden('roundId[]',   $additionalRound->id) }}
-                                        {{ html()->hidden('roundName[]', $additionalRound->description) }}
-
-                                        <div>
-                                            <span class="description text-primary">{{ $additionalRound->description }}</span>
-                                        </div>
-                                        <div>
-                                            <span class="alternativeDescription text-primary fst-italic">{{ $additionalRound->alternative_description }}</span>
-                                            {{ html()->hidden('roundAlternativeName[]', '')
-                                                ->class('alternativeInput') }}
-                                        </div>
-                                    </td>
-
-                                    <td class="p-1">
-                                        {{ html()->input('number', 'groupId[]', $additionalRound->groups)
-                                            ->class('groups btn-blue-gray text-center font-12pt form-control d-inline-block w-auto')
-                                            ->attribute('min',1)
-                                            ->attribute('max',99)
-                                            ->required() }}
-                                    </td>
-
-                                    @if($additionalRound->isDance)
-                                        @foreach($additionalRound->dances as $additionalRoundDance)
-                                            <td class="p-1">
-                                                <tablecell>
-                                                    {{ html()->hidden($additionalRound->id.'DanceName[]', $additionalRoundDance['dance']) }}
-
-                                                    <tc-dance>
-                                                        {{ html()->checkbox($additionalRound->id.$additionalRoundDance['dance'], false)
-                                                            ->class('danceCheckbox')
-                                                            ->id($additionalRound->id.$additionalRoundDance['dance']) }}
-
-                                                        <label for="{{ $additionalRound->id }}{{ $additionalRoundDance['dance'] }}">
-                                                            {{ $additionalRoundDance['dance'] }}&nbsp;&nbsp;
-                                                        </label>
-                                                    </tc-dance>
-
-                                                    <tc-order>{{ $additionalRoundDance['order'] }}</tc-order>
-                                                </tablecell>
-                                            </td>
-                                        @endforeach
-                                    @endif
-                                </tr>
-                            @endforeach
-                        @endif
-
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div class="row mt-3">
-        <div class="col-lg-12">
-            <div class="d-flex justify-content-end">
-                {{ html()->submit('Zatwierdź')
-                    ->id('submitButton2')
-                    ->class('btn btn-primary button-menu') }}
-            </div>
-        </div>
-    </div>
-
-    {{ html()->form()->close() }}
+  {{ html()->form()->close() }}
   </div>
 
   <div class="modal fade programParametersModal"
@@ -459,12 +435,18 @@
           ui.item.children().css("width", "");
     
           if (isOutsideTable(lastMouse.x, lastMouse.y)) {
-            ui.item.fadeOut(120, function(){
-              $(this).remove();
+            ui.item.children('td').css('background-color', '#ff4444');
+            // Po 300 ms usuń wiersz
+            setTimeout(function() {
+              ui.item.fadeOut(200, function() {
+                $(this).remove();
+                renumber();
+              });
+            }, 900);
+          } 
+          else {
+              ui.item.css('background-color', '#E0F8EC');
               renumber();
-            });
-          } else {
-            renumber();
           }
         },
     

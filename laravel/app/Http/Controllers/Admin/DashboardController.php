@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\App;
@@ -412,15 +411,14 @@ class DashboardController extends Controller
     {
         $round = $this->tournamentHelper->getRound(intval($roundId));
         if ($round === false) {
-            return false;
+          return false;
         }
         $name = $round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
         foreach ($program as $programRound) {
-            if (strpos($programRound->description, $name) !== false) {
-                return true;
-            }
+          if (strpos($programRound->description, $name) !== false) {
+            return true;
+          }
         }
-
         return false;
     }
 
@@ -428,21 +426,20 @@ class DashboardController extends Controller
     {
         $round = $this->tournamentHelper->getRound(intval($roundId));
         if ($round === false) {
-            return false;
+          return false;
         }
         $name = $round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
         foreach ($program as $programRound) {
-            if (strpos($programRound->description, $name) !== false && strpos($programRound->description, $round->matchType) !== false) {
-                return true;
-            }
+          if (strpos($programRound->description, $name) !== false && strpos($programRound->description, $round->matchType) !== false) {
+            return true;
+          }
         }
-
         return false;
     }
 
     private function ISO88592_2_WIN1250($tekst)
     {
-        return strtr($tekst, "\xa1\xa6\xac\xb1\xb6\xbc", "\xa5\x8c\x8f\xb9\x9c\x9f");
+      return strtr($tekst, "\xa1\xa6\xac\xb1\xb6\xbc", "\xa5\x8c\x8f\xb9\x9c\x9f");
     }
 
     public function saveProgram($fileName, $Program, $type)
@@ -450,7 +447,7 @@ class DashboardController extends Controller
         $tournamentDirectory = Cache::get('tournamentDirectory');
         $reportFile = @fopen($tournamentDirectory.'/'.trim($fileName).'.csv', 'w');
         if ($reportFile === false) {
-            return false;
+          return false;
         }
         $content = 'Program_turnieju';
         foreach ($Program as $round) {
@@ -460,17 +457,17 @@ class DashboardController extends Controller
             $content = $content."\r\n".';9'.$round->description;
 
             if ($round->isDance == 1) {
-                $content = $content.' (';
-                if ($type === 'new') {
-                    for ($i = 0; $i < count($round->dances); $i++) {
-                        $content = $content.' '.$round->dances[$i]['dance'];
-                    }
-                } else {
-                    for ($i = 0; $i < count($round->dances); $i++) {
-                        $content = $content.' '.$round->dances[$i];
-                    }
+              $content = $content.' (';
+              if ($type === 'new') {
+                for ($i = 0; $i < count($round->dances); $i++) {
+                  $content = $content.' '.$round->dances[$i]['dance'];
                 }
-                $content = $content.' )';
+              } else {
+                for ($i = 0; $i < count($round->dances); $i++) {
+                  $content = $content.' '.$round->dances[$i];
+                }
+              }
+              $content = $content.' )';
             }
             if( !empty($round->alternative_description) )
               $content = $content.'['.$round->alternative_description.']';
@@ -482,7 +479,7 @@ class DashboardController extends Controller
         $length = strlen($content);
         $written = fwrite($reportFile, $content, $length);
         if ($written === false || $written != $length) {
-            return false;
+          return false;
         }
 
         return true;
@@ -501,179 +498,245 @@ class DashboardController extends Controller
         return redirect('admin/program');
     }
 
+
+    public function updateStartTime(Request $request)
+    {
+        $startTime = $request->validate([
+            'stTime' => ['required', 'date_format:H:i'],
+        ])['stTime'];
+    
+        DB::update('UPDATE layout SET startTime = ?', [$startTime]);
+    
+        return redirect()->route('admin.program.index');
+    }
+
     public function showProgram()
     {
-        $program = Round::all();
+      $program = Round::all();
 
-        //$mainRounds = Round::orderBy('id')->groupBy('description')->get();
-        $allAdditionalRounds = $this->tournamentHelper->getAdditionalRounds();
-        $additionalRounds = [];
-        $times = [];
-        $compressedProgram = $this->getCompressedProgram();
-        $layoutData = Layout::get();
+      //$mainRounds = Round::orderBy('id')->groupBy('description')->get();
+      $allAdditionalRounds = $this->tournamentHelper->getAdditionalRounds();
+      $additionalRounds = [];
+      $times = [];
+      $compressedProgram = $this->getCompressedProgram();
+      $layoutData = Layout::get();
 
-        if (count($program) > 0) {
-            if ($program[0]->closed == '1') {// first dance closed => probably program started, use current time
-                $definedTime = Carbon::now('Europe/Warsaw');
-            } else {
-                $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes((int)$layoutData[0]->parameter1);
-            }
-        } else {
-            $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes((int)$layoutData[0]->parameter1);
-        }
-
-
-        $flag = 0;
-        foreach ($compressedProgram as $index => $programRound) {
-          $bBreak = false;
-          if( (mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'PRZERWA')) !== false ||
-               mb_strtoupper(mb_substr($programRound->description, 0, 5, 'UTF-8'), 'UTF-8') === 'POKAZ' ) {
-              $bBreak = true;
-              $round = false;
-          } elseif (($pos = mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'POKAZOWA')) !== false) {
-              $round = $this->tournamentHelper->getRound('Wstępna'.substr($programRound->description, $pos + 8, strlen($programRound->description) - $pos - 8));
-              if ($round == false) {
-                  $round = $this->tournamentHelper->getRound('Finał'.substr($programRound->description, $pos + 8, strlen($programRound->description) - $pos - 8));
-              }
-          } else {
-              $round = $this->tournamentHelper->getRound($programRound->description);
-          }
-          $couples = 0;
-
-          if( $round ) {
-              $couples = $round->NumberOfCouples;
-              if ($couples) {
-                  $compressedProgram[$index]->couples = $couples;
-              } else {
-                  $compressedProgram[$index]->couples = false;
-              }
+      if (count($program) > 0) {
+          if ($program[0]->closed == '1') {// first dance closed => probably program started, use current time
+            $definedTime = Carbon::now('Europe/Warsaw');
           } 
-          else { //check, maybe not closed yet, so display number of registered
-            $baseRounds = $this->tournamentHelper->getBaseRounds();
-            if( $baseRounds ) {
-              foreach ($baseRounds as $round) {
-                $desc = $round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
-                if( ($pos = mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'POKAZOWA')) !== false)
-                  $src = 'Wstępna'.substr($programRound->description, $pos + 8, strlen($programRound->description) - $pos - 8);
-                else
-                  $src = $programRound->description;
-                if( mb_strpos(mb_strtoupper($src, 'UTF-8'), mb_strtoupper($desc, 'UTF-8')) !== false) {
-                  if( $round->closeRegistration != "T" ) //not close structure
-                    $couples = -$round->baseNumberOfCouples;
-                  else
-                    $couples = false;
-                  break;
-                }
-              }
-              if( $couples )
-                $compressedProgram[$index]->couples = $couples;
-              else
-                $compressedProgram[$index]->couples = false;
+          else {
+            $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes((int)$layoutData[0]->parameter1);
+          }
+      } 
+      else {
+        $definedTime = Carbon::createFromFormat('H:i', $layoutData[0]->startTime)->addMinutes((int)$layoutData[0]->parameter1);
+      }
+    
+      $flag = 0;
+      $baseRounds = $this->tournamentHelper->getBaseRounds();
+      $previousRounds = [];
+      $lp = 0;
+      foreach ($compressedProgram as $index => $programRound) {
+        $lp++;
+        $src = $programRound->description;
+        $srcUpper = mb_strtoupper($src, 'UTF-8');
+        $couples = false;
+        $round = false;
+        $categoryKey = null;
+      
+        // Check break or show
+        $bBreak = mb_strpos($srcUpper, 'PRZERWA') !== false ||
+                  str_starts_with($srcUpper, 'POKAZ');
+      
+        if (!$bBreak) {
+          // Show round - check preliminary or final round
+          if (($pos = mb_strpos($srcUpper, 'POKAZOWA')) !== false) {
+            $suffix = mb_substr($src, $pos + 8, null, 'UTF-8');
+            $src = 'Wstępna'.$suffix;
+            $round = $this->tournamentHelper->getRound($src);
+      
+            if (!$round) {
+              $round = $this->tournamentHelper->getRound('Finał'.$suffix);
             }
-            else
-              $compressedProgram[$index]->couples = false;
+          } 
+          else {
+            $round = $this->tournamentHelper->getRound($src);
           }
-
-          $counter = 0;
-          foreach ($programRound->dances as $dance) {
-              if ($bBreak && $dance['closed'] == '0') {
-                $counter = $dance['dance'] ? (int)$dance['dance'] : 10;
-                break;
-              } 
-              elseif ($dance['closed'] == '0')
-                $counter += $programRound->groups;
-              else
-                $flag = 1;
+      
+          $srcUpper = mb_strtoupper($src, 'UTF-8');
+          $roundType = preg_match('/^\s*1\/(\d+)/', $src, $matches) ? (int)$matches[1] : 0;
+      
+          // Round already exists
+          if ($round) {
+            $couples = $round->NumberOfCouples ?: false;
+          } 
+          else {
+            $couples = -1000;
           }
-          if( $counter > 0 ) {
-              if ($flag == 1)
-                $flag = 2;
-              $times[] = $definedTime->Format('H:i');
-              if ($bBreak)
-                $definedTime = $definedTime->addMinutes((int)$counter);
-              elseif ($programRound->isFinal) {
-                $seconds = (int) $layoutData[0]->durationFinal * (int) $counter;
-                $definedTime = $definedTime->addSeconds($seconds);
-              } 
+      
+          foreach ($baseRounds ?: [] as $baseRound) {
+            $descBase = mb_strtoupper(
+                $baseRound->categoryName.' '.
+                $baseRound->className.' '.
+                $baseRound->styleName,
+                'UTF-8'
+            );
+      
+            // Skip other categories
+            if (mb_strpos($srcUpper, $descBase) === false)
+              continue;
+      
+            $categoryKey = $descBase;
+            // Combination - common key for ST and LA
+            if (mb_strpos($categoryKey, 'KOMBINACJA') !== false) {
+              $categoryKey = preg_replace('/\s+(ST(D)?|LA(T)?)\s*$/u', '', $categoryKey);
+            }
+      
+            // Check base round only if round does not exist
+            if (!$round) {
+              $desc = mb_strtoupper( $baseRound->roundName.' '.$descBase, 'UTF-8' );
+      
+              $roundBase = preg_match('/^\s*1\/(\d+)/', $desc, $matches) ? (int)$matches[1] : 0;
+              // Same round as base round
+              if (mb_strpos($srcUpper, $desc) !== false) {
+                $couples = $baseRound->closeRegistration != 'T' ? -$baseRound->baseNumberOfCouples : false;
+              }
+              // Earlier round than base round - not required
+              elseif ($roundType > $roundBase) {
+                $couples = -1000;
+              }
+              // Later round - reference to previous program point
               else {
-                $seconds = (int) $layoutData[0]->durationRound * (int) $counter;
-                $definedTime = $definedTime->addSeconds($seconds);
+                $couples = false;
+                foreach ($previousRounds[$categoryKey] ?? [] as $type => $point) {
+                  if ($type > $roundType) {
+                    $couples = -1000 - $point;
+                  }
+                }
               }
-          } else
-            $times[] = '';
+            }
+            break;
+          }
+      
+          // Remember current valid round for the next round
+          if ($categoryKey !== null && $couples !== -1000) {
+            $previousRounds[$categoryKey][$roundType] = $lp;
+          }   
         }
-        if (count($compressedProgram) > 0) { // exist rounds
-          $times[] = $definedTime->addMinutes((int)$layoutData[0]->parameter2)->Format('H:i');
+      
+        $compressedProgram[$index]->couples = $couples;
+      
+        // Calculate round duration
+        $counter = 0;
+      
+        foreach ($programRound->dances as $dance) {
+          if ($dance['closed'] == '0') {
+            if ($bBreak) {
+              $counter = $dance['dance'] ? (int)$dance['dance'] : 10;
+              break;
+            }
+            $counter += $programRound->groups;
+          } 
+          else {
+            $flag = 1;
+          }
         }
+      
+        if ($counter > 0) {
+          if ($flag == 1)
+            $flag = 2;
+      
+          $times[] = $definedTime->format('H:i');
+      
+          if ($bBreak) {
+            $definedTime = $definedTime->addMinutes((int)$counter);
+          } 
+          else {
+            $duration = $programRound->isFinal ? $layoutData[0]->durationFinal : $layoutData[0]->durationRound;
 
-        foreach ($allAdditionalRounds as $round) {
-          if ($this->isBasicRoundInProgram($round->roundId, $compressedProgram) && ! $this->isAdditionalRoundInProgram($round->roundId, $compressedProgram))
-            $additionalRounds[] = $round;
+            $seconds = (int)$duration * (int)$counter;
+            $definedTime = $definedTime->addSeconds($seconds);
+          }
+        } 
+        else {
+          $times[] = '';
         }
-
-        $scheduleParts = $this->tournamentHelper->getPartsCSV();
-        $PartsNo = [];
-        $PartsStr = 'BLOK - ';
-        foreach ($compressedProgram as $round) {
-          foreach ($scheduleParts as $category) {
-            if (mb_strpos(mb_strtoupper($round->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8')) !== false) {
-              if (! in_array($category->part, $PartsNo)) {
-                $PartsNo[] = $category->part;
-                if( count($PartsNo) == 1 )
-                  $PartsStr .= $category->part;
-                else
-                  $PartsStr .= ', '.$category->part;
-              }
+      }
+      
+      if (count($compressedProgram) > 0) { // exist rounds
+        $times[] = $definedTime->addMinutes((int)$layoutData[0]->parameter2)->Format('H:i');
+      }
+  
+      foreach ($allAdditionalRounds as $round) {
+        if ($this->isBasicRoundInProgram($round->roundId, $compressedProgram) && ! $this->isAdditionalRoundInProgram($round->roundId, $compressedProgram))
+          $additionalRounds[] = $round;
+      }
+  
+      $scheduleParts = $this->tournamentHelper->getPartsCSV();
+      $PartsNo = [];
+      $PartsStr = 'BLOK - ';
+      foreach ($compressedProgram as $round) {
+        foreach ($scheduleParts as $category) {
+          if (mb_strpos(mb_strtoupper($round->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8')) !== false) {
+            if (! in_array($category->part, $PartsNo)) {
+              $PartsNo[] = $category->part;
+              if( count($PartsNo) == 1 )
+                $PartsStr .= $category->part;
+              else
+                $PartsStr .= ', '.$category->part;
             }
           }
         }
-
-        $rounds = $this->tournamentHelper->getBaseRounds();
-        $categoriesName = [];
-        $roundNames = [];
-        $additionalNames = [];
-        if ($rounds) {
-            foreach ($rounds as $round) {
-                if (! in_array($round->categoryName.' '.$round->className.' '.$round->styleName, $categoriesName, true)) {
-                    $description = $round->categoryName.' '.$round->className.' '.$round->styleName.' ( ';
-                    for ($i = 0; $i < count($round->dances); $i++) {
-                        $description = $description.$round->dances[$i].' ';
-                    }
-                    $description = $description.')';
-                    $categoriesName[] = $description;
-                }
+      }
+  
+      $rounds = $this->tournamentHelper->getBaseRounds();
+      $categoriesName = [];
+      $roundNames = [];
+      $additionalNames = [];
+      if ($rounds) {
+        foreach ($rounds as $round) {
+          if (! in_array($round->categoryName.' '.$round->className.' '.$round->styleName, $categoriesName, true)) {
+              $description = $round->categoryName.' '.$round->className.' '.$round->styleName.' ( ';
+              for ($i = 0; $i < count($round->dances); $i++) {
+                $description = $description.$round->dances[$i].' ';
+              }
+              $description = $description.')';
+              $categoriesName[] = $description;
             }
-            $categoriesName = array_unique($categoriesName);
-            asort($categoriesName);
-            $categoriesNames = array_combine($categoriesName, $categoriesName);
-
-            $roundNames['1/32 Finału'] = '1/32 Finału';
-            $roundNames['1/16 Finału'] = '1/16 Finału';
-            $roundNames['1/8 Finału'] = '1/8 Finału';
-            $roundNames['1/4 Finału'] = '1/4 Finału';
-            $roundNames['1/2 Finału'] = '1/2 Finału';
-            $roundNames['Finał'] = 'Finał';
-            $roundNames['Runda Pokazowa'] = 'Runda Pokazowa';
-            $roundNames['sh_br'] = 'Pokaz/Przerwa';
-            $roundNames['my'] = 'Zdefiniuj własną:';
-
-            $additionalNames[' '] = ' ';
-            $additionalNames['Dodatkowa'] = 'Dodatkowa';
-            $additionalNames['Baraż'] = 'Baraż';
-        } else {// no rounds?/ impossible, maybe directory was changed
-            return view('admin.tournamentChooser');
         }
-//dd('program-',$compressedProgram,$times);
-        return view('admin.program')
-            ->with('program', $program)
-            ->with('compressedProgram', $compressedProgram)
-            ->with('additionalRounds', collect($additionalRounds))
-            ->with('roundNames', $roundNames)
-            ->with('categoriesNames', $categoriesNames)
-            ->with('additNames', $additionalNames)
-            ->with('layout', $layoutData[0])
-            ->with('times', $times)
-            ->with('parts', $PartsStr);
+        $categoriesName = array_unique($categoriesName);
+        asort($categoriesName);
+        $categoriesNames = array_combine($categoriesName, $categoriesName);
+  
+        $roundNames['1/32 Finału'] = '1/32 Finału';
+        $roundNames['1/16 Finału'] = '1/16 Finału';
+        $roundNames['1/8 Finału'] = '1/8 Finału';
+        $roundNames['1/4 Finału'] = '1/4 Finału';
+        $roundNames['1/2 Finału'] = '1/2 Finału';
+        $roundNames['Finał'] = 'Finał';
+        $roundNames['Runda Pokazowa'] = 'Runda Pokazowa';
+        $roundNames['sh_br'] = 'Pokaz/Przerwa';
+        //$roundNames['my'] = 'Zdefiniuj własną:';
+  
+        $additionalNames[' '] = ' ';
+        $additionalNames['Dodatkowa'] = 'Dodatkowa';
+        $additionalNames['Baraż'] = 'Baraż';
+      } 
+      else {// no rounds?/ impossible, maybe directory was changed
+        return view('admin.tournamentChooser');
+      }
+  
+      return view('admin.program')
+          ->with('program', $program)
+          ->with('compressedProgram', $compressedProgram)
+          ->with('additionalRounds', collect($additionalRounds))
+          ->with('roundNames', $roundNames)
+          ->with('categoriesNames', $categoriesNames)
+          ->with('additNames', $additionalNames)
+          ->with('layout', $layoutData[0])
+          ->with('times', $times)
+          ->with('parts', $PartsStr);
     }
 
     public function newProgram()
@@ -713,485 +776,512 @@ class DashboardController extends Controller
 
     public function selectedCategories($type = 0)
     {
-        //echo "<script> console.log('selectedCategories- type=".json_encode($type)."');</script>";
-        // $var = json_encode($round,JSON_UNESCAPED_UNICODE);
-        // echo "<script> console.log({$var})</script>";
+      //echo "<script> console.log('selectedCategories- type=".json_encode($type)."');</script>";
+      // $var = json_encode($round,JSON_UNESCAPED_UNICODE);
+      // echo "<script> console.log({$var})</script>";
 
-        $stDancesTable = Config::get('ptt.stdDances');
-        $rounds = $this->tournamentHelper->getBaseRounds();
-        $classOneRoundOnly = Config::get('ptt.classOneRoundOnly');
-        $bg_colors = ['#F1C40F', '#58D68D', '#DC7633', '#AED6F1', '#F0B27A', '#5DADE2', '#ccff66', '#ff33bb', '#E8DAEF', '#cc6699',
-            '#EC7063', '#A569BD', '#1affff', '#ffff1a', '#D2B4DE', '#e60073', '#FEF5E7', '#1affa3', '#ff6600', '#1ac6ff'];
+      $stDancesTable = Config::get('ptt.stdDances');
+      $rounds = $this->tournamentHelper->getBaseRounds();
+      $classOneRoundOnly = Config::get('ptt.classOneRoundOnly');
+      $bg_colors = ['#F1C40F', '#58D68D', '#DC7633', '#AED6F1', '#F0B27A', '#5DADE2', '#ccff66', '#ff33bb', '#E8DAEF', '#cc6699',
+          '#EC7063', '#A569BD', '#1affff', '#ffff1a', '#D2B4DE', '#e60073', '#FEF5E7', '#1affa3', '#ff6600', '#1ac6ff'];
 
-        if ($rounds) {
-            $categoriesName = [];
-            $roundNames = [];
-            $additionalNames = [];
-            foreach ($rounds as $round) {
-                if (! in_array($round->categoryName.' '.$round->className.' '.$round->styleName, $categoriesName, true)) {
-                    $description = $round->categoryName.' '.$round->className.' '.$round->styleName.' ( ';
-                    for ($i = 0; $i < count($round->dances); $i++) {
-                        $description = $description.$round->dances[$i].' ';
-                    }
-                    $description = $description.')';
-                    $categoriesName[] = $description;
+      if( $rounds ) {
+        $categoriesName = [];
+        $roundNames = [];
+        $additionalNames = [];
+        foreach ($rounds as $round) {
+            if (! in_array($round->categoryName.' '.$round->className.' '.$round->styleName, $categoriesName, true)) {
+                $description = $round->categoryName.' '.$round->className.' '.$round->styleName.' ( ';
+                for ($i = 0; $i < count($round->dances); $i++) {
+                    $description = $description.$round->dances[$i].' ';
                 }
+                $description = $description.')';
+                $categoriesName[] = $description;
             }
-            $categoriesName = array_unique($categoriesName);
-            asort($categoriesName);
-            $categoriesNames = array_combine($categoriesName, $categoriesName);
-
-            $roundNames['1/32 Finału'] = '1/32 Finału';
-            $roundNames['1/16 Finału'] = '1/16 Finału';
-            $roundNames['1/8 Finału'] = '1/8 Finału';
-            $roundNames['1/4 Finału'] = '1/4 Finału';
-            $roundNames['1/2 Finału'] = '1/2 Finału';
-            $roundNames['Finał'] = 'Finał';
-            $roundNames['Wstępna'] = 'Wstępna';
-            $roundNames['Runda Pokazowa'] = 'Runda Pokazowa';
-            $roundNames['Runda I'] = 'Runda I';
-
-            $additionalNames[' '] = ' ';
-            $additionalNames['Dodatkowa'] = 'Dodatkowa';
-            $additionalNames['Baraż'] = 'Baraż';
-        } else {
-            return redirect('admin/program');
         }
-        if (empty($type)) {
-            $roundSelect = request()->input('selected');
-            if (count((array)$roundSelect) == 0) { // empty
-                return redirect('admin/program');
-            }
-            $Program = [];
-            $count = -1;
-            foreach ($roundSelect as $index) {
-                $count++;
-                if ($count > 19) {
-                    $count = 0;
-                }
-                $round = $this->tournamentHelper->getBaseRound(intval($index));
-                $name = $round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
-                $round->description = '[ '.$round->baseNumberOfCouples.' ] '.$name;
-                $round->isDance = '1'; // always is dance :)
-                $round->bg_color = $bg_colors[$count%20];
-                if (mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'KOMBINACJA') !== false &&
-                    mb_strpos(mb_strtoupper(trim($round->roundName), 'UTF-8'), 'WSTĘPNA') !== false) { // found Wstępna, add Runda Pokazowa
-                    if (count($round->dances) > 3) { // no make sence divide 3 dances
-                        $new_round_la = clone $round;
-                        $dances_st = [];
-                        $dances_lt = [];
-                        for ($i = 0; $i < count($round->dances); $i++) {
-                            if (in_array(mb_strtoupper($round->dances[$i], 'UTF-8'), $stDancesTable)) {// standard dance
-                                $dances_st[] = $round->dances[$i];
-                            } else {
-                                $dances_lt[] = $round->dances[$i];
-                            }
-                        }
-                        $round->dances = $dances_st;
-                        $new_round_la->dances = $dances_lt;
-                        $name_st = $round->styleName.' ST';
-                        $name_lt = $round->styleName.' LA';
-                        $round->styleName = $name_st;
-                        $new_round_la->styleName = $name_lt;
-                        $round->description = '[ '.$round->baseNumberOfCouples.' ] '.$round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
-                        $new_round_la->description = '[ '.$round->baseNumberOfCouples.' ] '.$round->roundName.' '.$round->categoryName.' '.$round->className.' '.$new_round_la->styleName;
+        $categoriesName = array_unique($categoriesName);
+        asort($categoriesName);
+        $categoriesNames = array_combine($categoriesName, $categoriesName);
 
-                        $new_round_st_next = clone $round;
-                        $new_round_la_next = clone $new_round_la;
-                        $new_round_st_next->roundName = $new_round_la_next->roundName = 'Runda Pokazowa';
-                        $new_round_st_next->description = '[ '.$round->baseNumberOfCouples.' ] '.'Runda Pokazowa'.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
-                        $new_round_la_next->description = '[ '.$round->baseNumberOfCouples.' ] '.'Runda Pokazowa'.' '.$round->categoryName.' '.$round->className.' '.$new_round_la->styleName;
-                        $Program[] = $new_round_st_next;
-                        $Program[] = $new_round_la_next;
-                        $Program[] = $round;
-                        $Program[] = $new_round_la;
-                    } else {
-                        $new_round = clone $round;
-                        $new_round->roundName = 'Runda Pokazowa';
-                        $new_round->description = '[ '.$round->baseNumberOfCouples.' ] '.$new_round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
-                        $Program[] = $new_round;
-                        $Program[] = $round;
-                    }
-                } elseif (mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'KOMBINACJA') !== false) { // found kombination, divide to STD and LAT
-                    if (count($round->dances) > 3) { // more than 3 dances
-                        $new_round_la = clone $round;
-                        $dances_st = [];
-                        $dances_lt = [];
-                        for ($i = 0; $i < count($round->dances); $i++) {
-                            if (in_array(mb_strtoupper($round->dances[$i], 'UTF-8'), $stDancesTable)) {// standard dance
-                                $dances_st[] = $round->dances[$i];
-                            } else {
-                                $dances_lt[] = $round->dances[$i];
-                            }
-                        }
-                        $round->dances = $dances_st;
-                        $new_round_la->dances = $dances_lt;
-                        $name_st = $round->styleName.' ST';
-                        $name_lt = $round->styleName.' LA';
-                        $round->styleName = $name_st;
-                        $new_round_la->styleName = $name_lt;
-                        $round->description = '[ '.$round->baseNumberOfCouples.' ] '.$round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
-                        $new_round_la->description = '[ '.$round->baseNumberOfCouples.' ] '.$round->roundName.' '.$round->categoryName.' '.$round->className.' '.$new_round_la->styleName;
-                        $Program[] = $round;
-                        $Program[] = $new_round_la;
-                    } else {
-                        $Program[] = $round;
-                    }
-                } elseif (mb_strpos(mb_strtoupper(trim($round->roundName), 'UTF-8'), 'WSTĘPNA') !== false) { // found Wstępna, add Runda Pokazowa
-                    $new_round = clone $round;
-                    $new_round->roundName = 'Runda Pokazowa';
-                    $new_round->description = '[ '.$round->baseNumberOfCouples.' ] '.$new_round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
-                    $Program[] = $new_round;
-                    $Program[] = $round;
-                } else {
-                    $Program[] = $round;
-                }
-            }
-            $ProgramCombination = [];
-            $both = false;
-            foreach ($Program as $index => $round) {
-                if ($both == true) {
-                    unset($Program[$index]);
-                    $both = false;
+        $roundNames['1/32 Finału'] = '1/32 Finału';
+        $roundNames['1/16 Finału'] = '1/16 Finału';
+        $roundNames['1/8 Finału'] = '1/8 Finału';
+        $roundNames['1/4 Finału'] = '1/4 Finału';
+        $roundNames['1/2 Finału'] = '1/2 Finału';
+        $roundNames['Finał'] = 'Finał';
+        $roundNames['Wstępna'] = 'Wstępna';
+        $roundNames['Runda Pokazowa'] = 'Runda Pokazowa';
+        $roundNames['Runda I'] = 'Runda I';
 
-                    continue;
-                }
-                // echo "<script> console.log({$index})</script>";
-                // $var = json_encode($round,JSON_UNESCAPED_UNICODE);
-                // echo "<script> console.log({$var})</script>";
-                if (mb_strpos($round->roundName, '1/') !== false && ! in_array(mb_strtoupper($round->className, 'UTF-8'), $classOneRoundOnly)) { // add next rounds, up to final except Srebro, Brąz classes
-                    $round_no = intval(mb_substr($round->roundName, 2, 2));
-                    if (mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'KOMBINACJA') !== false) {
-                        $both = true;
-                    }
-                    $round_copy = clone $Program[$index];
-                    if ($both == true) {
-                        $round_copy2 = clone $Program[$index + 1];
-                    } // should be next round with Latin
-                    unset($Program[$index]);
-                    $ProgramCombination[] = $round_copy;
-                    if ($both == true) {
-                        $ProgramCombination[] = $round_copy2;
-                    }
-                    do {
-                        $round_no = ($round_no / 2);
-                        $new_round = clone $round_copy;
-
-                        if ($round_no == 1) {
-                            $new_round->roundName = 'Finał';
-                        } else {
-                            $new_round->roundName = '1/'.$round_no.' Finału';
-                        }
-                        $name = $new_round->roundName.' '.$round_copy->categoryName.' '.$round_copy->className.' '.$round_copy->styleName;
-                        $new_round->description = $name;
-                        $ProgramCombination[] = $new_round;
-                        if ($both == true) {
-                            $new_round2 = clone $round_copy2;
-                            if ($round_no == 1) {
-                                $new_round2->roundName = 'Finał';
-                            } else {
-                                $new_round2->roundName = '1/'.$round_no.' Finału';
-                            }
-                            $name = $new_round2->roundName.' '.$round_copy2->categoryName.' '.$round_copy2->className.' '.$round_copy2->styleName;
-                            $new_round2->description = $name;
-                            $ProgramCombination[] = $new_round2;
-                        }
-                    } while ($round_no != 1);
-                }
-            }
-            // divide to two arrays - wstepna/pokazowa and rest
-            $ProgramFinal = [];
-            // $Program_LA = [];
-            $ProgramPremilinary = [];
-            foreach ($Program as $index => $point) {
-                if (mb_strpos(mb_strtoupper($point->roundName), 'WSTĘPNA') !== false || mb_strpos(mb_strtoupper($point->roundName), 'POKAZ') !== false) {
-                    $ProgramPremilinary[] = $point;
-                    unset($Program[$index]);
-                }
+        $additionalNames[' '] = ' ';
+        $additionalNames['Dodatkowa'] = 'Dodatkowa';
+        $additionalNames['Baraż'] = 'Baraż';
+      } 
+      else {
+        return redirect('admin/program');
+      }
+      if( empty( $type ) ) {
+        $roundSelect = request()->input('selected');
+        if (count((array)$roundSelect) == 0) { // empty
+          return redirect('admin/program');
+        }
+        $Program = [];
+        $count = -1;
+        foreach ($roundSelect as $index) {
+          $count++;
+          if ($count > 19) {
+              $count = 0;
+          }
+          $round = $this->tournamentHelper->getBaseRound(intval($index));
+          $name = $round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
+          $round->description = '[ '.$round->baseNumberOfCouples.' ] '.$name;
+          $round->isDance = '1'; // always is dance :)
+          $round->bg_color = $bg_colors[$count%20];
+          if (mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'KOMBINACJA') !== false &&
+            mb_strpos(mb_strtoupper(trim($round->roundName), 'UTF-8'), 'WSTĘPNA') !== false) { // found Wstępna, add Runda Pokazowa
+            if (count($round->dances) > 3) { // no make sence divide 3 dances
+              $new_round_la = clone $round;
+              $dances_st = [];
+              $dances_lt = [];
+              for ($i = 0; $i < count($round->dances); $i++) {
+                if (in_array(mb_strtoupper($round->dances[$i], 'UTF-8'), $stDancesTable)) {// standard dance
+                  $dances_st[] = $round->dances[$i];
+                } 
                 else {
-                    $ProgramFinal[] = $point;
+                  $dances_lt[] = $round->dances[$i]; 
                 }
-            }
-            usort($ProgramFinal, fn ($a, $b): int =>
-                ($a->className <=> $b->className)
-                ?: ($b->categoryName <=> $a->categoryName)
-            );
-            unset($Program);
-           /* $Program = array_merge($ProgramPremilinary, $ProgramCombination);
-            $Program = array_merge($Program, $ProgramFinal);
-            $data = array_values($Program);
-            $Program = array_combine(array_keys($data), $data); */
-            $Program = array_merge(
-                $ProgramPremilinary,
-                $ProgramCombination,
-                $ProgramFinal );
-        } else {// another operation
-            $program = Session::get('new_program');
-            if ($type == 'saveFile') { // save file
-                $roundsIds = request()->input('roundId');
-                $Program = [];
-                foreach ($roundsIds as $id) {
-                  $Program[] = $program[$id];
-                }
-                $fileName = request()->input('fileName');
-                if ($this->saveProgram($fileName, $Program, 'old') == false) {
-                    Session::flash('status', 'error');
-                } else {
-                    Session::flash('status', 'success');
-                }
-                return redirect('admin/program');
-            } else {
-                $program = Session::get('new_program');
-                if ($type != 'nothing') {
-                    $roundsIds = request()->input('roundId');
-                    $Program = [];
-                    foreach ($roundsIds as $id) {
-                        $Program[] = $program[$id];
-                    }
-                } else {
-                    $Program = $program;
-                }
-            }
-        }
-        Session::put('new_program', $Program);
+              }
+              $round->dances = $dances_st;
+              $new_round_la->dances = $dances_lt;
+              $name_st = $round->styleName.' ST';
+              $name_lt = $round->styleName.' LA';
+              $round->styleName = $name_st;
+              $new_round_la->styleName = $name_lt;
+              $round->description = '[ '.$round->baseNumberOfCouples.' ] '.$round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
+              $new_round_la->description = '[ '.$round->baseNumberOfCouples.' ] '.$round->roundName.' '.$round->categoryName.' '.$round->className.' '.$new_round_la->styleName;
 
-        return view('admin.programSet')
-            ->with('program', $Program)
-            ->with('roundNames', $roundNames)
-            ->with('categoriesNames', $categoriesNames)
-            ->with('additNames', $additionalNames);
+              $new_round_st_next = clone $round;
+              $new_round_la_next = clone $new_round_la;
+              $new_round_st_next->roundName = $new_round_la_next->roundName = 'Runda Pokazowa';
+              $new_round_st_next->description = '[ '.$round->baseNumberOfCouples.' ] '.'Runda Pokazowa'.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
+              $new_round_la_next->description = '[ '.$round->baseNumberOfCouples.' ] '.'Runda Pokazowa'.' '.$round->categoryName.' '.$round->className.' '.$new_round_la->styleName;
+              $Program[] = $new_round_st_next;
+              $Program[] = $new_round_la_next;
+              $Program[] = $round;
+              $Program[] = $new_round_la;
+            } 
+            else {
+              $new_round = clone $round;
+              $new_round->roundName = 'Runda Pokazowa';
+              $new_round->description = '[ '.$round->baseNumberOfCouples.' ] '.$new_round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
+              $Program[] = $new_round;
+              $Program[] = $round;
+            }
+          } 
+          elseif (mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'KOMBINACJA') !== false) { // found kombination, divide to STD and LAT
+            if (count($round->dances) > 3) { // more than 3 dances
+              $new_round_la = clone $round;
+              $dances_st = [];
+              $dances_lt = [];
+              for ($i = 0; $i < count($round->dances); $i++) {
+                if (in_array(mb_strtoupper($round->dances[$i], 'UTF-8'), $stDancesTable)) {// standard dance
+                  $dances_st[] = $round->dances[$i];
+                } 
+                else {
+                  $dances_lt[] = $round->dances[$i];
+                }
+              }
+              $round->dances = $dances_st;
+              $new_round_la->dances = $dances_lt;
+              $name_st = $round->styleName.' ST';
+              $name_lt = $round->styleName.' LA';
+              $round->styleName = $name_st;
+              $new_round_la->styleName = $name_lt;
+              $round->description = '[ '.$round->baseNumberOfCouples.' ] '.$round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
+              $new_round_la->description = '[ '.$round->baseNumberOfCouples.' ] '.$round->roundName.' '.$round->categoryName.' '.$round->className.' '.$new_round_la->styleName;
+              $Program[] = $round;
+              $Program[] = $new_round_la;
+            } 
+            else {
+                $Program[] = $round;
+            }
+          } 
+          elseif (mb_strpos(mb_strtoupper(trim($round->roundName), 'UTF-8'), 'WSTĘPNA') !== false) { // found Wstępna, add Runda Pokazowa
+              $new_round = clone $round;
+              $new_round->roundName = 'Runda Pokazowa';
+              $new_round->description = '[ '.$round->baseNumberOfCouples.' ] '.$new_round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
+              $Program[] = $new_round;
+              $Program[] = $round;
+          } 
+          else {
+              $Program[] = $round;
+          }
+        }
+        $ProgramCombination = [];
+        $both = false;
+        foreach ($Program as $index => $round) {
+          if ($both == true) {
+              unset($Program[$index]);
+              $both = false;
+
+              continue;
+          }
+          // echo "<script> console.log({$index})</script>";
+          // $var = json_encode($round,JSON_UNESCAPED_UNICODE);
+          // echo "<script> console.log({$var})</script>";
+          if (mb_strpos($round->roundName, '1/') !== false && ! in_array(mb_strtoupper($round->className, 'UTF-8'), $classOneRoundOnly)) { // add next rounds, up to final except Srebro, Brąz classes
+            $round_no = intval(mb_substr($round->roundName, 2, 2));
+            if (mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'KOMBINACJA') !== false) {
+                $both = true;
+            }
+            $round_copy = clone $Program[$index];
+            if ($both == true) {
+                $round_copy2 = clone $Program[$index + 1];
+            } // should be next round with Latin
+            unset($Program[$index]);
+            $ProgramCombination[] = $round_copy;
+            if ($both == true) {
+                $ProgramCombination[] = $round_copy2;
+            }
+            do {
+              $round_no = ($round_no / 2);
+              $new_round = clone $round_copy;
+
+              if ($round_no == 1) {
+                  $new_round->roundName = 'Finał';
+              } else {
+                  $new_round->roundName = '1/'.$round_no.' Finału';
+              }
+              $name = $new_round->roundName.' '.$round_copy->categoryName.' '.$round_copy->className.' '.$round_copy->styleName;
+              $new_round->description = $name;
+              $ProgramCombination[] = $new_round;
+              if ($both == true) {
+                $new_round2 = clone $round_copy2;
+                if ($round_no == 1) {
+                    $new_round2->roundName = 'Finał';
+                } else {
+                    $new_round2->roundName = '1/'.$round_no.' Finału';
+                }
+                $name = $new_round2->roundName.' '.$round_copy2->categoryName.' '.$round_copy2->className.' '.$round_copy2->styleName;
+                $new_round2->description = $name;
+                $ProgramCombination[] = $new_round2;
+              }
+            } while ($round_no != 1);
+          }
+        }
+        // divide to two arrays - wstepna/pokazowa and rest
+        $ProgramFinal = [];
+        // $Program_LA = [];
+        $ProgramPremilinary = [];
+        foreach ($Program as $index => $point) {
+          if (mb_strpos(mb_strtoupper($point->roundName), 'WSTĘPNA') !== false || mb_strpos(mb_strtoupper($point->roundName), 'POKAZ') !== false) {
+            $ProgramPremilinary[] = $point;
+            unset($Program[$index]);
+          }
+          else {
+            $ProgramFinal[] = $point;
+          }
+        }
+        usort($ProgramFinal, fn ($a, $b): int =>
+            ($a->className <=> $b->className)
+            ?: ($b->categoryName <=> $a->categoryName)
+        );
+        unset($Program);
+        /* $Program = array_merge($ProgramPremilinary, $ProgramCombination);
+        $Program = array_merge($Program, $ProgramFinal);
+        $data = array_values($Program);
+        $Program = array_combine(array_keys($data), $data); */
+        $Program = array_merge( $ProgramPremilinary, $ProgramCombination, $ProgramFinal );
+      } 
+      else {// another operation
+        $program = Session::get('new_program');
+        if ($type == 'saveFile') { // save file
+          $roundsIds = request()->input('roundId');
+          $Program = [];
+          foreach ($roundsIds as $id) {
+            $Program[] = $program[$id];
+          }
+          $fileName = request()->input('fileName');
+          if ($this->saveProgram($fileName, $Program, 'old') == false) {
+              Session::flash('status', 'error');
+          } else {
+              Session::flash('status', 'success');
+          }
+          return redirect('admin/program');
+        } 
+        else {
+          $program = Session::get('new_program');
+          if ($type != 'nothing') {
+            $roundsIds = request()->input('roundId');
+            $Program = [];
+            foreach ($roundsIds as $id) {
+                $Program[] = $program[$id];
+            }
+          } 
+          else {
+            $Program = $program;
+          }
+        }
+      }
+      Session::put('new_program', $Program);
+
+      return view('admin.programSet')
+          ->with('program', $Program)
+          ->with('roundNames', $roundNames)
+          ->with('categoriesNames', $categoriesNames)
+          ->with('additNames', $additionalNames);
     }
 
     public function postSelectedCategories($type = 0)
     {
-        $added_all = [];
-        if (empty($type)) {
-            return redirect('admin/selectedCategories/nothing');
-        } else {// add round, break, show etc...
-            $Program = Session::get('new_program');
-            if ($type == 'addRound') {
-                $roundName = request()->input('round');
-                $category = request()->input('category');
-                $additional = request()->input('additional');
-                $added = clone reset($Program);
-                $added->bg_color = '#7FFF00';
-                if ((($pos = mb_strpos($category, '(')) !== false)) { // found dances
-                    $added->description = $roundName.' '.trim(substr($category, 0, $pos));
-                    foreach ($Program as $round) {
-                        if (mb_strpos($round->description, $added->description, 0, 'UTF-8') !== false &&
-                           mb_strpos($round->description, $additional, 0, 'UTF-8') !== false) {
-                            return redirect('admin/program/selectedCategories/nothing');
-                        }
-                    }
-                    $added->roundName = $roundName;
-                    $dancesString = trim(substr($category, $pos), ' ()');
-                    $dances = $dancesString === '' ? [] : explode(' ', $dancesString);
-                    if (count($dances) > 0) {
-                        $cnt = count($dances);
-                        unset($added->dances);
-                        $added->dances = [];
-                        for ($i = 0; $i < $cnt; $i++) {
-                            $added->dances[] = strlen($dances[$i]) < 4 ? $dances[$i] : substr($dances[$i], 0, 3);
-                        }
-                    }
-                }
-                if (mb_strpos(mb_strtoupper(trim($added->description), 'UTF-8'), 'KOMBINACJA') !== false) { // found kombination, divide to STD and LAT
-                    if (count($added->dances) % 2 === 0) { // event number but odd don't divide:)
-                        $new_round_la = clone $added;
-                        $dances_st = [];
-                        $dances_lt = [];
-                        for ($i = 0; $i < count($added->dances) / 2; $i++) {
-                            $dances_st[] = $added->dances[$i];
-                            $dances_lt[] = $added->dances[$i + count($added->dances) / 2];
-                        }
-                        $added->dances = $dances_st;
-                        $new_round_la->dances = $dances_lt;
-                        $added->description = $added->description.' ST';
-                        $new_round_la->description = $new_round_la->description.' LA';
-                        if ($additional != ' ') {
-                            $new_round_la->matchType = $additional;
-                            $new_round_la->description = $new_round_la->description.' '.$additional;
-                            $new_round_la->isAdditional = true;
-                        }
-                        $added_all[] = $new_round_la;
-                    }
-                }
-                if ($additional != ' ') {
-                    $added->matchType = $additional;
-                    $added->description = $added->description.' '.$additional;
-                    $added->isAdditional = true;
-
-                }
-                $added_all[] = $added;
-            } elseif ($type == 'addShow') {
-                $showName = trim(request()->input('showName'));
-                $showNameDance = trim(request()->input('showNameDance'));
-                $added = clone reset($Program);
-                $added->description = $showName;
-                $added->roundName = $showName;
-                $added->categoryName = $added->className = $added->styleName = $added->matchType = '';
-                $added->isAdditional = false;
-                $added->bg_color = '#00FFFF';
-                foreach ($Program as $round) {
-                    if (mb_strpos($round->description, $added->description, 0, 'UTF-8') !== false) {
-                        return redirect('admin/program/selectedCategories/nothing');
-                    }
-                }
-                if (! empty($showNameDance)) {
-                    $dances = explode(' ', $showNameDance);
-                    if( $dances[0] !== '' ) {
-                        $cnt = count($dances);
-                        unset($added->dances);
-                        $added->dances = [];
-                        for ($i = 0; $i < $cnt; $i++) {
-                            $added->dances[] = strlen($dances[$i]) < 4 ? $dances[$i] : substr($dances[$i], 0, 3);
-                        }
-                    } else {
-                        unset($added->dances);
-                        $added->isDance = 0;
-                    }
-                } else {
-                    unset($added->dances);
-                    $added->isDance = 0;
-                }
-                $added_all[] = $added;
-            } elseif ($type == 'addBreak') {
-                $BreakName = request()->input('BreakName');
-                $breakTime = request()->input('breakTime');
-                $added = clone reset($Program);
-                $added->description = $BreakName;
-                $added->roundName = $BreakName;
-                $added->categoryName = $added->className = $added->styleName = $added->matchType = '';
-                $added->isAdditional = false;
-                $added->bg_color = '#FFFF00';
-                foreach ($Program as $round) {
-                    if (mb_strpos($round->description, $added->description, 0, 'UTF-8') !== false) {
-                        return redirect('admin/program/selectedCategories/nothing');
-                    }
-                }
-                if (! empty($breakTime)) {
-                    unset($added->dances);
-                    $added->dances = [];
-                    $added->dances[] = $breakTime;
-                } else {
-                    unset($added->dances);
-                    $added->isDance = 0;
-                }
-                $added_all[] = $added;
+      $added_all = [];
+      if (empty($type)) {
+          return redirect('admin/selectedCategories/nothing');
+      } 
+      else {// add round, break, show etc...
+        $Program = Session::get('new_program');
+        if ($type == 'addRound') {
+          $roundName = request()->input('round');
+          $category = request()->input('category');
+          $additional = request()->input('additional');
+          $added = clone reset($Program);
+          $added->bg_color = '#7FFF00';
+          if ((($pos = mb_strpos($category, '(')) !== false)) { // found dances
+            $added->description = $roundName.' '.trim(substr($category, 0, $pos));
+            foreach ($Program as $round) {
+              if (mb_strpos($round->description, $added->description, 0, 'UTF-8') !== false &&
+                  mb_strpos($round->description, $additional, 0, 'UTF-8') !== false) {
+                return redirect('admin/program/selectedCategories/nothing');
+              }
             }
-        }
-        if (empty($added_all) == false) {
-            foreach ($added_all as $point) {
-                array_push($Program, $point);
+            $added->roundName = $roundName;
+            $dancesString = trim(substr($category, $pos), ' ()');
+            $dances = $dancesString === '' ? [] : explode(' ', $dancesString);
+            if (count($dances) > 0) {
+              $cnt = count($dances);
+              unset($added->dances);
+              $added->dances = [];
+              for ($i = 0; $i < $cnt; $i++) {
+                $added->dances[] = strlen($dances[$i]) < 4 ? $dances[$i] : substr($dances[$i], 0, 3);
+              }
             }
+          }
+          if (mb_strpos(mb_strtoupper(trim($added->description), 'UTF-8'), 'KOMBINACJA') !== false) { // found kombination, divide to STD and LAT
+            if (count($added->dances) % 2 === 0) { // event number but odd don't divide:)
+              $new_round_la = clone $added;
+              $dances_st = [];
+              $dances_lt = [];
+              for ($i = 0; $i < count($added->dances) / 2; $i++) {
+                $dances_st[] = $added->dances[$i];
+                $dances_lt[] = $added->dances[$i + count($added->dances) / 2];
+              }
+              $added->dances = $dances_st;
+              $new_round_la->dances = $dances_lt;
+              $added->description = $added->description.' ST';
+              $new_round_la->description = $new_round_la->description.' LA';
+              if ($additional != ' ') {
+                $new_round_la->matchType = $additional;
+                $new_round_la->description = $new_round_la->description.' '.$additional;
+                $new_round_la->isAdditional = true;
+              }
+              $added_all[] = $new_round_la;
+            }
+          }
+          if ($additional != ' ') {
+            $added->matchType = $additional;
+            $added->description = $added->description.' '.$additional;
+            $added->isAdditional = true;
+          }
+          $added_all[] = $added;
+        } 
+        elseif ($type == 'addShow') {
+          $showName = trim(request()->input('showName'));
+          $showNameDance = trim(request()->input('showNameDance'));
+          $added = clone reset($Program);
+          $added->description = $showName;
+          $added->roundName = $showName;
+          $added->categoryName = $added->className = $added->styleName = $added->matchType = '';
+          $added->isAdditional = false;
+          $added->bg_color = '#00FFFF';
+          foreach ($Program as $round) {
+              if (mb_strpos($round->description, $added->description, 0, 'UTF-8') !== false) {
+                  return redirect('admin/program/selectedCategories/nothing');
+              }
+          }
+          if (! empty($showNameDance)) {
+            $dances = explode(' ', $showNameDance);
+            if( $dances[0] !== '' ) {
+              $cnt = count($dances);
+              unset($added->dances);
+              $added->dances = [];
+              for ($i = 0; $i < $cnt; $i++) {
+                $added->dances[] = strlen($dances[$i]) < 4 ? $dances[$i] : substr($dances[$i], 0, 3);
+              }
+            } 
+            else {
+              unset($added->dances);
+              $added->isDance = 0;
+            }
+          } else {
+            unset($added->dances);
+            $added->isDance = 0;
+          }
+          $added_all[] = $added;
+        } 
+        elseif ($type == 'addBreak') {
+          $BreakName = request()->input('BreakName');
+          $breakTime = request()->input('breakTime');
+          $added = clone reset($Program);
+          $added->description = $BreakName;
+          $added->roundName = $BreakName;
+          $added->categoryName = $added->className = $added->styleName = $added->matchType = '';
+          $added->isAdditional = false;
+          $added->bg_color = '#FFFF00';
+          foreach ($Program as $round) {
+            if (mb_strpos($round->description, $added->description, 0, 'UTF-8') !== false) {
+              return redirect('admin/program/selectedCategories/nothing');
+            }
+          }
+          if (! empty($breakTime)) {
+            unset($added->dances);
+            $added->dances = [];
+            $added->dances[] = $breakTime;
+          } else {
+            unset($added->dances);
+            $added->isDance = 0;
+          }
+          $added_all[] = $added;
         }
-        return view('admin.programTemp')
-            ->with('program', $Program)
-            ->with('cmd', true);
+      }
+      if (empty($added_all) == false) {
+        foreach ($added_all as $point) {
+          array_push($Program, $point);
+        }
+      }
+      return view('admin.programTemp')
+              ->with('program', $Program)
+              ->with('cmd', true);
     }
 
     public function editProgram($cmd = 0)
     {
-        $additionalRounds = null;
-        $layout = Layout::get();
+      $additionalRounds = null;
+      $layout = Layout::get();
 
-        if ($cmd) {
-            $program = Session::get('new_program');
-        } else {
-            $program = $this->getCompressedProgram();
-            foreach ($program as $index => $programRound) {
-                if (($pos = mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'POKAZOWA')) !== false) {
-                    $round = $this->tournamentHelper->getRound('Wstępna'.substr($programRound->description, $pos + 8, strlen($programRound->description) - $pos - 8));
-                    if ($round == false) {
-                        $round = $this->tournamentHelper->getRound('Finał'.substr($programRound->description, $pos + 8, strlen($programRound->description) - $pos - 8));
-                    }
-                } else {
-                    $round = $this->tournamentHelper->getRound($programRound->description);
-                }
-                $couples = 0;
-
-                if ($round) {
-                    $couples = $round->NumberOfCouples;
-                    if ($couples) {
-                        $program[$index]->couples = $couples;
-                    } else {
-                        $program[$index]->couples = false;
-                    }
-                } 
-                else { //check, maybe not closed yet, so display number of registered
-                  $baseRounds = $this->tournamentHelper->getBaseRounds();
-                  if( $baseRounds ) {
-                    foreach ($baseRounds as $round) {
-                      $desc = $round->roundName.' '.$round->categoryName.' '.$round->className.' '.$round->styleName;
-                      if( ($pos = mb_strpos(mb_strtoupper($programRound->description, 'UTF-8'), 'POKAZOWA')) !== false)
-                        $src = 'Wstępna'.substr($programRound->description, $pos + 8, strlen($programRound->description) - $pos - 8);
-                      else
-                        $src = $programRound->description;
-                      if( mb_strpos(mb_strtoupper($src, 'UTF-8'), mb_strtoupper($desc, 'UTF-8')) !== false) {
-                        if( $round->closeRegistration != "T" ){ //not close structure
-                          $couples = $round->baseNumberOfCouples;
-                        }
-                        else {
-                          $couples = false;
-                        }
-                        break;
-                      }
-                    }
-                    if( $couples )
-                      $program[$index]->couples = $couples;
-                    else
-                      $program[$index]->couples = false;
-                  }
-                  else
-                    $program[$index]->couples = false;
-                }
+      if ($cmd) {
+        $program = Session::get('new_program');
+      } else {
+        $program = $this->getCompressedProgram();
+        
+        $baseRounds = $this->tournamentHelper->getBaseRounds();
+        foreach ($program as $index => $programRound) {
+          $src = $programRound->description;
+          $srcUpper = mb_strtoupper($src, 'UTF-8');
+          $couples = false;
+          $round = false;
+        
+          // Check break or show
+          $bBreak = mb_strpos($srcUpper, 'PRZERWA') !== false || str_starts_with($srcUpper, 'POKAZ');
+          if (!$bBreak) {
+            // Show round - check preliminary or final round
+            if (($pos = mb_strpos($srcUpper, 'POKAZOWA')) !== false) {
+              $suffix = mb_substr($src, $pos + 8, null, 'UTF-8');
+              $src = 'Wstępna'.$suffix;
+        
+              $round = $this->tournamentHelper->getRound($src);
+              if (!$round) {
+                $round = $this->tournamentHelper->getRound('Finał'.$suffix);
+              }
+            } 
+            else {
+              $round = $this->tournamentHelper->getRound($src);
             }
+        
+            // Round already exists
+            if ($round) {
+                $couples = $round->NumberOfCouples ?: false;
+            } 
+            else {
+              // Round or category does not exist by default
+              $couples = -1000;
+              $srcUpper = mb_strtoupper($src, 'UTF-8');
+              $roundType = preg_match('/^\s*1\/(\d+)/', $src, $matches) ? (int)$matches[1] : 0;
+              foreach ($baseRounds ?: [] as $baseRound) {
+                $descBase = mb_strtoupper( $baseRound->categoryName.' '.$baseRound->className.' '.$baseRound->styleName, 'UTF-8' );
+        
+                // Skip other categories
+                if (mb_strpos($srcUpper, $descBase) === false)
+                  continue;
+        
+                $desc = mb_strtoupper($baseRound->roundName.' '.$descBase,'UTF-8' );
+                $roundBase = preg_match('/^\s*1\/(\d+)/', $desc, $matches) ? (int)$matches[1] : 0;
+                // Same round as base round
+                if (mb_strpos($srcUpper, $desc) !== false) {
+                    $couples = $baseRound->closeRegistration != 'T'
+                        ? $baseRound->baseNumberOfCouples
+                        : false;
+                }
+                // Earlier round than base round - not required
+                elseif ($roundType > $roundBase) {
+                    $couples = -1000;
+                }
+                // Later round than base round
+                else {
+                    $couples = false;
+                }
+                break;
+              }
+            }
+          }
+          $program[$index]->couples = $couples;
         }
+      }
 
-        return view('admin.programEdit')
-            ->with('program', $program)
-            ->with('action', $cmd)
-            ->with('additionalRounds', $additionalRounds)
-            ->with('layout', $layout[0]);
+      return view('admin.programEdit')
+          ->with('program', $program)
+          ->with('action', $cmd)
+          ->with('additionalRounds', $additionalRounds)
+          ->with('layout', $layout[0]);
     }
 
     public function linkProgram()
     {
-        if (request()->file('program_add') == null) {
-            return redirect('admin/program');
-        }
-        $parsedProgram = $this->getCompressedProgram();
-        $programAdd = $this->tournamentHelper->parseScheduleFile(request()->file('program_add'));
-        $all = Round::all();
-        $maxId = 0;
-        foreach ($all as $oneDance) {
-            if ($oneDance->id > $maxId) {
-                $maxId = $oneDance->id;
+      if (request()->file('program_add') == null) {
+          return redirect('admin/program');
+      }
+      $parsedProgram = $this->getCompressedProgram();
+      $programAdd = $this->tournamentHelper->parseScheduleFile(request()->file('program_add'));
+      $all = Round::all();
+      $maxId = 0;
+      foreach ($all as $oneDance) {
+          if ($oneDance->id > $maxId) {
+              $maxId = $oneDance->id;
+          }
+      }
+      // verify if added rounds are not repeated
+      $programAddnew = [];
+      $found = 0;
+      if ($parsedProgram != null && $programAdd != null) {
+        foreach ($programAdd as $Additional) {
+          $found = 0;
+          foreach ($parsedProgram as $existProgram) {
+            if (trim($Additional->description) == trim($existProgram->description)) {
+              $found = 1;
+              break;
             }
+          }
+          if ($found == 0) {
+            $Additional->id = $maxId + 1;
+            $maxId = $maxId + 1;
+            $programAddnew[] = $Additional;
+          }
         }
-        // verify if added rounds are not repeated
-        $programAddnew = [];
-        $found = 0;
-        if ($parsedProgram != null && $programAdd != null) {
-            foreach ($programAdd as $Additional) {
-                $found = 0;
-                foreach ($parsedProgram as $existProgram) {
-                    if (trim($Additional->description) == trim($existProgram->description)) {
-                        $found = 1;
-                        break;
-                    }
-                }
-                if ($found == 0) {
-                    $Additional->id = $maxId + 1;
-                    $maxId = $maxId + 1;
-                    $programAddnew[] = $Additional;
-                }
-            }
-        }
+      }
 
-        return view('admin.programAdd')
-            ->with('program', $parsedProgram)
-            ->with('programAdd', $programAddnew);
+      return view('admin.programAdd')
+          ->with('program', $parsedProgram)
+          ->with('programAdd', $programAddnew);
     }
 
     public function postAdditionalRound()
@@ -1340,7 +1430,7 @@ class DashboardController extends Controller
         $layout = Layout::get();
         $program = $this->getCompressedProgram();
 
-        $durationRound = request()->input('intDurationElm');
+        /**$durationRound = request()->input('intDurationElm');
         $durationFinal = request()->input('intDurationFin');
         $parameter1 = request()->input('intDurationStart');
         $parameter2 = request()->input('intDurationEnd');
@@ -1356,12 +1446,26 @@ class DashboardController extends Controller
         }
         if ($parameter2) {
             DB::update('update layout set parameter2 = ?', [$parameter2]);
+        }*/
+        $fields = [
+          'durationRound' => 'intDurationElm',
+          'durationFinal' => 'intDurationFin',
+          'parameter1'    => 'intDurationStart',
+          'parameter2'    => 'intDurationEnd',
+        ];
+        
+        foreach ($fields as $column => $input) {
+          $value = request()->input($input);
+        
+          if ($value !== null && $value !== '') {
+              DB::table('layout')->update([$column => $value]);
+          }
         }
 
         return view('admin.programEdit')
-            ->with('program', $program)
-            ->with('additionalRounds', null)
-            ->with('layout', $layout[0]);
+          ->with('program', $program)
+          ->with('additionalRounds', null)
+          ->with('layout', $layout[0]);
     }
 
     public function postSelectProgram(Request $request)
@@ -1389,9 +1493,9 @@ class DashboardController extends Controller
       $durationFinal          = request()->input('intDurationFin');
 
       // zapisz layout (tylko jeśli podane)
-      if (!is_null($startTime) && $startTime !== '') {
-          DB::update('update layout set startTime = ?', [$startTime]);
-      }
+      //if (!is_null($startTime) && $startTime !== '') {
+      //    DB::update('update layout set startTime = ?', [$startTime]);
+      //}
       if ($durationRound !== null && $durationRound !== '') {
           DB::update('update layout set durationRound = ?', [(int) $durationRound]);
       }
@@ -1406,69 +1510,69 @@ class DashboardController extends Controller
       $count = count($roundsIds);
       for ($i = 0; $i < $count; $i++) 
       {
-          // bezpieczne pobranie alt nazwy (string|null)
-          $alt = null;
-          if (is_array($roundsAlternativeNames)) {
-              $alt = $roundsAlternativeNames[$i] ?? null;
-          } elseif (is_string($roundsAlternativeNames) && $roundsAlternativeNames !== '') {
-              // gdyby przyszło pojedynczą wartością (rzadkie)
-              $alt = $roundsAlternativeNames;
+        // bezpieczne pobranie alt nazwy (string|null)
+        $alt = null;
+        if (is_array($roundsAlternativeNames)) {
+            $alt = $roundsAlternativeNames[$i] ?? null;
+        } elseif (is_string($roundsAlternativeNames) && $roundsAlternativeNames !== '') {
+            // gdyby przyszło pojedynczą wartością (rzadkie)
+            $alt = $roundsAlternativeNames;
+        }
+        if (is_array($alt)) {
+            $alt = reset($alt); // na wszelki wypadek, gdyby był array
+        }
+        $alt = ($alt === null || $alt === '') ? '' : trim((string) $alt);
+      
+        $isDanceFlag = isset($roundIsDance[$i]) && (string)$roundIsDance[$i] === '1';
+      
+        if ($isDanceFlag && ($danceNames = request()->input($roundsIds[$i] . 'DanceName'))) 
+        {
+          foreach ((array)$danceNames as $danceName) {
+            $round = [];
+            $round['description']              = trim((string)$roundsNames[$i]);
+            $round['alternative_description']  = $alt;                    // string|null
+            $round['isDance']                  = 1;                       // int
+            $round['dance']                    = (string)$danceName;
+            $closedInput                       = request()->input($roundsIds[$i] . $danceName);
+            $round['closed']                   = (int) filter_var($closedInput, FILTER_VALIDATE_BOOLEAN);
+      
+            if (mb_strpos($roundsNames[$i], 'Dodatkowa', 0, 'UTF-8') !== false) {
+                $round['type'] = 'Dodatkowa';
+            } elseif (mb_strpos($roundsNames[$i], 'Baraż', 0, 'UTF-8') !== false) {
+                $round['type'] = 'Baraż';
+            } else {
+                $round['type'] = null; // zamiast pustego stringa
+            }
+      
+            $danceOrder = request()->input('order' . $roundsIds[$i] . $danceName);
+            $order[] = ($danceOrder === null || $danceOrder === '') ? null : $danceOrder;
+      
+            // groups
+            if (is_array($groupsIds) && isset($groupsIds[$i]) && $groupsIds[$i] !== '') {
+                $round['groups'] = (int)$groupsIds[$i];
+            } elseif (($roundData = $this->tournamentHelper->getRound(trim($roundsNames[$i]))) != false) {
+                $dance = $this->tournamentHelper->getDanceCouples($roundData->roundId, $danceName, $error);
+                $round['groups'] = $dance !== false ? (int)count($dance->couples) : 1;
+            } else {
+                $round['groups'] = 1;
+            }
+            $data[] = $round;
           }
-          if (is_array($alt)) {
-              $alt = reset($alt); // na wszelki wypadek, gdyby był array
-          }
-          $alt = ($alt === null || $alt === '') ? '' : trim((string) $alt);
       
-          $isDanceFlag = isset($roundIsDance[$i]) && (string)$roundIsDance[$i] === '1';
-      
-          if ($isDanceFlag && ($danceNames = request()->input($roundsIds[$i] . 'DanceName'))) 
-          {
-              foreach ((array)$danceNames as $danceName) {
-                  $round = [];
-                  $round['description']              = trim((string)$roundsNames[$i]);
-                  $round['alternative_description']  = $alt;                    // string|null
-                  $round['isDance']                  = 1;                       // int
-                  $round['dance']                    = (string)$danceName;
-                  $closedInput                       = request()->input($roundsIds[$i] . $danceName);
-                  $round['closed']                   = (int) filter_var($closedInput, FILTER_VALIDATE_BOOLEAN);
-      
-                  if (mb_strpos($roundsNames[$i], 'Dodatkowa', 0, 'UTF-8') !== false) {
-                      $round['type'] = 'Dodatkowa';
-                  } elseif (mb_strpos($roundsNames[$i], 'Baraż', 0, 'UTF-8') !== false) {
-                      $round['type'] = 'Baraż';
-                  } else {
-                      $round['type'] = null; // zamiast pustego stringa
-                  }
-      
-                  $danceOrder = request()->input('order' . $roundsIds[$i] . $danceName);
-                  $order[] = ($danceOrder === null || $danceOrder === '') ? null : $danceOrder;
-      
-                  // groups
-                  if (is_array($groupsIds) && isset($groupsIds[$i]) && $groupsIds[$i] !== '') {
-                      $round['groups'] = (int)$groupsIds[$i];
-                  } elseif (($roundData = $this->tournamentHelper->getRound(trim($roundsNames[$i]))) != false) {
-                      $dance = $this->tournamentHelper->getDanceCouples($roundData->roundId, $danceName, $error);
-                      $round['groups'] = $dance !== false ? (int)count($dance->couples) : 1;
-                  } else {
-                      $round['groups'] = 1;
-                  }
-      
-                  $data[] = $round;
-              }
-      
-          } else {
-              // pozycja NIE-taneczna
-              $round = [];
-              $round['description']             = trim((string)$roundsNames[$i]);
-              $round['alternative_description'] = $alt;   // string|null
-              $round['isDance']                 = 0;      // int
-              $round['closed']                  = 1;      // int
-              $round['dance']                   = '';
-              $round['type']                    = null;   // null lepsze niż pusty string
-              $round['groups']                  = 1;
-              $order[]                          = null;
-              $data[] = $round;
-          }
+        } 
+        else {
+          // pozycja NIE-taneczna
+          $round = [];
+          $round['description']             = trim((string)$roundsNames[$i]);
+          $round['alternative_description'] = $alt;   // string|null
+          $round['isDance']                 = 0;      // int
+          $round['closed']                  = 1;      // int
+          $round['dance']                   = '';
+          $round['type']                    = null;   // null lepsze niż pusty string
+          $round['groups']                  = 1;
+          $order[]                          = null;
+          $data[] = $round;
+        }
       }
       // order
       foreach ($order as $key => $value) {
@@ -1479,15 +1583,15 @@ class DashboardController extends Controller
       // ułóż wynik wg order
       $final = [];
       foreach ($data as $index => $value) {
-          if (!array_key_exists($index, $order)) {
-              $final[] = $value;
-          } 
-          elseif( min($order) != 0 ) {
-              foreach ($order as $key => $number) {
-                  $final[] = $data[$key];
-                  $order[$key] = 0;
-              }
+        if (!array_key_exists($index, $order)) {
+            $final[] = $value;
+        } 
+        elseif( min($order) != 0 ) {
+          foreach ($order as $key => $number) {
+            $final[] = $data[$key];
+            $order[$key] = 0;
           }
+        }
       }
       DB::transaction(function () use ($final) {
         $columnsPerRow = 7;              // liczba kolumn w INSERT
@@ -1547,156 +1651,235 @@ class DashboardController extends Controller
 
     public function showCurrentRound()
     {
-        return $this->showRound(0);
+      return $this->showRound(0);
     }
 
     public function showRound($roundIdFromDB)
     {
-        $prevRoundIdFromDB = 0;
-        $currentRoundIdFromDB = 0;
-        $nextRoundIdFromDB = 0;
+      $prevRoundIdFromDB = 0;
+      $currentRoundIdFromDB = 0;
+      $nextRoundIdFromDB = 0;
 
-        $roundFromDB = Round::where('closed', '=', 0)->first();
-        if ($roundFromDB != null) {
-            $currentRoundIdFromDB = $roundFromDB->id;
+      $roundFromDB = Round::where('closed', '=', 0)->first();
+      if ($roundFromDB != null) {
+        $currentRoundIdFromDB = $roundFromDB->id;
+      }
+
+      if ($roundIdFromDB == $currentRoundIdFromDB) {
+        $roundIdFromDB = 0;
+      }
+
+      $roundsFromDB = Round::where('isDance', '=', 1)->get();
+      if ($roundsFromDB != null) {
+        for ($i = 0; $i < count($roundsFromDB); $i++) {
+          if ($roundsFromDB[$i]->id == $roundIdFromDB || ($roundIdFromDB == 0 && $roundsFromDB[$i]->id == $currentRoundIdFromDB)) {
+            $roundFromDB = $roundsFromDB[$i];
+            if ($i > 0) {
+              $prevRoundIdFromDB = $roundsFromDB[$i - 1]->id;
+            }
+            if ($i < count($roundsFromDB) - 1) {
+              $nextRoundIdFromDB = $roundsFromDB[$i + 1]->id;
+            }
+            break;
+          }
         }
+      }
+      $roundsToUndo = Round::where('isDance', '=', 1)->where('closed', '=', 1)->get();
+      $roundDescription = '';
+      $roundAlternativeDescription = '';
 
-        if ($roundIdFromDB == $currentRoundIdFromDB) {
-            $roundIdFromDB = 0;
-        }
+      $round = false;
+      $couplesNo = false;
+      //$groups = false;
+      $votes = false;
+      $error = -1;
+      $dance = null;
+      $posit = -1;
+      $coupleNames = [];
+      
+      $groups = [];
+      $dances = [];
 
-        $roundsFromDB = Round::where('isDance', '=', 1)->get();
-        if ($roundsFromDB != null) {
-            for ($i = 0; $i < count($roundsFromDB); $i++) {
-                if ($roundsFromDB[$i]->id == $roundIdFromDB || ($roundIdFromDB == 0 && $roundsFromDB[$i]->id == $currentRoundIdFromDB)) {
-                    $roundFromDB = $roundsFromDB[$i];
-                    if ($i > 0) {
-                        $prevRoundIdFromDB = $roundsFromDB[$i - 1]->id;
-                    }
-                    if ($i < count($roundsFromDB) - 1) {
-                        $nextRoundIdFromDB = $roundsFromDB[$i + 1]->id;
-                    }
-                    break;
+      if ($roundFromDB != null) {
+        if (($posit = mb_strpos(mb_strtoupper($roundFromDB->description, 'UTF-8'), 'POKAZOWA')) !== false) {
+          $round = $this->tournamentHelper->getRoundWithType(
+                  'Wstępna'.mb_substr($roundFromDB->description, $posit + 8, null, 'UTF-8'),
+                   $roundFromDB->type );
+      
+            $roundAlternativeDescription = 'Pamiętaj ręcznie zakończyć ten taniec! Sędziowie go nie oceniają ;)';
+          }
+          else {
+            $round = $this->tournamentHelper->getRoundWithType(
+                $roundFromDB->description,
+                $roundFromDB->type
+            );
+            $roundAlternativeDescription = $roundFromDB->alternative_description;
+          }
+      
+          $roundDescription = $roundFromDB->description;
+          if ($round) {
+            // Get couples for the current dance
+            $error = 0;
+            $dance = $this->tournamentHelper->getDanceCouples(
+                $round->roundId, $roundFromDB->dance, $error
+          );
+      
+          $coupleNames = $this->tournamentHelper->getCouples($round->baseRoundId);
+      
+          if ($dance !== false && count($dance->couples)) {
+            // Count couples in the current dance
+            $couplesNo = 0;
+      
+            foreach ($dance->couples as $group) {
+              $couplesNo += count($group);
+            }
+      
+            // Filter couples for the current dance
+            foreach ($coupleNames as $key => $Name) {
+              $found = false;
+      
+              foreach ($dance->couples as $group) {
+                foreach ($group as $couple) {
+                  if ($couple->number == $Name->number &&
+                    $round->baseRoundId == $Name->roundId) {
+                    $found = true;
+                    break 2;
+                  }
                 }
+              }
+      
+              if (!$found)
+                unset($coupleNames[$key]);
             }
-        }
-        $roundsToUndo = Round::where('isDance', '=', 1)->where('closed', '=', 1)->get();
-        $roundDescription = '';
-        $roundAlternativeDescription = '';
-
-        $round = false;
-        $couplesNo = false;
-        $groups = false;
-        $votes = false;
-        $error = -1;
-        $dance = null;
-        $posit = -1;
-        $coupleNames = [];
-        if ($roundFromDB != null) {
-            if( ($posit = mb_strpos(mb_strtoupper($roundFromDB->description, 'UTF-8'), 'POKAZOWA')) !== false) {
-              $round = $this->tournamentHelper->getRoundWithType('Wstępna'.substr($roundFromDB->description, $posit + 8, strlen($roundFromDB->description) - $posit - 8), $roundFromDB->type);
-              $roundAlternativeDescription = 'Pamiętaj ręcznie zakończyc ten taniec! Sędziowie go nie oceniają ;)';
-            }
-            else {
-              $round = $this->tournamentHelper->getRoundWithType($roundFromDB->description, $roundFromDB->type);
-              $roundAlternativeDescription = $roundFromDB->alternative_description;
-            }
-            $roundDescription = $roundFromDB->description;
-            if ($round) {
-                $dance = $this->tournamentHelper->getDanceCouples($round->roundId, $roundFromDB->dance, $error);
-                $coupleNames = $this->tournamentHelper->getCouples($round->baseRoundId);
-                if ($dance !== false && count($dance->couples)) {
-                    $couplesNo = 0;
-                    foreach ($dance->couples as $group) {
-                        $couplesNo += count($group);
-                    }
-                    foreach ($coupleNames as $key => $Name) {
-                        $found = false;
-                        foreach ($dance->couples as $group) {
-                            foreach ($group as $couple) {
-                                if ($couple->number == $Name->number && $round->baseRoundId == $Name->roundId) {
-                                    $found = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if ($found == false) {
-                            unset($coupleNames[$key]);
-                        }
-                    }
-                    $groups = count($dance->couples);
-                    $votes = $round->votesRequired;
-                } 
-                elseif ($error == 0) {
-                    $round = false;
-                    $roundAlternativeDescription = 'Brak tańca "'.$roundFromDB->dance.'" w rundzie.';
-                } 
+      
+            // Get groups and couples for current and remaining dances
+            $pos = array_search($roundFromDB->dance, $round->dances, true);
+      
+            if ($pos !== false) {
+              foreach (array_slice($round->dances, $pos) as $danceName) {
+                if ($danceName === $roundFromDB->dance) {
+                  // Reuse current dance data
+                  $danceData = $dance;
+                }
                 else {
-                    $round = false;
-                    $roundAlternativeDescription = 'Nie ustalona liczba grup (wyszarzone przyciski "Typy" i "Karty") lub nie wygenerowany podział na grupy w tej rundzie.';
+                  $danceError = 0;
+      
+                  $danceData = $this->tournamentHelper->getDanceCouples(
+                      $round->roundId, $danceName, $danceError
+                  );
                 }
-            } 
-            else {
-                $roundAlternativeDescription = 'Brak zamkniętej lub zdefiniowanej rundy "'.$roundDescription.'" w strukturze turnieju.';
+                $dances[$danceName] = $danceData;
+                $groups[$danceName] = $danceData !== false ? count($danceData->couples) : 0;
+              }
             }
-        } 
+            $votes = $round->votesRequired;
+          }
+          elseif ($error == 0) {
+            $round = false;
+            $roundAlternativeDescription = 'Brak tańca "'.$roundFromDB->dance.'" w rundzie.';
+          }
+          else {
+            $round = false;
+            $roundAlternativeDescription = 'Nie ustalona liczba grup (wyszarzone przyciski "Typy" i "Karty") lub nie wygenerowany podział na grupy w tej rundzie.';
+          }
+        }
         else {
-            $roundDescription = 'Koniec programu lub nie pobrany następny.';
-            $roundAlternativeDescription = 'Wczytaj nowy program albo .. się pakuj Mistrzu, znów się udało :))';
+          $roundAlternativeDescription = 'Brak zamkniętej lub zdefiniowanej rundy "'.$roundDescription.'" w strukturze turnieju.';
         }
-        $roundsToClose = Round::distinct()->where('isDance', '=', '1')->where('closed', '=', '1')->groupBy('description')->orderBy('id')->get();
-        if ($round !== false) {
-            $judgeRole = Role::where('name', 'judge')->first();
-            $judgesForRound = $this->calculateJudgesForRound($round, $roundFromDB->dance);
-            foreach ($judgesForRound as $judge) {
-                $judge->without_pass = false;
-                if (strlen($judge->firstName) && strlen($judge->lastName)) {// no empty names
-                    $judges = Role::find($judgeRole->id)->users()->where('username', '=', $judge->firstName.' '.$judge->lastName)->get();
-                    if (count($judges) > 0) {
-                        $judge->id = $judges[0]->id;
-                        $to_compare = User::where('username', '=', $judge->firstName.' '.$judge->lastName)->get();
-                        if ($to_compare[0]->created_at == $to_compare[0]->updated_at) {
-                            $judge->without_pass = true;
-                        }
-                    }
-                }
+        if (count($dances) > 1) {
+          $sameGroups = true;
+          $previousGroups = null;
+      
+          foreach ($dances as $danceData) {
+              if (!$danceData || empty($danceData->couples)) {
+                  $sameGroups = false;
+                  break;
+              }
+      
+              $currentGroups = [];
+      
+              foreach ($danceData->couples as $group) {
+                  $numbers = [];
+      
+                  foreach ($group as $couple) {
+                      $numbers[] = (string) $couple->number;
+                  }
+      
+                  sort($numbers, SORT_STRING);
+                  $currentGroups[] = $numbers;
+              }
+      
+              if ($previousGroups !== null && $previousGroups !== $currentGroups) {
+                  $sameGroups = false;
+                  break;
+              }
+      
+              $previousGroups = $currentGroups;
+          }
+      
+          if ($sameGroups) {
+              $dances = ['Stałe' => reset($dances)];
+          }
+      }
+      }      
+      else {
+        $roundDescription = 'Koniec programu lub nie pobrany następny.';
+        $roundAlternativeDescription = 'Wczytaj nowy program albo .. się pakuj Mistrzu, znów się udało :))';
+      }
+      $roundsToClose = Round::distinct()->where('isDance', '=', '1')->where('closed', '=', '1')->groupBy('description')->orderBy('id')->get();
+      if ($round !== false) {
+        $judgeRole = Role::where('name', 'judge')->first();
+        $judgesForRound = $this->calculateJudgesForRound($round, $roundFromDB->dance);
+        foreach ($judgesForRound as $judge) {
+          $judge->without_pass = false;
+          if (strlen($judge->firstName) && strlen($judge->lastName)) {// no empty names
+            $judges = Role::find($judgeRole->id)->users()->where('username', '=', $judge->firstName.' '.$judge->lastName)->get();
+            if (count($judges) > 0) {
+              $judge->id = $judges[0]->id;
+              $to_compare = User::where('username', '=', $judge->firstName.' '.$judge->lastName)->get();
+              if ($to_compare[0]->created_at == $to_compare[0]->updated_at) {
+                  $judge->without_pass = true;
+              }
             }
-            return view('admin.round')
-                ->with('round', $round)
-                ->with('roundDescription', $roundDescription)
-                ->with('roundAlternativeDescription', $roundAlternativeDescription)
-                ->with('roundsToClose', $roundsToClose)
-                ->with('roundsToUndo', $roundsToUndo)
-                ->with('localRoundId', $roundFromDB->id)
-                ->with('danceName', $roundFromDB->dance)
-                ->with('judges', $judgesForRound)
-                ->with('roundIdFromDB', $roundIdFromDB)
-                ->with('prevRoundIdFromDB', $prevRoundIdFromDB)
-                ->with('nextRoundIdFromDB', $nextRoundIdFromDB)
-                ->with('couples', $couplesNo)
-                ->with('groups', $groups)
-                ->with('votes', $votes)
-                ->with('dance', $dance)
-                ->with('names', $coupleNames);
-        } else {
-            return view('admin.round')
-                ->with('round', null)
-                ->with('roundDescription', $roundDescription)
-                ->with('roundAlternativeDescription', $roundAlternativeDescription)
-                ->with('roundsToClose', $roundsToClose)
-                ->with('roundsToUndo', $roundsToUndo)
-                ->with('localRoundId', $roundFromDB != null ? $roundFromDB->id : null)
-                ->with('danceName', $roundFromDB != null ? $roundFromDB->dance : null)
-                ->with('judges', [])
-                ->with('roundIdFromDB', $roundIdFromDB)
-                ->with('prevRoundIdFromDB', $prevRoundIdFromDB)
-                ->with('nextRoundIdFromDB', $nextRoundIdFromDB)
-                ->with('couples', null)
-                ->with('groups', false)
-                ->with('votes', false)
-                ->with('dance', false)
-                ->with('names', false);
+          }
         }
+        return view('admin.round')
+            ->with('round', $round)
+            ->with('roundDescription', $roundDescription)
+            ->with('roundAlternativeDescription', $roundAlternativeDescription)
+            ->with('roundsToClose', $roundsToClose)
+            ->with('roundsToUndo', $roundsToUndo)
+            ->with('localRoundId', $roundFromDB->id)
+            ->with('danceName', $roundFromDB->dance)
+            ->with('judges', $judgesForRound)
+            ->with('roundIdFromDB', $roundIdFromDB)
+            ->with('prevRoundIdFromDB', $prevRoundIdFromDB)
+            ->with('nextRoundIdFromDB', $nextRoundIdFromDB)
+            ->with('couples', $couplesNo)
+            ->with('groups', $groups)
+            ->with('votes', $votes)
+            ->with('dances', $dances)
+            ->with('names', $coupleNames);
+      } 
+      else {
+        return view('admin.round')
+            ->with('round', null)
+            ->with('roundDescription', $roundDescription)
+            ->with('roundAlternativeDescription', $roundAlternativeDescription)
+            ->with('roundsToClose', $roundsToClose)
+            ->with('roundsToUndo', $roundsToUndo)
+            ->with('localRoundId', $roundFromDB != null ? $roundFromDB->id : null)
+            ->with('danceName', $roundFromDB != null ? $roundFromDB->dance : null)
+            ->with('judges', [])
+            ->with('roundIdFromDB', $roundIdFromDB)
+            ->with('prevRoundIdFromDB', $prevRoundIdFromDB)
+            ->with('nextRoundIdFromDB', $nextRoundIdFromDB)
+            ->with('couples', null)
+            ->with('groups', false)
+            ->with('votes', false)
+            ->with('dance', false)
+            ->with('names', false);
+      }
     }
 
     public function postCloseRound()
@@ -2193,7 +2376,6 @@ class DashboardController extends Controller
                 return $result;
             }
         }
-      }
 
         // Pozostałe kategorie w kolejności pierwotnej
         return $a['originalOrder'] <=> $b['originalOrder'];
@@ -3207,598 +3389,6 @@ class DashboardController extends Controller
           ->with('conflict', 'Przydział numerów prawidłowy.');
     }
 
-  /*  public function postRanges()
-    {
-      $range_start = is_numeric(request()->input('main_start_no')) ? (int) request()->input('main_start_no') : 1;
-      $range_end   = is_numeric(request()->input('main_end_no')) ? (int) request()->input('main_end_no') : 200;
-    
-      $lack        = request()->input('lack_no');
-      $blocks      = request()->input('blockId');
-      $block_no    = request()->input('block_no');
-      $roundIds    = request()->input('roundId');
-      $start_no    = request()->input('start_no');
-      $number_same = request()->input('agree');
-      $free_places = is_numeric(request()->input('free_places')) ? (int) request()->input('free_places') : 0;
-    
-      $isGlobal = filter_var($number_same, FILTER_VALIDATE_BOOLEAN);
-    
-      // Numery niedozwolone
-      $notAllowed = [];
-      if( !empty($lack) ) {
-        $notAllowed = array_map('intval', array_filter(array_map('trim', explode(',', $lack))));
-      }
-    
-      // Startowe numery kategorii
-      $startNoMap = [];
-      foreach( $roundIds as $i => $rid ) {
-        if( isset( $start_no[$i] ) && is_numeric( $start_no[$i] ) ) {
-          $startNoMap[$rid] = (int) $start_no[$i];
-        }
-      }
-    
-      // Kategorie
-      $Program = [];
-      foreach( $roundIds as $roundId ) {
-        $round = $this->tournamentHelper->getBaseRound((int) $roundId);
-        if( mb_strpos( mb_strtoupper( trim($round->styleName), 'UTF-8' ), 'KOMB' ) !== false ) {
-          $round->styleName = 'Komb';
-        }
-        $round->description = $round->categoryName . ' ' . $round->className . ' ' . $round->styleName;
-        $round->startFrom   = $startNoMap[$roundId] ?? null;
-        $round->nDancesW    = min($round->endNo, $range_end);
-    
-        $Program[] = $round;
-      }
-    
-      // Przypisanie kategorii do bloków
-      $scheduleParts = $this->tournamentHelper->getPartsCSV();
-    
-      foreach( $Program as $round ) {
-        $round->positionW = '0';
-    
-        foreach( $scheduleParts as $category ) {
-          if( mb_strpos( mb_strtoupper($round->description, 'UTF-8'), mb_strtoupper($category->name, 'UTF-8') ) !== false) {
-            $round->positionW = $category->part;
-            break;
-          }
-        }
-      }
-    
-      // Lista par / solistów
-      $lists = $this->tournamentHelper->getCouplesCSV();
-    
-      if( !$lists ) {
-        Session::flash('status', 'error');
-        return;
-      }
-    
-      $couplesByRound = [];
-      foreach( $lists as $couple ) {
-        $key = mb_strtoupper( $couple->roundId, 'UTF-8' );
-        $couplesByRound[$key][] = $couple;
-      }
-    
-      /*
-      * globalAssigned:
-      * para => numer historyczny
-      *
-      * blockAssigned:
-      * para => numer w bloku, gdy number_same == false
-      *
-      * freeReservedNumbers:
-      * numery trwale zajęte przez free_places
-      */
-      $globalAssigned      = [];
-      $blockAssigned       = [];
-      $freeReservedNumbers = [];
-    
-      $pairKey = function ($c) {
-        $a = (int) $c->plIdA;
-        $b = (int) $c->plIdB;
-    
-        return $a < $b ? $a . '_' . $b : $b . '_' . $a;
-      };
-    
-      $wrapAround = false;
-      $cursor = $range_start;
-    
-      // Generator pomija lack_no oraz numery zajęte przez free_places
-      $nextNumber = function () use (
-        &$cursor,
-        $range_start,
-        $range_end,
-        $notAllowed,
-        &$freeReservedNumbers,
-        &$wrapAround
-      ) {
-        $checked = 0;
-        $maxChecks = $range_end - $range_start + 1;
-    
-        while( $checked < $maxChecks ) {
-          if( $cursor > $range_end ) {
-              $cursor = $range_start;
-              $wrapAround = true;
-          }
-    
-          $number = $cursor++;
-          $checked++;
-    
-          if( in_array( $number, $notAllowed, true ) ) {
-            continue;
-          }
-    
-          if( isset( $freeReservedNumbers[$number] ) ) {
-            continue;
-          }
-          return $number;
-        }
-        return null;
-      };
-    
-      $debugLog = [];
-    
-      // ============================================================
-      // BLOKI
-      // ============================================================
-      foreach( $blocks as $blockIndex => $block ) {
-        $blockReservedNumbers = [];
-    
-        // Ręczny start bloku
-        if( isset($block_no[$blockIndex]) && is_numeric($block_no[$blockIndex]) ) {
-          $cursor = max((int) $block_no[$blockIndex], $range_start);
-        }
-    
-        /*
-        * NUMBER SAME:
-        * najpierw sprawdzamy cały blok i rezerwujemy numery
-        * par/solistów, którzy występowali wcześniej.
-        */
-        if( $isGlobal ) {
-          foreach ($Program as $round) {
-            if( $round->positionW != $block ) {
-                continue;
-            }
-    
-            $roundKey = mb_strtoupper( $round->description, 'UTF-8' );
-            $roundCouples = $couplesByRound[$roundKey] ?? [];
-    
-            foreach( $roundCouples as $couple ) {
-              $key = $pairKey( $couple );
-    
-              if( isset( $globalAssigned[$key] ) ) {
-                $number = $globalAssigned[$key];
-                $blockReservedNumbers[$number] = $key;
-    
-                $debugLog[] = [
-                  'STEP'   => 'BLOCK_RESERVE_OLD_NUMBER',
-                  'pair'   => $key,
-                  'number' => $number,
-                  'block'  => $block,
-                ];
-              }
-            }
-          }
-        }
-    
-        // KATEGORIE W BLOKU
-        foreach( $Program as $round ) {
-          if( $round->positionW != $block ) {
-            continue;
-          }
-    
-          $roundKey = mb_strtoupper( $round->description, 'UTF-8' );
-          $roundCouples = $couplesByRound[$roundKey] ?? [];
-    
-          // Start kategorii przesuwa tylko do przodu
-          if( !empty( $round->startFrom ) ) {
-            $cursor = max( $cursor, (int) $round->startFrom );
-          }
-    
-          $categories = [];
-          foreach( $roundCouples as $couple ) {
-            $key = $pairKey( $couple );
-            $debugLog[] = [
-              'STEP'   => 'ENTRY',
-              'pair'   => $key,
-              'round'  => $round->description,
-              'block'  => $block,
-              'cursor' => $cursor,
-            ];
-
-            // Para ma już numer globalny
-            if( $isGlobal && isset( $globalAssigned[$key] ) ) {
-              $couple->number = $globalAssigned[$key];
-              $categories[] = $couple;
-    
-              $debugLog[] = [
-                'STEP'   => 'GLOBAL_USE_AGAIN',
-                'pair'   => $key,
-                'number' => $couple->number,
-                'block'  => $block,
-                'cursor' => $cursor,
-              ];
-              continue;
-            }
-    
-            // Para ma już numer w tym bloku
-            if( !$isGlobal && isset( $blockAssigned[$block][$key]) ) {
-              $couple->number = $blockAssigned[$block][$key];
-              $categories[] = $couple;
-    
-              $debugLog[] = [
-                'STEP'   => 'BLOCK_USE_AGAIN',
-                'pair'   => $key,
-                'number' => $couple->number,
-                'block'  => $block,
-                'cursor' => $cursor,
-              ];
-              continue;
-            }
-    
-            // Nowa para - szukamy wolnego numeru
-            $number = null;
-            $maxChecks = $range_end - $range_start + 1;
-    
-            for( $checked = 0; $checked < $maxChecks; $checked++ ) {
-              $candidate = $nextNumber();
-              if( $candidate === null ) {
-                  break;
-              }
-              if( $candidate > $round->nDancesW ) {
-                  continue;
-              }
-              if( isset( $blockReservedNumbers[$candidate] ) ) {
-                  continue;
-              }
-              $number = $candidate;
-              break;
-            }
-    
-            if( $number === null ) {
-              $debugLog[] = [
-                  'ERROR' => 'NO_NUMBER',
-                  'pair'  => $key,
-                  'round' => $round->description,
-                  'block' => $block,
-              ];
-              continue;
-            }
-    
-            $couple->number = $number;
-    
-            if( $isGlobal ) {
-              $globalAssigned[$key] = $number;
-            } 
-            else {
-              $blockAssigned[$block][$key] = $number;
-            }
-    
-            // Numer jest zajęty w aktualnym bloku
-            $blockReservedNumbers[$number] = $key;
-            $categories[] = $couple;
-    
-            $debugLog[] = [
-              'STEP'   => 'ASSIGN',
-              'pair'   => $key,
-              'number' => $number,
-              'block'  => $block,
-              'cursor' => $cursor,
-            ];
-          }
-    
-          if( !empty( $categories) ) {
-            $this->tournamentHelper->SaveCouples2CSV( $categories, $round );
-          }
-        }
-    
-        // ========================================================
-        // FREE PLACES - RAZ PO CAŁYM BLOKU
-        // ========================================================
-        for( $i = 0; $i < $free_places; $i++ ) {
-          $freeNumber = null;
-          $maxChecks = $range_end - $range_start + 1;
-    
-          for( $checked = 0; $checked < $maxChecks; $checked++ ) {
-            $candidate = $nextNumber();
-    
-            if( $candidate === null ) {
-              break;
-            }
-    
-            // Nie rezerwujemy numeru używanego w tym bloku
-            if( isset( $blockReservedNumbers[$candidate] ) ) {
-              continue;
-            }
-            $freeNumber = $candidate;
-            break;
-          }
-    
-          if( $freeNumber === null ) {
-            $debugLog[] = [
-                'ERROR' => 'NO_FREE_PLACE_NUMBER',
-                'block' => $block,
-            ];
-            break;
-          }
-    
-          // free_places jest trwale zajęty dla następnych bloków
-          $freeReservedNumbers[$freeNumber] = true;
-          $debugLog[] = [
-            'STEP'   => 'FREE_PLACE_RESERVED',
-            'number' => $freeNumber,
-            'block'  => $block,
-            'cursor' => $cursor,
-          ];
-        }
-      }
-    
-      Log::info('STREAM_ALLOCATOR_DEBUG', $debugLog);
-    
-      if ($wrapAround) {
-          return redirect('admin/report')
-              ->with('conflict', 'Brak dostępnych numerów, część kategorii od początku numeracji!');
-      }
-    
-      return redirect('admin/report')
-          ->with('conflict', 'Przydział numerów prawidłowy.');
-    }
-
-  /*  public function postRanges()
-    {
-      $range_start = is_numeric(request()->input('main_start_no')) ? (int)request()->input('main_start_no') : 1;
-      $range_end   = is_numeric(request()->input('main_end_no')) ? (int)request()->input('main_end_no') : 200;
-    
-      $lack        = request()->input('lack_no');
-      $blocks      = request()->input('blockId');
-      $block_no    = request()->input('block_no');
-      $roundIds    = request()->input('roundId');
-      $start_no    = request()->input('start_no');
-      $number_same = request()->input('agree');
-      $free_places = is_numeric(request()->input('free_places')) ? (int)request()->input('free_places') : 0;
-    
-      $isGlobal = filter_var($number_same, FILTER_VALIDATE_BOOLEAN);
-    
-      // =========================
-      // brakujące numery
-      // =========================
-      $notAllowed = [];
-      if (!empty($lack)) {
-        $notAllowed = array_map('intval', array_filter(array_map('trim', explode(',', $lack))));
-      }
-    
-      // =========================
-      // startowy numer kategorii
-      // =========================
-      $startNoMap = [];
-      foreach ($roundIds as $i => $rid) {
-        if (isset($start_no[$i]) && is_numeric($start_no[$i])) {
-          $startNoMap[$rid] = (int)$start_no[$i];
-        }
-      }
-    
-      // =========================
-      // lista kategorii
-      // =========================
-      $Program = [];
-      foreach ($roundIds as $roundId) {
-        $round = $this->tournamentHelper->getBaseRound((int)$roundId);
-        if( mb_strpos(mb_strtoupper(trim($round->styleName), 'UTF-8'), 'KOMB') !== false ) {
-          $round->styleName = 'Komb';
-        }
-        $round->description = $round->categoryName . ' ' . $round->className . ' ' . $round->styleName;
-        $round->startFrom   = $startNoMap[$roundId] ?? null;
-        $round->nDancesW    = min($round->endNo, $range_end);
-        $Program[] = $round;
-      }
-    
-      // =========================
-      // przypisanie bloku do kategorii
-      // =========================
-      $scheduleParts = $this->tournamentHelper->getPartsCSV();
-      foreach ($Program as $round) {
-        $round->positionW = '0';
-        foreach ($scheduleParts as $category) {
-          if( mb_strpos(mb_strtoupper($round->description), mb_strtoupper($category->name)) !== false ) {
-            $round->positionW = $category->part;
-            break;
-          }
-        }
-      }
-    
-      // =========================
-      // lista par
-      // =========================
-      $lists = $this->tournamentHelper->getCouplesCSV();
-      if (!$lists) {
-        Session::flash('status', 'error');
-        return;
-      }
-      $couplesByRound = [];
-      foreach ($lists as $couple) {
-        $key = mb_strtoupper($couple->roundId);
-        $couplesByRound[$key][] = $couple;
-      }
-    
-      // =========================
-      // MAPY NUMERÓW
-      // =========================
-      $globalAssigned = [];
-      $blockAssigned  = [];
-    
-      $pairKey = function ($c) {
-        $a = (int)$c->plIdA;
-        $b = (int)$c->plIdB;
-        return $a < $b ? $a . '_' . $b : $b . '_' . $a;
-      };
-      
-      $wrapAround = false;
-      // =========================
-      // STREAM GENERATOR
-      // =========================
-      $cursor = $range_start;
-      $nextNumber = function () use (&$cursor, $range_start, $range_end, $notAllowed, &$wrapAround) {
-        $checked = 0;
-        $maxChecks = $range_end - $range_start + 1;
-      
-        while ($checked < $maxChecks) {
-          // jeśli koniec zakresu → wróć na początek
-          if ($cursor > $range_end) {
-            $wrapAround = true;
-            $cursor = $range_start;
-          }
-      
-          $number = $cursor;
-          $cursor++;
-          $checked++;
-      
-          // pomiń zgubione/brakujące numery
-          if (in_array($number, $notAllowed)) {
-              continue;
-          }
-          return $number;
-        }
-        // cała pula niedostępna
-        return null;
-      };
-      
-      // =========================
-      // DEBUG
-      // =========================
-      $debugLog = [];
-    
-      // =========================
-      // GŁÓWNA PĘTLA
-      // =========================
-      foreach ($blocks as $blockIndex => $block) {
-        // ręczny start bloku ??
-        if (isset($block_no[$blockIndex]) && is_numeric($block_no[$blockIndex])) {
-            $cursor = max((int)$block_no[$blockIndex], $range_start);
-        }
-    
-        foreach ($Program as $round) {
-          if ($round->positionW != $block) {
-            continue;
-          }
-    
-          $roundKey = mb_strtoupper($round->description);
-          $roundCouples = $couplesByRound[$roundKey] ?? [];
-    
-          // 🔥 start kategorii
-          if (!empty($round->startFrom)) {
-              $cursor = max($cursor, $round->startFrom);
-          }
-    
-          $categories = [];
-    
-          foreach ($roundCouples as $couple) {
-            $key = $pairKey($couple);
-    
-            // DEBUG ENTRY
-            $debugLog[] = [
-              'STEP' => 'ENTRY',
-              'pair' => $key,
-              'round' => $round->description,
-              'block' => $block,
-              'cursor' => $cursor,
-            ];
-    
-            // =========================
-            // GLOBAL
-            // =========================
-            if ($isGlobal && isset($globalAssigned[$key])) {
-              $couple->number = $globalAssigned[$key];
-              $categories[] = $couple;
-              // DEBUG ENTRY
-              $debugLog[] = [
-                'STEP' => 'GLOBAL_USE_AGAIN',
-                'pair' => $key,
-                'number' => $couple->number,
-                'block' => $block,
-                'cursor' => $cursor,
-              ];
-              continue;
-            }
-    
-            // =========================
-            // BLOCK
-            // =========================
-            if (!$isGlobal && isset($blockAssigned[$block][$key])) {
-              $couple->number = $blockAssigned[$block][$key];
-              $categories[] = $couple;
-              // DEBUG ENTRY
-              $debugLog[] = [
-                'STEP' => 'BLOCK_USE_AGAIN',
-                'pair' => $key,
-                'number' => $couple->number,
-                'block' => $block,
-                'cursor' => $cursor,
-              ];
-              continue;
-            }
-    
-            // =========================
-            // NOWY NUMER
-            // =========================
-            $number = $nextNumber();
-    
-            while ($number !== null && $number > $round->nDancesW) {
-              $number = $nextNumber();
-            }
-    
-            if ($number === null) {
-              $debugLog[] = [
-                'ERROR' => 'NO_NUMBER',
-                'pair' => $key,
-                'round' => $round->description,
-              ];
-              continue;
-            }
-    
-            $couple->number = $number;
-    
-            if ($isGlobal) {
-              $globalAssigned[$key] = $number;
-            } else {
-              $blockAssigned[$block][$key] = $number;
-            }
-    
-            $categories[] = $couple;
-    
-            $debugLog[] = [
-              'STEP' => 'ASSIGN',
-              'pair' => $key,
-              'number' => $number,
-              'block' => $block,
-            ];
-          }
-    
-          // =========================
-          // dołóż wolne miejsce na pary
-          // =========================
-          for ($i = 0; $i < $free_places; $i++) {
-            $nextNumber();
-          }
-    
-          if (!empty($categories)) {
-            $this->tournamentHelper->SaveCouples2CSV($categories, $round);
-          }
-        }
-      }
-      // DEBUG LOG
-      Log::info('STREAM_ALLOCATOR_DEBUG', $debugLog);
-      
-      if( $wrapAround ) {
-        return redirect('admin/report')
-          ->with('conflict', 'Brak dostępnych numerów, częśc kategorii od początku numeracji!');
-      }
-      else {
-        return redirect('admin/report')
-          ->with('conflict', 'Przydział numerów prawidłowy.');
-      }
-    }
-*/
-
-
     public function reportResults()
     {
         $rounds = [];
@@ -4356,7 +3946,6 @@ class DashboardController extends Controller
           }
       }
   
-      //dd('$Judges', $Judges);
       // lista do selecta “Sędzia główny”
       $JudgesList = [];
       if (count($Judges) > 0) {

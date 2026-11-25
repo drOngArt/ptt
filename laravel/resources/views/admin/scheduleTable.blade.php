@@ -5,7 +5,7 @@
     else
       $maxDances = 4; ?>
    <div class="col-lg-12">
-      <div class="table-responsive">
+      <div class="table-responsive base-rounds-wrapper mx-1 mt-1">
          <table class="table table-striped table-bordered table-hover align-middle">
             <thead>
                <tr class="font-14pt px-2">
@@ -30,17 +30,21 @@
                            {{$index+1}}.
                         </td>
                         <td class="py-2">
-                           <div class="ekran alignleft" media="only screen">
+                           {{-- EKRAN --}}
+                           <div class="ekran alignleft {{ $programRound->couples == -1000 ? 'text-decoration-line-through' : '' }}" media="only screen">
                               {{$programRound->description}} <description class="alternativeDescription"> {{$programRound->alternative_description}} </description>
                            </div>
                            <div class="ekran alignright" media="only screen">
                             @if( $programRound->couples > 0 )
                               <span class="badge badge-secondary p-2">&nbsp{{$programRound->couples}}&nbsp</span>
-                            @elseif( $programRound->couples < 0 ) 
+                            @elseif( $programRound->couples > -1000 && $programRound->couples != -1000 ) 
                               <span class="p-1">[&nbsp{{-$programRound->couples}}&nbsp]</span>
+                            @elseif( $programRound->couples < -1000 ) 
+                              <span class="p-1">z pkt.{{-$programRound->couples-1000}} ->[ &nbsp&nbsp ]</span>
                             @endif
                            </div>
-                           <div class="drukarka font-print-18pt alignleft" media="only print">
+                           {{-- DRUKARKA --}}
+                           <div class="drukarka font-print-18pt alignleft {{ $programRound->couples == -1000 ? 'text-decoration-line-through' : '' }}" media="only print">
                            @if( $programRound->alternative_description )
                               {{$programRound->alternative_description}} 
                            @else
@@ -50,9 +54,11 @@
                            <div class="drukarka alignright font-arial" media="only print">
                            @if( $programRound->couples > 0 )
                               <span class="badge badge-secondary p-1 fs-5">&nbsp{{$programRound->couples}}&nbsp</span>
-                           @elseif( $programRound->couples < 0 )
-                              <span class="font-print-18pt p-1">[&nbsp{{-$programRound->couples}}&nbsp]</span>
-                           @endif
+                            @elseif( $programRound->couples > -1000 && $programRound->couples != -1000 ) 
+                              <span class="p-1">[&nbsp{{-$programRound->couples}}&nbsp]</span>
+                            @elseif( $programRound->couples < -1000 ) 
+                              <span class="p-1">z pkt.{{-$programRound->couples-1000}} ->[ &nbsp&nbsp ]</span>
+                            @endif
                            </div>
                         </td>
                         <td class="userTime ekran ps-1">
