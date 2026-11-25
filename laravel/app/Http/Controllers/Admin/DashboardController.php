@@ -1,6 +1,4 @@
 <?php
-<?php
-
 namespace App\Http\Controllers\Admin;
 
 use Illuminate\Support\Facades\App;
