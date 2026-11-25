@@ -10,7 +10,7 @@
       <div class="page-header-break">PROGRAM TURNIEJU &nbsp;{{ $parts }}</div>
   
       <div class="col-lg-12">
-          <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="d-flex justify-content-between align-items-center">
   
               <!-- LEWA STRONA -->
               <h1 class="page-header m-0">
@@ -115,7 +115,19 @@
               <!-- LEWA STRONA -->
               <div class="font-14pt userTime ekran">
                   START&nbsp;
-                  <span class="btn-light-blue font-print-18pt p-1" style="border-radius: 0 0 6px 0;">{{ $layout->startTime }}</span>
+                  <!--<span class="btn-light-blue font-print-18pt p-1" style="border-radius: 0 0 6px 0;">{{ $layout->startTime }}</span> -->
+                  <form id="startTimeForm"
+                        method="POST"
+                        action="{{ route('admin.program.updateStartTime') }}"
+                        class="d-inline-block m-0">
+                      @csrf
+                  
+                      {{ html()->input('time', 'stTime', substr($layout->startTime, 0, 5))
+                          ->id('inpStTime')
+                          ->class('btn-light-blue font-print-18pt p-1 text-center')
+                          ->attribute('step', '300')
+                          ->attribute('style', 'width: 100px; border: 0; border-radius: 0 0 6px 0;') }}
+                  </form>
                   &nbsp; KONIEC&nbsp; ~
                   <span class="btn-light-blue font-print-18pt p-1" style="border-radius: 0 6px;">{{ $times[count($compressedProgram)] }}</span>
                   <span class="fs-6 ps-3">Parametry</span>
@@ -239,14 +251,14 @@
           </div>
 
           <div class="row g-3">
-            <div class="col-12" id="wrap_myround">
+            <!--<div class="col-12" id="wrap_myround">
               <label for="myround" class="form-label">Nazwa własna rundy (opcjonalnie)</label>
               {{ html()->text('myround')
                   ->id('myround')
                   ->placeholder('Nazwa własna?')
                   ->maxlength(20)
                   ->class('form-control text-start') }}
-            </div>
+            </div> -->
   
             <div class="col-12 col-lg-6" id="wrap_breakshow_name">
               <label for="mybreakshow_name" class="form-label">Nazwa przerwy/pokazu (opcjonalnie)</label>
@@ -405,14 +417,15 @@
 
     <script>
     $(function(){
+      
       function showOnly(mode){
         $('#wrap_myround, #wrap_breakshow_name, #wrap_breakshow_dance').addClass('d-none');
         // domyślnie pokazuj selecty (kategoria/typ)
         $('#wrap_category, #wrap_additional').removeClass('d-none');
 
-        if (mode === 'custom') {
-          $('#wrap_myround').removeClass('d-none');
-        }
+        //if (mode === 'custom') {
+        //  $('#wrap_myround').removeClass('d-none');
+        //}
         if (mode === 'breakshow') {
           $('#wrap_category, #wrap_additional').addClass('d-none');
           $('#wrap_breakshow_name, #wrap_breakshow_dance').removeClass('d-none');
@@ -428,9 +441,11 @@
 
         if (v === 'sh_br') { // Pokaz/Przerwa
           $('#wrap_breakshow_name, #wrap_breakshow_dance').removeClass('d-none');
-        } else if (v === 'my') { // Zdefiniuj własną:
-          $('#wrap_myround, #wrap_category, #wrap_additional').removeClass('d-none');
-        } else { // normalna runda
+        } 
+        //else if (v === 'my') { // Zdefiniuj własną:
+        //  $('#wrap_myround').removeClass('d-none');
+        //}
+        else { // normalna runda
           $('#wrap_category, #wrap_additional').removeClass('d-none');
         }
       }).trigger('change'); // ustawia od razu po otwarciu
@@ -510,6 +525,35 @@
            }
            printFormat = !printFormat;
         });
+        
+        const timeInput = document.getElementById('inpStTime');
+        const timeForm = document.getElementById('startTimeForm');
+        
+        if (timeInput && timeForm) {
+        
+            let originalTime = timeInput.value;
+        
+            function saveStartTime() {
+                console.log('SAVE TIME:', timeInput.value);
+        
+                if (!timeInput.value || timeInput.value === originalTime) return;
+        
+                timeForm.requestSubmit();
+            }
+        
+            timeInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveStartTime();
+                }
+            });
+        
+            timeInput.addEventListener('change', function() {
+                console.log('CHANGE:', timeInput.value);
+            });
+        
+            timeInput.addEventListener('blur', saveStartTime);
+        }
     });
   </script>
 @stop

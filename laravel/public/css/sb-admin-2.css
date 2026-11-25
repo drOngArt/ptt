@@ -13422,11 +13422,19 @@
   }
 
   .base-rounds-wrapper {
-    max-height: 80vh;
+    max-height: 83vh;
     overflow-y: auto;
     overflow-x: hidden;
     display: block;
     border: 1px solid #dee2e6;
+  }
+
+  .program-edit-wrapper {
+    max-height: 88vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    display: block;
+    border: 2px solid #ee3256;
   }
 
   .screen-w-75 {
@@ -14063,6 +14071,25 @@
     align-items: center;
     justify-content: center;
   }
+  
+  .dance-groups-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .dance-groups-table td {
+      border: none;
+      border-bottom: 1px solid #c5cdd5;
+      padding: 4px 10px;
+      vertical-align: top;
+  }
+  
+  .dance-groups-table tr:last-child td {
+      border-bottom: none;
+  }
+  
 }
 
 
@@ -14908,4 +14935,22 @@
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
+    .dance-groups-table {
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .dance-groups-table td {
+        border: none !important;
+        border-bottom: 1px solid #c5cdd5 !important;
+    }
+
+    .dance-groups-table tr:last-child td {
+        border-bottom: none !important;
+    }
+  
 }

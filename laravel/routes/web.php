@@ -61,6 +61,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::get('/', [AdminDashboardController::class, 'showProgram'])
                 ->name('index');
 
+            Route::post('updateStartTime', [AdminDashboardController::class, 'updateStartTime'])
+                ->name('updateStartTime');
+
+
             Route::get('saveCurrentProgram', [AdminDashboardController::class, 'saveCurrentProgram'])
                 ->name('save-current');
 
